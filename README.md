@@ -1,3 +1,2 @@
 # NaapSetu
 A personalized tailoring platform for custom stitching of customers’ unstitched fabric.
-...
