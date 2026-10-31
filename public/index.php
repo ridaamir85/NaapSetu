@@ -16,6 +16,7 @@ $pageTitle = 'NaapSetu';
         <h1>NaapSetu</h1>
         <p>Personalized tailoring for custom stitching.</p>
         <p>The application foundation is ready.</p>
+        <p><a href="register.php">Create an account</a></p>
     </main>
 </body>
 </html>
