@@ -1,0 +1,9 @@
+# Local environment and database credentials
+.env
+config/database.php
+
+# Runtime and editor files
+*.log
+.idea/
+.vscode/
+
