@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'role' => $values['role'],
                 ]);
 
-                $successMessage = 'Registration successful. You can sign in after the login milestone is added.';
+                $successMessage = 'Registration successful. You can now sign in.';
                 $values = ['name' => '', 'email' => '', 'phone' => '', 'role' => 'customer'];
                 unset($_SESSION['csrf_token']);
             }
@@ -93,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if ($successMessage !== null): ?>
             <p role="status"><?= escape($successMessage) ?></p>
+            <p><a href="login.php">Go to sign in</a></p>
         <?php endif; ?>
 
         <?php if (isset($errors['form'])): ?>
