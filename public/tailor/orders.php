@@ -28,7 +28,8 @@ function order_for_tailor(PDO $connection, int $orderId, int $tailorId): array|f
         . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
         . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
         . 'f.fabric_id, f.source AS fabric_source, '
-        . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
+        . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at, '
+        . 'ff.rating AS fit_rating, ff.notes AS fit_notes '
         . 'FROM orders AS o '
         . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
         . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
@@ -37,6 +38,7 @@ function order_for_tailor(PDO $connection, int $orderId, int $tailorId): array|f
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'LEFT JOIN fabric_records AS f ON f.order_id = o.order_id '
+        . 'LEFT JOIN fit_feedback AS ff ON ff.order_id = o.order_id '
         . 'WHERE o.order_id = :order_id AND r.tailor_id = :tailor_id'
     );
     $statement->execute(['order_id' => $orderId, 'tailor_id' => $tailorId]);
@@ -229,7 +231,8 @@ if ($selectedOrderId === null) {
         . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
         . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
         . 'f.fabric_id, f.source AS fabric_source, '
-        . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
+        . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at, '
+        . 'ff.rating AS fit_rating, ff.notes AS fit_notes '
         . 'FROM orders AS o '
         . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
         . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
@@ -238,6 +241,7 @@ if ($selectedOrderId === null) {
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'LEFT JOIN fabric_records AS f ON f.order_id = o.order_id '
+        . 'LEFT JOIN fit_feedback AS ff ON ff.order_id = o.order_id '
         . 'WHERE r.tailor_id = :tailor_id ORDER BY o.confirmed_at DESC, o.order_id DESC'
     );
     $statement->execute(['tailor_id' => $profile['tailor_id']]);
@@ -279,6 +283,14 @@ if ($selectedOrderId === null) {
                         <p><a href="/tailor/measurements.php?profile_id=<?= (int) $order['profile_id'] ?>">View shared measurements</a></p>
                     <?php else: ?>
                         <p>The customer has not shared this measurement profile with your shop.</p>
+                    <?php endif; ?>
+
+                    <?php if ($order['fit_rating'] !== null): ?>
+                        <h3>Fit feedback</h3>
+                        <p>Rating: <?= (int) $order['fit_rating'] ?> out of 5</p>
+                        <?php if ($order['fit_notes'] !== null && $order['fit_notes'] !== ''): ?>
+                            <p><?= nl2br(escape_tailor_order($order['fit_notes'])) ?></p>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if ($order['fabric_id'] !== null): ?>
