@@ -57,6 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (strlen($values['address']) < 5 || strlen($values['address']) > 255) {
         $errors['address'] = 'Address must be between 5 and 255 characters.';
+    } elseif (preg_match('/\p{L}/u', $values['address']) !== 1) {
+        $errors['address'] = 'Enter a shop address that includes a street, area, or landmark.';
     }
 
     $capacity = filter_var($values['max_active_orders'], FILTER_VALIDATE_INT, [
