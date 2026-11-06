@@ -17,6 +17,7 @@ CREATE TABLE users (
     phone VARCHAR(20) NULL,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('customer', 'tailor', 'admin') NOT NULL DEFAULT 'customer',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),
     UNIQUE KEY uq_users_email (email)

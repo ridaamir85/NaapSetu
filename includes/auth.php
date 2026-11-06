@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/database.php';
 
 function dashboard_path_for_role(string $role): string
 {
@@ -66,6 +67,21 @@ function require_role(string $role): array
 
     if ($user === null) {
         redirect_to('/login.php');
+    }
+
+    $activeCheck = database()->prepare(
+        'SELECT role, is_active FROM users WHERE user_id = :user_id LIMIT 1'
+    );
+    $activeCheck->execute(['user_id' => $user['user_id']]);
+    $currentUser = $activeCheck->fetch();
+    if ($currentUser === false || (int) $currentUser['is_active'] !== 1) {
+        sign_out_user();
+        redirect_to('/login.php?account=deactivated');
+    }
+
+    if ($currentUser['role'] !== $user['role']) {
+        $user['role'] = (string) $currentUser['role'];
+        $_SESSION['user']['role'] = $user['role'];
     }
 
     if ($user['role'] !== $role) {

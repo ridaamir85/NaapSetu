@@ -19,7 +19,9 @@ if ($existingUser !== null) {
 }
 
 $email = '';
-$error = null;
+$error = ($_GET['account'] ?? '') === 'deactivated'
+    ? 'Your account is deactivated. Contact an administrator for help.'
+    : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = strtolower(trim((string) ($_POST['email'] ?? '')));
@@ -32,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $statement = database()->prepare(
-                'SELECT user_id, name, email, password_hash, role '
+                'SELECT user_id, name, email, password_hash, role, is_active '
                 . 'FROM users WHERE email = :email LIMIT 1'
             );
             $statement->execute(['email' => $email]);
@@ -40,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($user === false || !password_verify($password, $user['password_hash'])) {
                 $error = 'Invalid email address or password.';
+            } elseif ((int) $user['is_active'] !== 1) {
+                $error = 'Your account is deactivated. Contact an administrator for help.';
             } else {
                 sign_in_user($user);
                 unset($_SESSION['csrf_token']);
