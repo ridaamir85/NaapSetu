@@ -79,7 +79,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $connection->beginTransaction();
 
             $lockRequest = $connection->prepare(
-                'SELECT request_id, profile_id, style_id, status FROM order_requests '
+                'SELECT request_id, tailor_id, profile_id, style_id, status FROM order_requests '
                 . 'WHERE request_id = :request_id AND customer_id = :customer_id FOR UPDATE'
             );
             $lockRequest->execute([
@@ -101,6 +101,29 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
             if ($lockedRequest['status'] !== 'quoted' || $lockedQuotation['status'] !== 'sent') {
                 $errors['form'] = 'This quotation has already been handled.';
+            }
+
+            if ($errors === [] && $action === 'accepted') {
+                // Serialize acceptances for this shop before counting its active orders.
+                $lockTailor = $connection->prepare(
+                    'SELECT max_active_orders FROM tailor_profiles WHERE tailor_id = :tailor_id FOR UPDATE'
+                );
+                $lockTailor->execute(['tailor_id' => $lockedRequest['tailor_id']]);
+                $capacity = $lockTailor->fetchColumn();
+                if ($capacity === false) {
+                    throw new RuntimeException('Tailor profile not found during quotation acceptance.');
+                }
+
+                $activeOrders = $connection->prepare(
+                    'SELECT COUNT(*) FROM orders AS o '
+                    . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
+                    . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
+                    . "WHERE r.tailor_id = :tailor_id AND o.status IN ('confirmed', 'cutting', 'stitching', 'ready')"
+                );
+                $activeOrders->execute(['tailor_id' => $lockedRequest['tailor_id']]);
+                if ((int) $activeOrders->fetchColumn() >= (int) $capacity) {
+                    $errors['form'] = 'This tailor is at capacity. You can try accepting the quotation again later.';
+                }
             }
 
             if ($errors === [] && $action === 'accepted') {
