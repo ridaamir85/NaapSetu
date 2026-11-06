@@ -28,9 +28,14 @@ function owned_request(PDO $connection, int $requestId, int $tailorId): array|fa
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
-        . 'WHERE r.request_id = :request_id AND r.tailor_id = :tailor_id'
+        . 'WHERE r.request_id = :request_id AND r.tailor_id = :tailor_id '
+        . 'AND r.status = :pending'
     );
-    $statement->execute(['request_id' => $requestId, 'tailor_id' => $tailorId]);
+    $statement->execute([
+        'request_id' => $requestId,
+        'tailor_id' => $tailorId,
+        'pending' => 'pending',
+    ]);
 
     return $statement->fetch();
 }
@@ -172,9 +177,10 @@ if ($selectedRequestId === null) {
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
-        . 'WHERE r.tailor_id = :tailor_id ORDER BY r.created_at DESC, r.request_id DESC'
+        . 'WHERE r.tailor_id = :tailor_id AND r.status = :pending '
+        . 'ORDER BY r.created_at DESC, r.request_id DESC'
     );
-    $statement->execute(['tailor_id' => $profile['tailor_id']]);
+    $statement->execute(['tailor_id' => $profile['tailor_id'], 'pending' => 'pending']);
     $requests = $statement->fetchAll();
 } else {
     $requests = [$selectedRequest];
@@ -201,7 +207,7 @@ if ($selectedRequestId === null) {
         <?php endif; ?>
 
         <?php if ($requests === []): ?>
-            <p>You have no incoming requests yet.</p>
+            <p>You have no pending incoming requests.</p>
         <?php else: ?>
             <?php foreach ($requests as $request): ?>
                 <section>
