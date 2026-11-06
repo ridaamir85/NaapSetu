@@ -19,7 +19,11 @@ function escape_service(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-$values = ['garment_type' => '', 'base_price' => '', 'avg_days' => ''];
+$categories = [
+    'women' => ['label' => 'Women’s', 'garments' => ['Kameez', 'Shalwar Kameez', 'Kurti', 'Abaya', 'Other']],
+    'men' => ['label' => 'Men’s', 'garments' => ['Kurta', 'Shalwar Kameez', 'Waistcoat', 'Trousers', 'Other']],
+];
+$values = ['category' => '', 'garment_type' => '', 'custom_garment' => '', 'base_price' => '', 'avg_days' => ''];
 $errors = [];
 $successMessage = $_SESSION['service_success'] ?? null;
 unset($_SESSION['service_success']);
@@ -35,10 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['form'] = 'Your form session expired. Refresh the page and try again.';
     }
 
-    if (mb_strlen($values['garment_type'], 'UTF-8') < 2 || mb_strlen($values['garment_type'], 'UTF-8') > 60) {
-        $errors['garment_type'] = 'Garment type must be between 2 and 60 characters.';
-    } elseif (preg_match('/\p{L}/u', $values['garment_type']) !== 1) {
-        $errors['garment_type'] = 'Enter a garment name that contains at least one letter.';
+    $category = $categories[$values['category']] ?? null;
+    $garment = $values['garment_type'];
+    if ($category === null) {
+        $errors['category'] = 'Select a service category.';
+    } elseif (!in_array($garment, $category['garments'], true)) {
+        $errors['garment_type'] = 'Select a garment type for this category.';
+    } elseif ($garment === 'Other') {
+        $garment = $values['custom_garment'];
+        $length = mb_strlen($garment, 'UTF-8');
+        if ($length < 2 || $length > 52 || preg_match('/\p{L}/u', $garment) !== 1) {
+            $errors['custom_garment'] = 'Enter a garment name of 2 to 52 characters that includes a letter.';
+        }
     }
 
     $price = $values['base_price'];
@@ -61,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $statement->execute([
                 'tailor_id' => $profile['tailor_id'],
-                'garment_type' => $values['garment_type'],
+                'garment_type' => $category['label'] . ' ' . $garment,
                 'base_price' => $price,
                 'avg_days' => $averageDays,
             ]);
@@ -108,10 +120,44 @@ $services = $servicesStatement->fetchAll();
             <input type="hidden" name="csrf_token" value="<?= escape_service(csrf_token()) ?>">
 
             <div>
+                <label for="category">Service category</label>
+                <select id="category" name="category" required>
+                    <option value="">Choose a category</option>
+                    <?php foreach ($categories as $key => $category): ?>
+                        <option value="<?= escape_service($key) ?>"<?= $values['category'] === $key ? ' selected' : '' ?>>
+                            <?= escape_service($category['label']) ?> stitching
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (isset($errors['category'])): ?>
+                    <p role="alert"><?= escape_service($errors['category']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div>
                 <label for="garment_type">Garment type</label>
-                <input id="garment_type" name="garment_type" type="text" maxlength="60" required value="<?= escape_service($values['garment_type']) ?>">
+                <select id="garment_type" name="garment_type" required>
+                    <option value="">Choose a garment</option>
+                    <?php foreach ($categories as $key => $category): ?>
+                        <optgroup label="<?= escape_service($category['label']) ?> stitching" data-category="<?= escape_service($key) ?>">
+                            <?php foreach ($category['garments'] as $garment): ?>
+                                <option value="<?= escape_service($garment) ?>"<?= $values['category'] === $key && $values['garment_type'] === $garment ? ' selected' : '' ?>>
+                                    <?= escape_service($garment) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endforeach; ?>
+                </select>
                 <?php if (isset($errors['garment_type'])): ?>
                     <p role="alert"><?= escape_service($errors['garment_type']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div id="custom_garment_field">
+                <label for="custom_garment">Garment name (for Other)</label>
+                <input id="custom_garment" name="custom_garment" type="text" maxlength="52" value="<?= escape_service($values['custom_garment']) ?>">
+                <?php if (isset($errors['custom_garment'])): ?>
+                    <p role="alert"><?= escape_service($errors['custom_garment']) ?></p>
                 <?php endif; ?>
             </div>
 
@@ -159,5 +205,6 @@ $services = $servicesStatement->fetchAll();
             </table>
         <?php endif; ?>
     </main>
+    <script src="/assets/js/service-garments.js" defer></script>
 </body>
 </html>
