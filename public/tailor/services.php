@@ -23,7 +23,7 @@ $categories = [
     'women' => ['label' => 'Women’s', 'garments' => ['Kameez', 'Shalwar Kameez', 'Kurti', 'Abaya', 'Other']],
     'men' => ['label' => 'Men’s', 'garments' => ['Kurta', 'Shalwar Kameez', 'Waistcoat', 'Trousers', 'Other']],
 ];
-$values = ['category' => '', 'garment_type' => '', 'custom_garment' => '', 'base_price' => '', 'avg_days' => ''];
+$values = ['category' => '', 'garment_type' => '', 'custom_garment' => '', 'pricing' => 'starting', 'base_price' => '', 'avg_days' => ''];
 $errors = [];
 $successMessage = $_SESSION['service_success'] ?? null;
 unset($_SESSION['service_success']);
@@ -53,9 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $price = $values['base_price'];
-    if (preg_match('/\A[0-9]{1,8}(?:\.[0-9]{1,2})?\z/', $price) !== 1) {
-        $errors['base_price'] = 'Enter a price from 0 to 99,999,999.99 with up to two decimal places.';
+    $price = '0';
+    if ($values['pricing'] === 'starting') {
+        $price = $values['base_price'];
+        if (preg_match('/\A[0-9]{1,8}(?:\.[0-9]{1,2})?\z/', $price) !== 1 || (float) $price <= 0) {
+            $errors['base_price'] = 'Enter a starting price from PKR 0.01 to 99,999,999.99 with up to two decimal places.';
+        }
+    } elseif ($values['pricing'] !== 'quote') {
+        $errors['pricing'] = 'Choose a pricing option.';
     }
 
     $averageDays = filter_var($values['avg_days'], FILTER_VALIDATE_INT, [
@@ -162,8 +167,19 @@ $services = $servicesStatement->fetchAll();
             </div>
 
             <div>
-                <label for="base_price">Base price</label>
-                <input id="base_price" name="base_price" type="number" min="0" step="0.01" required value="<?= escape_service($values['base_price']) ?>">
+                <label for="pricing">Pricing option</label>
+                <select id="pricing" name="pricing" required>
+                    <option value="starting"<?= $values['pricing'] === 'starting' ? ' selected' : '' ?>>Starting price</option>
+                    <option value="quote"<?= $values['pricing'] === 'quote' ? ' selected' : '' ?>>Quote required</option>
+                </select>
+                <?php if (isset($errors['pricing'])): ?>
+                    <p role="alert"><?= escape_service($errors['pricing']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <div id="base_price_field">
+                <label for="base_price">Starting price (PKR)</label>
+                <input id="base_price" name="base_price" type="number" min="0.01" max="99999999.99" step="0.01" value="<?= escape_service($values['base_price']) ?>">
                 <?php if (isset($errors['base_price'])): ?>
                     <p role="alert"><?= escape_service($errors['base_price']) ?></p>
                 <?php endif; ?>
@@ -189,7 +205,7 @@ $services = $servicesStatement->fetchAll();
                 <thead>
                     <tr>
                         <th scope="col">Garment type</th>
-                        <th scope="col">Base price</th>
+                        <th scope="col">Pricing</th>
                         <th scope="col">Average days</th>
                     </tr>
                 </thead>
@@ -197,7 +213,13 @@ $services = $servicesStatement->fetchAll();
                     <?php foreach ($services as $service): ?>
                         <tr>
                             <td><?= escape_service($service['garment_type']) ?></td>
-                            <td><?= escape_service(number_format((float) $service['base_price'], 2)) ?></td>
+                            <td>
+                                <?php if ((float) $service['base_price'] === 0.0): ?>
+                                    Request a quote
+                                <?php else: ?>
+                                    From PKR <?= escape_service(number_format((float) $service['base_price'], 2)) ?>
+                                <?php endif; ?>
+                            </td>
                             <td><?= escape_service((string) $service['avg_days']) ?></td>
                         </tr>
                     <?php endforeach; ?>

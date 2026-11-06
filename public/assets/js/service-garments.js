@@ -26,3 +26,17 @@ categorySelect.addEventListener('change', () => {
 });
 garmentSelect.addEventListener('change', updateCustomField);
 updateGarments();
+
+const pricingSelect = document.getElementById('pricing');
+const priceField = document.getElementById('base_price_field');
+const priceInput = document.getElementById('base_price');
+
+function updatePriceField() {
+    const hasStartingPrice = pricingSelect.value === 'starting';
+    priceField.hidden = !hasStartingPrice;
+    priceInput.disabled = !hasStartingPrice;
+    priceInput.required = hasStartingPrice;
+}
+
+pricingSelect.addEventListener('change', updatePriceField);
+updatePriceField();
