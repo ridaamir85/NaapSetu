@@ -19,6 +19,7 @@ $user = require_role('customer');
         <p>Welcome, <?= htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') ?>.</p>
         <p>Your measurement profiles, styles, requests, and orders will appear here.</p>
         <p><a href="/customer/measurements.php">Measurement profiles</a></p>
+        <p><a href="/customer/styles.php">My style profiles</a></p>
         <p><a href="/customer/permissions.php">Measurement sharing permissions</a></p>
         <p><a href="/customer/tailors.php">Browse tailors</a></p>
         <p><a href="/customer/requests.php">My requests and quotations</a></p>

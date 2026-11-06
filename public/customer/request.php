@@ -54,9 +54,16 @@ $profileStatement = $connection->prepare(
 );
 $profileStatement->execute(['customer_id' => $user['user_id']]);
 $profiles = $profileStatement->fetchAll();
+$styleProfileStatement = $connection->prepare(
+    'SELECT style_id, name FROM style_profiles '
+    . 'WHERE customer_id = :customer_id ORDER BY name, style_id'
+);
+$styleProfileStatement->execute(['customer_id' => $user['user_id']]);
+$styleProfiles = $styleProfileStatement->fetchAll();
 
 $errors = [];
 $selectedProfileId = '';
+$selectedStyleId = '';
 $successMessage = ($_GET['created'] ?? '') === '1'
     ? 'Stitching request submitted. It is now pending a quotation.'
     : null;
@@ -68,6 +75,15 @@ if ($requestMethod === 'POST') {
             'options' => ['min_range' => 1, 'max_range' => 2147483647],
         ])
         : false;
+
+    $rawStyleId = $_POST['style_id'] ?? '';
+    $validatedStyleId = $rawStyleId === ''
+        ? null
+        : ((is_string($rawStyleId) || is_int($rawStyleId))
+            ? filter_var($rawStyleId, FILTER_VALIDATE_INT, [
+                'options' => ['min_range' => 1, 'max_range' => 2147483647],
+            ])
+            : false);
 
     $token = $_POST['csrf_token'] ?? null;
     if (!is_string($token) || !csrf_token_is_valid($token)) {
@@ -92,18 +108,37 @@ if ($requestMethod === 'POST') {
         }
     }
 
+    if ($validatedStyleId === false) {
+        $errors['style_id'] = 'Choose one of your style profiles or leave it blank.';
+    } elseif ($validatedStyleId !== null) {
+        $selectedStyleId = (string) $validatedStyleId;
+        $styleOwnerCheck = $connection->prepare(
+            'SELECT style_id FROM style_profiles '
+            . 'WHERE style_id = :style_id AND customer_id = :customer_id'
+        );
+        $styleOwnerCheck->execute([
+            'style_id' => $validatedStyleId,
+            'customer_id' => $user['user_id'],
+        ]);
+        if ($styleOwnerCheck->fetch() === false) {
+            http_response_code(404);
+            exit('Style profile not found.');
+        }
+    }
+
     if ($errors === []) {
         try {
             $insert = $connection->prepare(
                 'INSERT INTO order_requests '
-                . '(customer_id, tailor_id, service_id, profile_id, status) '
-                . 'VALUES (:customer_id, :tailor_id, :service_id, :profile_id, :status)'
+                . '(customer_id, tailor_id, service_id, profile_id, style_id, status) '
+                . 'VALUES (:customer_id, :tailor_id, :service_id, :profile_id, :style_id, :status)'
             );
             $insert->execute([
                 'customer_id' => $user['user_id'],
                 'tailor_id' => $service['tailor_id'],
                 'service_id' => $service['service_id'],
                 'profile_id' => $validatedProfileId,
+                'style_id' => $validatedStyleId,
                 'status' => 'pending',
             ]);
 
@@ -176,7 +211,22 @@ if ($requestMethod === 'POST') {
                         <p role="alert"><?= escape_stitching_request($errors['profile_id']) ?></p>
                     <?php endif; ?>
                 </div>
-                <p>The selected profile is linked to the request. This does not create an order or share measurement values with the tailor.</p>
+                <div>
+                    <label for="style_id">Style profile (optional)</label>
+                    <select id="style_id" name="style_id">
+                        <option value="">No style profile</option>
+                        <?php foreach ($styleProfiles as $styleProfile): ?>
+                            <option value="<?= (int) $styleProfile['style_id'] ?>"<?= $selectedStyleId === (string) $styleProfile['style_id'] ? ' selected' : '' ?>><?= escape_stitching_request($styleProfile['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if ($styleProfiles === []): ?>
+                        <p><a href="/customer/styles.php">Create a style profile</a> to reuse preferences in future requests.</p>
+                    <?php endif; ?>
+                    <?php if (isset($errors['style_id'])): ?>
+                        <p role="alert"><?= escape_stitching_request($errors['style_id']) ?></p>
+                    <?php endif; ?>
+                </div>
+                <p>The measurement profile is linked to this request. It does not create an order or share measurement values with the tailor.</p>
                 <button type="submit">Submit stitching request</button>
             </form>
         <?php endif; ?>

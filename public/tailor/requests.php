@@ -19,10 +19,33 @@ function escape_request(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+/** @return array<string, string> */
+function style_preferences_for_request(array $request): array
+{
+    if (!isset($request['style_preferences'])) {
+        return [];
+    }
+
+    $decoded = json_decode((string) $request['style_preferences'], true);
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    $preferences = [];
+    foreach ($decoded as $key => $value) {
+        if (is_scalar($value)) {
+            $preferences[(string) $key] = (string) $value;
+        }
+    }
+
+    return $preferences;
+}
+
 function owned_request(PDO $connection, int $requestId, int $tailorId): array|false
 {
     $statement = $connection->prepare(
-        'SELECT r.request_id, r.profile_id, r.status, r.created_at, u.name AS customer_name, '
+        'SELECT r.request_id, r.profile_id, r.style_id, r.status, r.created_at, '
+        . 'sp.name AS style_name, sp.preferences AS style_preferences, u.name AS customer_name, '
         . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
         . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
         . 'AND mp.revoked_at IS NULL LIMIT 1) AS active_permission_id '
@@ -30,6 +53,8 @@ function owned_request(PDO $connection, int $requestId, int $tailorId): array|fa
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
+        . 'LEFT JOIN style_profiles AS sp '
+        . 'ON sp.style_id = r.style_id AND sp.customer_id = r.customer_id '
         . 'WHERE r.request_id = :request_id AND r.tailor_id = :tailor_id '
         . 'AND (r.status = :pending OR (r.status = :quoted AND '
         . '(SELECT q.status FROM quotations AS q WHERE q.request_id = r.request_id '
@@ -193,14 +218,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($selectedRequestId === null) {
     $statement = $connection->prepare(
-        'SELECT r.request_id, r.profile_id, r.status, r.created_at, u.name AS customer_name, '
-        . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
+        'SELECT r.request_id, r.profile_id, r.style_id, r.status, r.created_at, '
+        . 'sp.name AS style_name, sp.preferences AS style_preferences, '
+        . 'u.name AS customer_name, s.garment_type, '
+        . '(SELECT mp.permission_id FROM measurement_permissions AS mp '
         . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
         . 'AND mp.revoked_at IS NULL LIMIT 1) AS active_permission_id '
         . 'FROM order_requests AS r '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
+        . 'LEFT JOIN style_profiles AS sp '
+        . 'ON sp.style_id = r.style_id AND sp.customer_id = r.customer_id '
         . 'WHERE r.tailor_id = :tailor_id AND (r.status = :pending OR '
         . '(r.status = :quoted AND (SELECT q.status FROM quotations AS q '
         . 'WHERE q.request_id = r.request_id ORDER BY q.quotation_id DESC LIMIT 1) = :revision_requested)) '
@@ -253,6 +282,21 @@ if ($selectedRequestId === null) {
                         <p><a href="/tailor/measurements.php?profile_id=<?= (int) $request['profile_id'] ?>">View shared measurements</a></p>
                     <?php else: ?>
                         <p>The customer has not shared this measurement profile with your shop.</p>
+                    <?php endif; ?>
+
+                    <?php if ($request['style_id'] !== null && $request['style_name'] !== null): ?>
+                        <h3>Customer-selected style: <?= escape_request($request['style_name']) ?></h3>
+                        <?php $stylePreferences = style_preferences_for_request($request); ?>
+                        <?php if ($stylePreferences === []): ?>
+                            <p>This style profile has no saved preferences.</p>
+                        <?php else: ?>
+                            <dl>
+                                <?php foreach ($stylePreferences as $preference => $value): ?>
+                                    <dt><?= escape_request(ucwords(str_replace('_', ' ', $preference))) ?></dt>
+                                    <dd><?= escape_request($value) ?></dd>
+                                <?php endforeach; ?>
+                            </dl>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if ($request['status'] === 'pending' || $request['status'] === 'quoted'): ?>
