@@ -64,6 +64,7 @@ $styleProfiles = $styleProfileStatement->fetchAll();
 $errors = [];
 $selectedProfileId = '';
 $selectedStyleId = '';
+$shareMeasurements = $requestMethod === 'POST' && ($_POST['share_measurements'] ?? null) === '1';
 $successMessage = ($_GET['created'] ?? '') === '1'
     ? 'Stitching request submitted. It is now pending a quotation.'
     : null;
@@ -128,6 +129,36 @@ if ($requestMethod === 'POST') {
 
     if ($errors === []) {
         try {
+            $connection->beginTransaction();
+
+            if ($shareMeasurements) {
+                $lockProfile = $connection->prepare(
+                    'SELECT profile_id FROM measurement_profiles '
+                    . 'WHERE profile_id = :profile_id AND customer_id = :customer_id FOR UPDATE'
+                );
+                $lockProfile->execute(['profile_id' => $validatedProfileId, 'customer_id' => $user['user_id']]);
+                if ($lockProfile->fetchColumn() === false) {
+                    $connection->rollBack();
+                    http_response_code(404);
+                    exit('Measurement profile not found.');
+                }
+
+                $permission = ['profile_id' => $validatedProfileId, 'tailor_id' => $service['tailor_id']];
+                $activeCheck = $connection->prepare(
+                    'SELECT permission_id FROM measurement_permissions '
+                    . 'WHERE profile_id = :profile_id AND tailor_id = :tailor_id '
+                    . 'AND revoked_at IS NULL LIMIT 1 FOR UPDATE'
+                );
+                $activeCheck->execute($permission);
+                if ($activeCheck->fetchColumn() === false) {
+                    $grant = $connection->prepare(
+                        'INSERT INTO measurement_permissions (profile_id, tailor_id) '
+                        . 'VALUES (:profile_id, :tailor_id)'
+                    );
+                    $grant->execute($permission);
+                }
+            }
+
             $insert = $connection->prepare(
                 'INSERT INTO order_requests '
                 . '(customer_id, tailor_id, service_id, profile_id, style_id, status) '
@@ -141,6 +172,7 @@ if ($requestMethod === 'POST') {
                 'style_id' => $validatedStyleId,
                 'status' => 'pending',
             ]);
+            $connection->commit();
 
             header(
                 'Location: /customer/request.php?service_id='
@@ -150,6 +182,9 @@ if ($requestMethod === 'POST') {
             );
             exit;
         } catch (PDOException $exception) {
+            if ($connection->inTransaction()) {
+                $connection->rollBack();
+            }
             error_log($exception->getMessage());
             $errors['form'] = 'The stitching request could not be submitted. Please try again.';
         }
@@ -226,7 +261,13 @@ if ($requestMethod === 'POST') {
                         <p role="alert"><?= escape_stitching_request($errors['style_id']) ?></p>
                     <?php endif; ?>
                 </div>
-                <p>The measurement profile is linked to this request. It does not create an order or share measurement values with the tailor.</p>
+                <div>
+                    <label>
+                        <input type="checkbox" name="share_measurements" value="1"<?= $shareMeasurements ? ' checked' : '' ?>>
+                        Share the selected measurement profile with <?= escape_stitching_request($service['shop_name']) ?>
+                    </label>
+                    <p>You can manage or revoke access under <a href="/customer/permissions.php">Measurement sharing permissions</a>.</p>
+                </div>
                 <button type="submit">Submit stitching request</button>
             </form>
         <?php endif; ?>
