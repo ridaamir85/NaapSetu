@@ -101,6 +101,7 @@ function escape_tailor_listing(string $value): string
                                 <?php endif; ?>
                                 — estimated completion <?= escape_tailor_listing((string) $service['avg_days']) ?>
                                 <?= (int) $service['avg_days'] === 1 ? 'day' : 'days' ?>
+                                <a href="/customer/request.php?service_id=<?= (int) $service['service_id'] ?>">Request stitching</a>
                             </li>
                         <?php endforeach; ?>
                     </ul>
