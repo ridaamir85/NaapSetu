@@ -18,6 +18,7 @@ $user = require_role('customer');
         <h1>Customer dashboard</h1>
         <p>Welcome, <?= htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') ?>.</p>
         <p>Your measurement profiles, styles, requests, and orders will appear here.</p>
+        <p><a href="/customer/tailors.php">Browse tailors</a></p>
 
         <form method="post" action="/logout.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
