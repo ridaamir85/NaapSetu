@@ -21,6 +21,7 @@ $user = require_role('tailor');
         <p><a href="profile.php">Create or edit shop profile</a></p>
         <p><a href="services.php">Manage services</a></p>
         <p><a href="requests.php">Incoming requests</a></p>
+        <p><a href="orders.php">Manage orders</a></p>
 
         <form method="post" action="/logout.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">

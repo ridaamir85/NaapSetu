@@ -21,6 +21,7 @@ $user = require_role('customer');
         <p><a href="/customer/measurements.php">Measurement profiles</a></p>
         <p><a href="/customer/tailors.php">Browse tailors</a></p>
         <p><a href="/customer/requests.php">My requests and quotations</a></p>
+        <p><a href="/customer/orders.php">My orders</a></p>
 
         <form method="post" action="/logout.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">

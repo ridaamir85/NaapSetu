@@ -176,6 +176,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                         'measurement_version_id' => $measurementVersionId,
                         'style_snapshot' => $styleSnapshot,
                     ]);
+                    $orderId = (int) $connection->lastInsertId();
+                    $initialHistory = $connection->prepare(
+                        'INSERT INTO order_status_history (order_id, status) '
+                        . 'VALUES (:order_id, :status)'
+                    );
+                    $initialHistory->execute(['order_id' => $orderId, 'status' => 'confirmed']);
                 } elseif ($action === 'rejected') {
                     $requestUpdate = $connection->prepare(
                         'UPDATE order_requests SET status = :declined '
