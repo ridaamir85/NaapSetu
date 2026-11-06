@@ -29,12 +29,16 @@ function owned_request(PDO $connection, int $requestId, int $tailorId): array|fa
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
         . 'WHERE r.request_id = :request_id AND r.tailor_id = :tailor_id '
-        . 'AND r.status = :pending'
+        . 'AND (r.status = :pending OR (r.status = :quoted AND '
+        . '(SELECT q.status FROM quotations AS q WHERE q.request_id = r.request_id '
+        . 'ORDER BY q.quotation_id DESC LIMIT 1) = :revision_requested))'
     );
     $statement->execute([
         'request_id' => $requestId,
         'tailor_id' => $tailorId,
         'pending' => 'pending',
+        'quoted' => 'quoted',
+        'revision_requested' => 'revision_requested',
     ]);
 
     return $statement->fetch();
@@ -95,8 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['deadline'] = 'Enter a valid deadline that is today or later.';
     }
 
-    if ($selectedRequest['status'] !== 'pending') {
-        $errors['form'] = 'This request is no longer pending and cannot receive an initial quotation.';
+    if (!in_array($selectedRequest['status'], ['pending', 'quoted'], true)) {
+        $errors['form'] = 'This request is no longer available for a quotation.';
     }
 
     if ($errors === []) {
@@ -113,15 +117,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $lockedRequest = $lockStatement->fetch();
 
-            if ($lockedRequest === false || $lockedRequest['status'] !== 'pending') {
-                $errors['form'] = 'This request is no longer pending and cannot receive an initial quotation.';
+            if ($lockedRequest === false || !in_array($lockedRequest['status'], ['pending', 'quoted'], true)) {
+                $errors['form'] = 'This request is no longer available for a quotation.';
             } else {
-                $existingQuotation = $connection->prepare(
-                    'SELECT quotation_id FROM quotations WHERE request_id = :request_id LIMIT 1'
+                $latestQuotation = $connection->prepare(
+                    'SELECT quotation_id, status FROM quotations '
+                    . 'WHERE request_id = :request_id ORDER BY quotation_id DESC LIMIT 1 FOR UPDATE'
                 );
-                $existingQuotation->execute(['request_id' => $selectedRequestId]);
-                if ($existingQuotation->fetch() !== false) {
-                    $errors['form'] = 'An initial quotation has already been sent for this request.';
+                $latestQuotation->execute(['request_id' => $selectedRequestId]);
+                $latest = $latestQuotation->fetch();
+                $canSendInitial = $lockedRequest['status'] === 'pending' && $latest === false;
+                $canSendRevision = $lockedRequest['status'] === 'quoted'
+                    && $latest !== false
+                    && $latest['status'] === 'revision_requested';
+
+                if (!$canSendInitial && !$canSendRevision) {
+                    $errors['form'] = 'Only a new request or a requested revision can receive a quotation.';
                 } else {
                     $insert = $connection->prepare(
                         'INSERT INTO quotations (request_id, amount, deadline, status) '
@@ -134,19 +145,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'status' => 'sent',
                     ]);
 
-                    $update = $connection->prepare(
-                        'UPDATE order_requests SET status = :quoted '
-                        . 'WHERE request_id = :request_id AND tailor_id = :tailor_id AND status = :pending'
-                    );
-                    $update->execute([
-                        'quoted' => 'quoted',
-                        'request_id' => $selectedRequestId,
-                        'tailor_id' => $profile['tailor_id'],
-                        'pending' => 'pending',
-                    ]);
+                    if ($canSendInitial) {
+                        $update = $connection->prepare(
+                            'UPDATE order_requests SET status = :quoted '
+                            . 'WHERE request_id = :request_id AND tailor_id = :tailor_id AND status = :pending'
+                        );
+                        $update->execute([
+                            'quoted' => 'quoted',
+                            'request_id' => $selectedRequestId,
+                            'tailor_id' => $profile['tailor_id'],
+                            'pending' => 'pending',
+                        ]);
 
-                    if ($update->rowCount() !== 1) {
-                        throw new RuntimeException('The request status could not be updated.');
+                        if ($update->rowCount() !== 1) {
+                            throw new RuntimeException('The request status could not be updated.');
+                        }
                     }
                 }
             }
@@ -159,6 +172,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $connection->rollBack();
             $selectedRequest = owned_request($connection, $selectedRequestId, (int) $profile['tailor_id']);
+            if ($selectedRequest === false) {
+                $selectedRequest = null;
+            }
         } catch (Throwable $exception) {
             if ($connection->inTransaction()) {
                 $connection->rollBack();
@@ -166,6 +182,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log($exception->getMessage());
             $errors['form'] = 'The quotation could not be sent. Please try again.';
             $selectedRequest = owned_request($connection, $selectedRequestId, (int) $profile['tailor_id']);
+            if ($selectedRequest === false) {
+                $selectedRequest = null;
+            }
         }
     }
 }
@@ -177,13 +196,22 @@ if ($selectedRequestId === null) {
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
-        . 'WHERE r.tailor_id = :tailor_id AND r.status = :pending '
+        . 'WHERE r.tailor_id = :tailor_id AND (r.status = :pending OR '
+        . '(r.status = :quoted AND (SELECT q.status FROM quotations AS q '
+        . 'WHERE q.request_id = r.request_id ORDER BY q.quotation_id DESC LIMIT 1) = :revision_requested)) '
         . 'ORDER BY r.created_at DESC, r.request_id DESC'
     );
-    $statement->execute(['tailor_id' => $profile['tailor_id'], 'pending' => 'pending']);
+    $statement->execute([
+        'tailor_id' => $profile['tailor_id'],
+        'pending' => 'pending',
+        'quoted' => 'quoted',
+        'revision_requested' => 'revision_requested',
+    ]);
     $requests = $statement->fetchAll();
-} else {
+} elseif ($selectedRequest !== null) {
     $requests = [$selectedRequest];
+} else {
+    $requests = [];
 }
 ?>
 <!doctype html>
@@ -207,7 +235,7 @@ if ($selectedRequestId === null) {
         <?php endif; ?>
 
         <?php if ($requests === []): ?>
-            <p>You have no pending incoming requests.</p>
+            <p>You have no requests awaiting a quotation.</p>
         <?php else: ?>
             <?php foreach ($requests as $request): ?>
                 <section>
@@ -217,8 +245,8 @@ if ($selectedRequestId === null) {
                     <p>Status: <?= escape_request($request['status']) ?></p>
                     <p>Date: <time datetime="<?= escape_request($request['created_at']) ?>"><?= escape_request($request['created_at']) ?></time></p>
 
-                    <?php if ($request['status'] === 'pending'): ?>
-                        <h3>Send quotation</h3>
+                    <?php if ($request['status'] === 'pending' || $request['status'] === 'quoted'): ?>
+                        <h3><?= $request['status'] === 'pending' ? 'Send quotation' : 'Send revised quotation' ?></h3>
                         <form method="post" action="/tailor/requests.php">
                             <input type="hidden" name="csrf_token" value="<?= escape_request(csrf_token()) ?>">
                             <input type="hidden" name="request_id" value="<?= (int) $request['request_id'] ?>">
@@ -236,7 +264,7 @@ if ($selectedRequestId === null) {
                                     <p role="alert"><?= escape_request($errors['deadline']) ?></p>
                                 <?php endif; ?>
                             </div>
-                            <button type="submit">Send quotation</button>
+                            <button type="submit"><?= $request['status'] === 'pending' ? 'Send quotation' : 'Send revised quotation' ?></button>
                         </form>
                     <?php endif; ?>
                 </section>

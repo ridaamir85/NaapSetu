@@ -20,6 +20,7 @@ $user = require_role('customer');
         <p>Your measurement profiles, styles, requests, and orders will appear here.</p>
         <p><a href="/customer/measurements.php">Measurement profiles</a></p>
         <p><a href="/customer/tailors.php">Browse tailors</a></p>
+        <p><a href="/customer/requests.php">My requests and quotations</a></p>
 
         <form method="post" action="/logout.php">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
