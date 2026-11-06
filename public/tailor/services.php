@@ -28,6 +28,51 @@ $errors = [];
 $successMessage = $_SESSION['service_success'] ?? null;
 unset($_SESSION['service_success']);
 
+$editingId = null;
+if (isset($_GET['edit'])) {
+    $editingId = filter_var($_GET['edit'], FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1, 'max_range' => 2147483647],
+    ]);
+    if ($editingId === false) {
+        http_response_code(404);
+        exit('Service not found.');
+    }
+
+    $statement = $connection->prepare(
+        'SELECT garment_type, base_price, avg_days FROM tailor_services '
+        . 'WHERE service_id = :service_id AND tailor_id = :tailor_id'
+    );
+    $statement->execute(['service_id' => $editingId, 'tailor_id' => $profile['tailor_id']]);
+    $serviceToEdit = $statement->fetch();
+    if ($serviceToEdit === false) {
+        http_response_code(404);
+        exit('Service not found.');
+    }
+
+    $savedGarment = $serviceToEdit['garment_type'];
+    $values['garment_type'] = 'Other';
+    $values['custom_garment'] = $savedGarment;
+
+    foreach ($categories as $key => $category) {
+        $prefix = $category['label'] . ' ';
+        if (!str_starts_with($savedGarment, $prefix)) {
+            continue;
+        }
+
+        $values['category'] = $key;
+        $garment = substr($savedGarment, strlen($prefix));
+        $isStandardGarment = $garment !== 'Other' && in_array($garment, $category['garments'], true);
+        $values['garment_type'] = $isStandardGarment ? $garment : 'Other';
+        $values['custom_garment'] = $isStandardGarment ? '' : $garment;
+        break;
+    }
+
+    $quoteRequired = (float) $serviceToEdit['base_price'] === 0.0;
+    $values['pricing'] = $quoteRequired ? 'quote' : 'starting';
+    $values['base_price'] = $quoteRequired ? '' : (string) $serviceToEdit['base_price'];
+    $values['avg_days'] = (string) $serviceToEdit['avg_days'];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($values as $field => $_) {
         $input = $_POST[$field] ?? '';
@@ -72,23 +117,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($errors === []) {
         try {
-            $statement = $connection->prepare(
-                'INSERT INTO tailor_services (tailor_id, garment_type, base_price, avg_days) '
-                . 'VALUES (:tailor_id, :garment_type, :base_price, :avg_days)'
-            );
-            $statement->execute([
+            $parameters = [
                 'tailor_id' => $profile['tailor_id'],
                 'garment_type' => $category['label'] . ' ' . $garment,
                 'base_price' => $price,
                 'avg_days' => $averageDays,
-            ]);
-
-            $_SESSION['service_success'] = 'Service added successfully.';
+            ];
+            if ($editingId === null) {
+                $statement = $connection->prepare(
+                    'INSERT INTO tailor_services (tailor_id, garment_type, base_price, avg_days) '
+                    . 'VALUES (:tailor_id, :garment_type, :base_price, :avg_days)'
+                );
+                $message = 'Service added successfully.';
+            } else {
+                $statement = $connection->prepare(
+                    'UPDATE tailor_services '
+                    . 'SET garment_type = :garment_type, base_price = :base_price, avg_days = :avg_days '
+                    . 'WHERE service_id = :service_id AND tailor_id = :tailor_id'
+                );
+                $parameters['service_id'] = $editingId;
+                $message = 'Service updated successfully.';
+            }
+            $statement->execute($parameters);
+            $_SESSION['service_success'] = $message;
             header('Location: /tailor/services.php', true, 303);
             exit;
         } catch (PDOException $exception) {
             error_log($exception->getMessage());
-            $errors['form'] = 'The service could not be added. Please try again.';
+            $errors['form'] = 'The service could not be saved. Please try again.';
         }
     }
 }
@@ -121,7 +177,11 @@ $services = $servicesStatement->fetchAll();
             <p role="alert"><?= escape_service($errors['form']) ?></p>
         <?php endif; ?>
 
-        <form method="post" action="services.php" novalidate>
+        <?php if ($editingId !== null && $values['category'] === ''): ?>
+            <p>Previously listed as <?= escape_service($savedGarment) ?>. Choose a category and garment type to update it.</p>
+        <?php endif; ?>
+        <h2><?= $editingId === null ? 'Add a service' : 'Edit service' ?></h2>
+        <form method="post" action="services.php<?= $editingId === null ? '' : '?edit=' . $editingId ?>" novalidate>
             <input type="hidden" name="csrf_token" value="<?= escape_service(csrf_token()) ?>">
 
             <div>
@@ -194,7 +254,10 @@ $services = $servicesStatement->fetchAll();
                 <?php endif; ?>
             </div>
 
-            <button type="submit">Add service</button>
+            <button type="submit"><?= $editingId === null ? 'Add service' : 'Save changes' ?></button>
+            <?php if ($editingId !== null): ?>
+                <a href="services.php">Cancel edit</a>
+            <?php endif; ?>
         </form>
 
         <h2>Published services</h2>
@@ -207,6 +270,7 @@ $services = $servicesStatement->fetchAll();
                         <th scope="col">Garment type</th>
                         <th scope="col">Pricing</th>
                         <th scope="col">Average days</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -221,6 +285,7 @@ $services = $servicesStatement->fetchAll();
                                 <?php endif; ?>
                             </td>
                             <td><?= escape_service((string) $service['avg_days']) ?></td>
+                            <td><a href="services.php?edit=<?= (int) $service['service_id'] ?>">Edit</a></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
