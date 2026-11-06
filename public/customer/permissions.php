@@ -124,7 +124,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 }
             } else {
                 $lockPermission = $connection->prepare(
-                    'SELECT mp.permission_id FROM measurement_permissions AS mp '
+                    'SELECT mp.profile_id, mp.tailor_id FROM measurement_permissions AS mp '
                     . 'INNER JOIN measurement_profiles AS p ON p.profile_id = mp.profile_id '
                     . 'WHERE mp.permission_id = :permission_id AND p.customer_id = :customer_id '
                     . 'AND mp.revoked_at IS NULL FOR UPDATE'
@@ -133,18 +133,48 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                     'permission_id' => $permissionId,
                     'customer_id' => $user['user_id'],
                 ]);
-                if ($lockPermission->fetch() === false) {
+                $permission = $lockPermission->fetch();
+                if ($permission === false) {
                     http_response_code(404);
                     throw new RuntimeException('Permission ownership changed during submission.');
                 }
 
-                $revoke = $connection->prepare(
-                    'UPDATE measurement_permissions SET revoked_at = CURRENT_TIMESTAMP '
-                    . 'WHERE permission_id = :permission_id AND revoked_at IS NULL'
+                // Quotation acceptance locks the same shop before creating an order.
+                $lockTailor = $connection->prepare(
+                    'SELECT tailor_id FROM tailor_profiles WHERE tailor_id = :tailor_id FOR UPDATE'
                 );
-                $revoke->execute(['permission_id' => $permissionId]);
-                if ($revoke->rowCount() !== 1) {
-                    throw new RuntimeException('Permission could not be revoked.');
+                $lockTailor->execute(['tailor_id' => $permission['tailor_id']]);
+                if ($lockTailor->fetchColumn() === false) {
+                    throw new RuntimeException('Tailor profile not found during revocation.');
+                }
+
+                $activeOrder = $connection->prepare(
+                    'SELECT o.order_id FROM orders AS o '
+                    . 'INNER JOIN measurement_versions AS mv ON mv.version_id = o.measurement_version_id '
+                    . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
+                    . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
+                    . 'WHERE mv.profile_id = :profile_id AND r.tailor_id = :tailor_id '
+                    . "AND o.status IN ('confirmed', 'cutting', 'stitching', 'ready') "
+                    . 'ORDER BY o.order_id LIMIT 1'
+                );
+                $activeOrder->execute([
+                    'profile_id' => $permission['profile_id'],
+                    'tailor_id' => $permission['tailor_id'],
+                ]);
+                $blockingOrderId = $activeOrder->fetchColumn();
+                if ($blockingOrderId !== false) {
+                    $errors['form'] = 'This tailor still needs this profile for Order #'
+                        . (int) $blockingOrderId
+                        . '. You can revoke access once all active orders using it are delivered.';
+                } else {
+                    $revoke = $connection->prepare(
+                        'UPDATE measurement_permissions SET revoked_at = CURRENT_TIMESTAMP '
+                        . 'WHERE permission_id = :permission_id AND revoked_at IS NULL'
+                    );
+                    $revoke->execute(['permission_id' => $permissionId]);
+                    if ($revoke->rowCount() !== 1) {
+                        throw new RuntimeException('Permission could not be revoked.');
+                    }
                 }
             }
 
