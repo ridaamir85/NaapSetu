@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (mb_strlen($values['garment_type'], 'UTF-8') < 2 || mb_strlen($values['garment_type'], 'UTF-8') > 60) {
         $errors['garment_type'] = 'Garment type must be between 2 and 60 characters.';
+    } elseif (preg_match('/\p{L}/u', $values['garment_type']) !== 1) {
+        $errors['garment_type'] = 'Enter a garment name that contains at least one letter.';
     }
 
     $price = $values['base_price'];
@@ -45,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $averageDays = filter_var($values['avg_days'], FILTER_VALIDATE_INT, [
-        'options' => ['min_range' => 1, 'max_range' => 2147483647],
+        'options' => ['min_range' => 1, 'max_range' => 90],
     ]);
     if ($averageDays === false) {
-        $errors['avg_days'] = 'Enter a whole number from 1 to 2,147,483,647.';
+        $errors['avg_days'] = 'Enter a whole number from 1 to 90 days.';
     }
 
     if ($errors === []) {
@@ -123,7 +125,8 @@ $services = $servicesStatement->fetchAll();
 
             <div>
                 <label for="avg_days">Average completion days</label>
-                <input id="avg_days" name="avg_days" type="number" min="1" required value="<?= escape_service($values['avg_days']) ?>">
+                <input id="avg_days" name="avg_days" type="number" min="1" max="90" step="1" required value="<?= escape_service($values['avg_days']) ?>">
+                <small>Enter an estimate from 1 to 90 days.</small>
                 <?php if (isset($errors['avg_days'])): ?>
                     <p role="alert"><?= escape_service($errors['avg_days']) ?></p>
                 <?php endif; ?>
