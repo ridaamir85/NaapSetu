@@ -22,8 +22,10 @@ function escape_request(string $value): string
 function owned_request(PDO $connection, int $requestId, int $tailorId): array|false
 {
     $statement = $connection->prepare(
-        'SELECT r.request_id, r.status, r.created_at, u.name AS customer_name, '
-        . 's.garment_type '
+        'SELECT r.request_id, r.profile_id, r.status, r.created_at, u.name AS customer_name, '
+        . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
+        . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
+        . 'AND mp.revoked_at IS NULL LIMIT 1) AS active_permission_id '
         . 'FROM order_requests AS r '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
@@ -191,7 +193,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($selectedRequestId === null) {
     $statement = $connection->prepare(
-        'SELECT r.request_id, r.status, r.created_at, u.name AS customer_name, s.garment_type '
+        'SELECT r.request_id, r.profile_id, r.status, r.created_at, u.name AS customer_name, '
+        . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
+        . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
+        . 'AND mp.revoked_at IS NULL LIMIT 1) AS active_permission_id '
         . 'FROM order_requests AS r '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
         . 'INNER JOIN tailor_services AS s '
@@ -244,6 +249,11 @@ if ($selectedRequestId === null) {
                     <p>Garment: <?= escape_request($request['garment_type']) ?></p>
                     <p>Status: <?= escape_request($request['status']) ?></p>
                     <p>Date: <time datetime="<?= escape_request($request['created_at']) ?>"><?= escape_request($request['created_at']) ?></time></p>
+                    <?php if ($request['active_permission_id'] !== null): ?>
+                        <p><a href="/tailor/measurements.php?profile_id=<?= (int) $request['profile_id'] ?>">View shared measurements</a></p>
+                    <?php else: ?>
+                        <p>The customer has not shared this measurement profile with your shop.</p>
+                    <?php endif; ?>
 
                     <?php if ($request['status'] === 'pending' || $request['status'] === 'quoted'): ?>
                         <h3><?= $request['status'] === 'pending' ? 'Send quotation' : 'Send revised quotation' ?></h3>

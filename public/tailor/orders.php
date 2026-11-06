@@ -23,11 +23,16 @@ function order_for_tailor(PDO $connection, int $orderId, int $tailorId): array|f
 {
     $statement = $connection->prepare(
         'SELECT o.order_id, o.status, o.confirmed_at, u.name AS customer_name, '
-        . 's.garment_type, f.fabric_id, f.source AS fabric_source, '
+        . 's.garment_type, mv.profile_id, '
+        . 'EXISTS(SELECT 1 FROM measurement_permissions AS mp '
+        . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
+        . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
+        . 'f.fabric_id, f.source AS fabric_source, '
         . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
         . 'FROM orders AS o '
         . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
         . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
+        . 'INNER JOIN measurement_versions AS mv ON mv.version_id = o.measurement_version_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
@@ -219,11 +224,16 @@ if ($requestMethod === 'POST') {
 if ($selectedOrderId === null) {
     $statement = $connection->prepare(
         'SELECT o.order_id, o.status, o.confirmed_at, u.name AS customer_name, '
-        . 's.garment_type, f.fabric_id, f.source AS fabric_source, '
+        . 's.garment_type, mv.profile_id, '
+        . 'EXISTS(SELECT 1 FROM measurement_permissions AS mp '
+        . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
+        . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
+        . 'f.fabric_id, f.source AS fabric_source, '
         . 'f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
         . 'FROM orders AS o '
         . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
         . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
+        . 'INNER JOIN measurement_versions AS mv ON mv.version_id = o.measurement_version_id '
         . 'INNER JOIN tailor_services AS s '
         . 'ON s.service_id = r.service_id AND s.tailor_id = r.tailor_id '
         . 'INNER JOIN users AS u ON u.user_id = r.customer_id '
@@ -265,6 +275,11 @@ if ($selectedOrderId === null) {
                     <h2>Order #<?= (int) $order['order_id'] ?> — <?= escape_tailor_order($order['garment_type']) ?></h2>
                     <p>Customer: <?= escape_tailor_order($order['customer_name']) ?></p>
                     <p>Status: <?= escape_tailor_order($order['status']) ?></p>
+                    <?php if ((int) $order['has_measurement_permission'] === 1): ?>
+                        <p><a href="/tailor/measurements.php?profile_id=<?= (int) $order['profile_id'] ?>">View shared measurements</a></p>
+                    <?php else: ?>
+                        <p>The customer has not shared this measurement profile with your shop.</p>
+                    <?php endif; ?>
 
                     <?php if ($order['fabric_id'] !== null): ?>
                         <h3>Fabric record</h3>
