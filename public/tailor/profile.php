@@ -9,6 +9,18 @@ require_once dirname(__DIR__, 2) . '/includes/tailor.php';
 $user = require_role('tailor');
 $connection = database();
 $profile = tailor_profile_for_user($connection, $user['user_id']);
+$cities = [
+    'Faisalabad', 'Gujranwala', 'Hyderabad', 'Islamabad', 'Karachi',
+    'Lahore', 'Multan', 'Peshawar', 'Quetta', 'Rawalpindi', 'Sialkot',
+];
+$savedCity = trim($profile['city'] ?? '');
+$selectedCity = '';
+foreach ($cities as $city) {
+    if (strcasecmp($savedCity, $city) === 0) {
+        $selectedCity = $city;
+        break;
+    }
+}
 
 function escape_profile(string $value): string
 {
@@ -17,7 +29,7 @@ function escape_profile(string $value): string
 
 $values = [
     'shop_name' => $profile['shop_name'] ?? '',
-    'city' => $profile['city'] ?? '',
+    'city' => $selectedCity,
     'address' => $profile['address'] ?? '',
     'max_active_orders' => (string) ($profile['max_active_orders'] ?? 10),
 ];
@@ -39,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['shop_name'] = 'Shop name must be between 2 and 120 characters.';
     }
 
-    if (strlen($values['city']) < 2 || strlen($values['city']) > 60) {
-        $errors['city'] = 'City must be between 2 and 60 characters.';
+    if (!in_array($values['city'], $cities, true)) {
+        $errors['city'] = 'Select a city from the list.';
     }
 
     if (strlen($values['address']) < 5 || strlen($values['address']) > 255) {
@@ -48,10 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $capacity = filter_var($values['max_active_orders'], FILTER_VALIDATE_INT, [
-        'options' => ['min_range' => 1, 'max_range' => 2147483647],
+        'options' => ['min_range' => 1, 'max_range' => 10],
     ]);
     if ($capacity === false) {
-        $errors['max_active_orders'] = 'Enter a whole number from 1 to 2,147,483,647.';
+        $errors['max_active_orders'] = 'Enter a whole number from 1 to 10.';
     }
 
     if ($errors === []) {
@@ -131,7 +143,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div>
                 <label for="city">City</label>
-                <input id="city" name="city" type="text" maxlength="60" required value="<?= escape_profile($values['city']) ?>">
+                <select id="city" name="city" required>
+                    <option value="">Select a city</option>
+                    <?php foreach ($cities as $city): ?>
+                        <option value="<?= escape_profile($city) ?>"<?= $values['city'] === $city ? ' selected' : '' ?>>
+                            <?= escape_profile($city) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($savedCity !== '' && $selectedCity === ''): ?>
+                    <p>Previously saved city: <?= escape_profile($savedCity) ?>. Select a supported city to save changes.</p>
+                <?php endif; ?>
                 <?php if (isset($errors['city'])): ?>
                     <p role="alert"><?= escape_profile($errors['city']) ?></p>
                 <?php endif; ?>
@@ -147,8 +169,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div>
                 <label for="max_active_orders">Maximum active orders</label>
-                <input id="max_active_orders" name="max_active_orders" type="number" min="1" required value="<?= escape_profile($values['max_active_orders']) ?>">
-                <p>NaapSetu will use this limit to warn against overbooking.</p>
+                <input id="max_active_orders" name="max_active_orders" type="number" min="1" max="10" step="1" required value="<?= escape_profile($values['max_active_orders']) ?>">
+                <p>Choose how many confirmed, unfinished orders you can handle at once, from 1 to 10.</p>
+                <?php if ((int) ($profile['max_active_orders'] ?? 10) > 10): ?>
+                    <p>Your previous limit was <?= (int) $profile['max_active_orders'] ?>. Choose 10 or less to save changes.</p>
+                <?php endif; ?>
                 <?php if (isset($errors['max_active_orders'])): ?>
                     <p role="alert"><?= escape_profile($errors['max_active_orders']) ?></p>
                 <?php endif; ?>
