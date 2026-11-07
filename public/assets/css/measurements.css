@@ -2,8 +2,17 @@
 .passport-header h1 { font-size:clamp(1.7rem,2.6vw,2.5rem); font-weight:600; margin-bottom:.4rem; }
 .passport-header p { font-size:.875rem; margin:0; }
 .unit-picker { display:flex; align-items:center; gap:.6rem; font-size:.8rem; }
-.passport-grid { display:grid; grid-template-columns:180px minmax(280px,1fr) 220px; gap:1rem; align-items:start; }
-.passport-panel { background:#fffdfa; border:1px solid #e1dbd0; box-shadow:0 3px 8px #182c4210; border-radius:10px; padding:1rem; }
+.passport-main { max-width:none; display:flex; flex-direction:column; }
+.passport-grid { display:grid; grid-template-columns:minmax(150px,.8fr) minmax(300px,2.5fr) minmax(190px,1fr); gap:clamp(.75rem,1.2vw,1.5rem); align-items:stretch; flex:1; }
+.passport-panel { background:#fffdfa; border:1px solid #e1dbd0; box-shadow:0 3px 8px #182c4210; border-radius:10px; padding:clamp(.85rem,1.3vw,1.4rem); min-width:0; overflow-wrap:anywhere; }
+.measurements-editor { display:flex; flex-direction:column; }
+.measurements-editor #passport-form { display:flex; flex-direction:column; flex:1; align-items:stretch; }
+.measurements-editor .measurement-rows { align-content:start; }
+.measurements-editor #add-measurement { align-self:flex-start; margin-bottom:.5rem; }
+.measurements-editor .save-measurements { margin-top:auto; }
+.version-picker { min-width:0; }
+.version-picker select { min-width:0; }
+.version-picker button { flex-shrink:0; white-space:nowrap; }
 .passport-panel h2 { font:650 .85rem/1.4 system-ui,sans-serif; margin:0 0 1rem; }
 .panel-heading { display:flex; justify-content:space-between; align-items:baseline; }
 .panel-heading a { font-size:1.6rem; text-decoration:none; line-height:1; }
@@ -18,7 +27,7 @@
 .unit-picker select { width:auto; border-color:#b18a4a; }
 .profile-basics,.measurement-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.7fr) 24px; gap:.6rem; margin-bottom:1rem; align-items:end; }
 .profile-basics { grid-template-columns:1fr 1fr; }
-.measurement-rows { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:1rem; }
+.measurement-rows { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(145px,100%),1fr)); gap:1rem; }
 .measurement-row { grid-template-columns:minmax(0,1fr) 24px; align-content:start; }
 .measurement-row > div:first-child { grid-column:1 / -1; }
 .version-picker button[type="submit"] { min-height:38px; padding:.4rem .6rem; font-size:.75rem; }
@@ -33,5 +42,5 @@
 .sharing-panel ul { list-style:none; padding:0; display:grid; gap:.8rem; }
 .shared-check { display:inline-block; margin-right:.5rem; color:#a47b35; }
 [hidden] { display:none !important; }
-@media(max-width:1200px) { .passport-grid { grid-template-columns:160px minmax(0,1fr); } .sharing-panel { grid-column:2; } }
+@media(max-width:1000px) { .passport-grid { grid-template-columns:minmax(140px,.7fr) minmax(0,2fr); flex:initial; } .sharing-panel { grid-column:1 / -1; } .passport-panel { min-height:0; } .measurements-editor .save-measurements { margin-top:1rem; } }
 @media(max-width:760px) { .passport-grid { grid-template-columns:1fr; } .sharing-panel { grid-column:auto; } .saved-profiles { display:flex; gap:.5rem; flex-wrap:wrap; } .saved-profiles .panel-heading { flex-basis:100%; } .profile-link { flex:1 1 130px; } .passport-header { align-items:flex-start; } }
