@@ -7,7 +7,7 @@ $customerSection = 'home';
 <body class="customer-page"><a class="skip-link" href="#main">Skip to dashboard</a><div class="customer-shell">
 <?php require __DIR__ . '/customer-navigation.php'; ?>
 <main id="main" class="customer-main">
-<header class="dashboard-welcome"><div><h1>Welcome, <?= dashboard_escape($user['name']) ?></h1><p>Manage your measurements, styles, requests <br>and orders — all in one place.</p><a class="button" href="/customer/tailors.php">Request stitching <span aria-hidden="true">→</span></a></div><img src="/assets/images/home-hero.jpg" alt="Navy fabric, measuring tape and brass tailoring tools" width="1536" height="1024"></header>
+<header class="dashboard-welcome"><div><h1>Welcome, <?= dashboard_escape($user['name']) ?></h1><p>Manage your measurements, styles, requests <br>and orders — all in one place.</p><a class="button" href="/customer/tailors.php">Request stitching <span aria-hidden="true">→</span></a></div><img src="/assets/images/dashboard-measuring-tape.jpg" alt="Folded navy fabric and a coiled cream measuring tape" width="960" height="640"></header>
 <section class="dashboard-stats" aria-label="Your stitching summary">
 <?php foreach ([['requests',$requestCount,'Requests','requests.php'],['quotes',$quotationCount,'Quotes to review','requests.php'],['orders',$activeCount,'Active orders','orders.php'],['check',$completedCount,'Completed orders','orders.php']] as [$icon,$count,$label,$file]): ?>
 <a class="summary-card" href="/customer/<?= $file ?>"><?= customer_icon($icon) ?><div><strong><?= (int) $count ?></strong><span><?= $label ?></span></div></a>
