@@ -18,6 +18,7 @@ declare(strict_types=1);
         <nav class="container nav" aria-label="Main navigation">
             <a class="wordmark" href="/" aria-label="NaapSetu home">NaapSetu</a>
             <div class="nav-links">
+                <a href="/" aria-current="page">Home</a>
                 <a href="#services">Services</a>
                 <a href="#how-it-works">How it works</a>
                 <a href="/login.php">Log in</a>
@@ -29,9 +30,8 @@ declare(strict_types=1);
         <section class="hero" aria-labelledby="hero-title">
             <div class="container hero-grid">
                 <div class="hero-copy">
-                    <p class="eyebrow">Your measurements. A better fit.</p>
                     <h1 id="hero-title">Custom stitching.<br>Made simple.</h1>
-                    <p>Your fabric, your fit, your style. Find a tailor, share your preferences and follow every stage of your stitching journey.</p>
+                    <p>Save your measurements, place stitching orders and follow their progress.</p>
                     <div class="hero-actions">
                         <a class="button" href="/customer/tailors.php">Request stitching <span aria-hidden="true">→</span></a>
                         <a href="/register.php?role=tailor">Join as a tailor</a>
@@ -41,29 +41,25 @@ declare(strict_types=1);
             </div>
         </section>
         <section class="container section" id="how-it-works" aria-labelledby="steps-title">
-            <p class="eyebrow">How it works</p>
-            <h2 id="steps-title">A personal fit, in three steps.</h2>
+            <h2 id="steps-title" class="visually-hidden">How it works</h2>
             <div class="steps">
-                <article class="step"><span class="step-number">01</span><h3>Choose your tailor</h3><p>Explore shops and their stitching services. Choose the service that suits your garment.</p></article>
-                <article class="step"><span class="step-number">02</span><h3>Request a quotation</h3><p>Choose your measurements and style, then review the tailor’s price and completion date.</p></article>
-                <article class="step"><span class="step-number">03</span><h3>Confirm and follow</h3><p>Accept the quotation to create your order. Follow its progress through cutting, stitching and delivery.</p></article>
+                <article class="step"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="12" width="30" height="20" rx="4"/><ellipse cx="20" cy="12" rx="15" ry="6"/><path d="M12 20v6m8-6v4m8-4v6"/></svg><div><h3>Choose tailor</h3><p>Find a tailor and the service you need.</p></div></article>
+                <article class="step"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M10 4h15l7 8v24H10zM25 4v9h7M16 19h10m-10 6h10m-10 6h7"/></svg><div><h3>Request a quote</h3><p>Share measurements and design details.</p></div></article>
+                <article class="step"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16"/><path d="m12 20 6 6 11-12"/></svg><div><h3>Confirm your order</h3><p>Accept the quotation to start stitching.</p></div></article>
             </div>
         </section>
         <section class="services-section section" id="services" aria-labelledby="services-title">
             <div class="container">
-                <div class="section-heading"><div><p class="eyebrow">Made for you</p><h2 id="services-title">Stitching for your everyday.</h2></div><a href="/customer/tailors.php">Explore tailors and services →</a></div>
+                <div class="section-heading"><h2 id="services-title">Our services</h2></div>
                 <div class="service-grid">
-                    <article class="service-card"><h3>Women’s stitching</h3><p>Explore kameez, shalwar kameez, kurti and abaya services offered by tailors.</p></article>
-                    <article class="service-card"><h3>Men’s stitching</h3><p>Find kurta, shalwar kameez, waistcoat and trouser stitching services.</p></article>
-                    <article class="service-card"><h3>Your own details</h3><p>Save neckline, sleeve and fit preferences. Share the style you want when you send a request.</p></article>
+                    <a class="service-card fabric-navy" href="/customer/tailors.php">Kameez &amp; shirts</a>
+                    <a class="service-card fabric-cream" href="/customer/tailors.php">Shalwar &amp; trousers</a>
+                    <a class="service-card fabric-detail" href="/customer/tailors.php">Kurtas &amp; kurtis</a>
+                    <a class="service-card fabric-dark" href="/customer/tailors.php">Waistcoats &amp; abayas</a>
                 </div>
             </div>
         </section>
-        <section class="container section passport" aria-labelledby="passport-title">
-            <img src="/assets/images/tailoring-hero.jpg" alt="Tailoring tools and textured fabric" width="1200" height="800" loading="lazy">
-            <div><p class="eyebrow">Measurement passport</p><h2 id="passport-title">Your measurements.<br>Ready for your next garment.</h2><p>Keep reusable profiles, save new versions as your measurements change, and choose which tailors can access them.</p><a class="button" href="/register.php">Create your account →</a></div>
-        </section>
     </main>
-    <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><p>Custom stitching. Made personal.</p><a href="#how-it-works">How it works</a></div></footer>
+    <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">How it works</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
 </body>
 </html>
