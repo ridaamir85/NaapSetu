@@ -1,0 +1,71 @@
+/* Homepage only: reference proportions without changing account pages. */
+.home-page { background: #f6f2e9; }
+.home-page .container { width: min(1180px, calc(100% - 6rem)); }
+.home-page .site-header, .home-page .hero, .home-page .site-footer { background: radial-gradient(ellipse at 25% 0, #183448, #0c2332 75%); }
+.home-page .nav { min-height: 58px; gap: 2rem; }
+.home-page .nav > .wordmark { font-size: 1.65rem; }
+.home-page .nav > .wordmark::after { width: 112px; margin-left: 1.5rem; }
+.home-page .nav-links { gap: 2.3rem; font-family: Georgia, serif; font-size: .9rem; }
+.home-page .nav-links .button { margin-left: .2rem; min-height: 34px; padding: .35rem 1.4rem; font: inherit; }
+.home-page .button { background: linear-gradient(115deg, #dbb366, #b98b42); border-color: #cba052; color: #101d29; box-shadow: inset 0 1px #f0d59b66; }
+.home-page .hero-grid { grid-template-columns: 1fr 1fr; gap: 2rem; padding-block: .5rem 1.7rem; }
+.home-page .hero-copy { padding-left: .25rem; }
+.home-page .hero h1 { font-size: clamp(2.5rem, 3.7vw, 3.4rem); line-height: 1.02; letter-spacing: -.025em; margin-bottom: .85rem; }
+.home-page .hero h1::after { width: 43px; margin-top: .9rem; }
+.home-page .hero-copy > p { max-width: 24rem; font-family: Georgia, serif; font-size: 1.05rem; line-height: 1.4; margin-bottom: 0; }
+.home-page .hero-image { width: 100%; height: auto; aspect-ratio: 1.8; object-fit: cover; border-radius: 65px 7px 42px 7px; }
+.home-page .hero-actions { gap: 1.8rem; margin-top: 1.1rem; font-size: .9rem; }
+.home-page .hero-actions .button { min-height: 40px; padding: .55rem 1.1rem; }
+.home-page .hero-actions > a:not(.button) { font-weight: 600; text-decoration-color: var(--brass); text-decoration-thickness: 2px; }
+.home-page #how-it-works { padding-block: 1.35rem 1.2rem; }
+.home-page .steps { grid-template-columns: repeat(3, 1fr); gap: 4.5rem; padding-inline: 1.5rem; }
+.home-page .step { position: relative; gap: .9rem; padding: 0; align-items: flex-start; }
+.home-page .step:not(:last-child)::after { content: ''; width: 32px; height: 1px; background: #b18a4a; position: absolute; right: -3.2rem; top: 22px; }
+.home-page .step svg { margin-top: .15rem; width: 38px; height: 38px; flex-basis: 38px; }
+.home-page .step h3 { font-size: 1.05rem; margin-bottom: .3rem; }
+.home-page .step p { color: #263540; font-size: .8rem; line-height: 1.4; max-width: 13rem; }
+.home-page .services-section { background: transparent; padding-block: .85rem 1.3rem; }
+.home-page .services-section h2 { font-size: 1.45rem; margin-bottom: .75rem; }
+.home-page .service-grid { gap: 1.15rem; }
+.home-page .service-card { min-height: 0; aspect-ratio: 2.1; border-radius: 6px; padding: .8rem .3rem; font-size: 1.15rem; background-size: cover; background-position: center; background-blend-mode: normal; text-shadow: 0 1px 5px #000; }
+.home-page .fabric-navy { background-image: linear-gradient(0deg, #081724b3, transparent 85%), url('/assets/images/fabric-shirts.jpg'); }
+.home-page .fabric-cream { background-image: linear-gradient(0deg, #251a0bb3, transparent 85%), url('/assets/images/fabric-trousers.jpg'); }
+.home-page .fabric-detail { background-image: linear-gradient(0deg, #081724b3, transparent 85%), url('/assets/images/fabric-kurtas.jpg'); }
+.home-page .fabric-dark { background-image: linear-gradient(0deg, #081724b3, transparent 85%), url('/assets/images/fabric-suits.jpg'); }
+.home-page .site-footer { padding-block: .65rem; }
+.home-page .footer-content { gap: 1.5rem; }
+.home-page .site-footer .wordmark { font-size: 1.3rem; display: flex; align-items: center; gap: 1.5rem; }
+.home-page .site-footer .wordmark::after { content: ''; width: 75px; height: 1px; background: var(--brass); }
+.home-page .site-footer nav { gap: 1.5rem; }
+.home-page .site-footer nav a, .home-page .site-footer p { font-size: .75rem; }
+@media (min-width: 1600px) {
+    .home-page .container { width: min(1400px, calc(100% - 8rem)); }
+    .home-page .hero h1 { font-size: 4rem; }
+}
+@media (max-width: 1000px) {
+    .home-page .container { width: calc(100% - 3rem); }
+    .home-page .nav > .wordmark::after { width: 45px; margin-left: 1rem; }
+    .home-page .nav-links { gap: 1rem; }
+    .home-page .hero h1 { font-size: 2.65rem; }
+    .home-page .steps { gap: 2.5rem; padding-inline: 0; }
+    .home-page .step:not(:last-child)::after { width: 20px; right: -1.9rem; }
+    .home-page .step h3 { font-size: .95rem; }
+    .home-page .site-footer .wordmark::after { display: none; }
+}
+@media (max-width: 760px) {
+    .home-page .container { width: calc(100% - 2rem); }
+    .home-page .nav { gap: .6rem; padding-block: .8rem; }
+    .home-page .nav-links { gap: .9rem; font-family: inherit; font-size: .8rem; }
+    .home-page .nav-links .button { padding: .35rem .7rem; }
+    .home-page .hero-grid { grid-template-columns: 1fr; gap: 1.3rem; padding-block: 1.3rem 1.5rem; }
+    .home-page .hero h1 { font-size: clamp(2.5rem, 8vw, 3.4rem); }
+    .home-page .hero-image { aspect-ratio: 1.8; border-radius: 45px 6px 35px 6px; }
+    .home-page .hero-copy > p { max-width: 26rem; }
+    .home-page .steps { grid-template-columns: 1fr; gap: 1.3rem; }
+    .home-page .step:not(:last-child)::after { display: none; }
+    .home-page .step p { max-width: none; }
+    .home-page .service-grid { grid-template-columns: repeat(2, 1fr); gap: .8rem; }
+    .home-page .service-card { aspect-ratio: 1.65; font-size: 1.05rem; }
+    .home-page .footer-content { justify-content: center; gap: .65rem; text-align: center; }
+    .home-page .site-footer nav { gap: 1rem; }
+}

@@ -11,8 +11,9 @@ declare(strict_types=1);
     <meta name="description" content="Find a tailor, keep your measurements, review quotations and follow your custom stitching journey with NaapSetu.">
     <title>NaapSetu — Custom stitching. Made simple.</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/home.css">
 </head>
-<body>
+<body class="home-page">
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
         <nav class="container nav" aria-label="Main navigation">
@@ -37,7 +38,7 @@ declare(strict_types=1);
                         <a href="/register.php?role=tailor">Join as a tailor</a>
                     </div>
                 </div>
-                <img class="hero-image" src="/assets/images/tailoring-hero.jpg" alt="Brass tailoring scissors, measuring tape and thread on navy fabric" width="1200" height="800" fetchpriority="high">
+                <img class="hero-image" src="/assets/images/home-hero.jpg" alt="Golden brass scissors, measuring tape and thread on folded navy fabric" width="1200" height="800" fetchpriority="high">
             </div>
         </section>
         <section class="container section" id="how-it-works" aria-labelledby="steps-title">
@@ -52,14 +53,14 @@ declare(strict_types=1);
             <div class="container">
                 <div class="section-heading"><h2 id="services-title">Our services</h2></div>
                 <div class="service-grid">
-                    <a class="service-card fabric-navy" href="/customer/tailors.php">Kameez &amp; shirts</a>
-                    <a class="service-card fabric-cream" href="/customer/tailors.php">Shalwar &amp; trousers</a>
-                    <a class="service-card fabric-detail" href="/customer/tailors.php">Kurtas &amp; kurtis</a>
-                    <a class="service-card fabric-dark" href="/customer/tailors.php">Waistcoats &amp; abayas</a>
+                    <a class="service-card fabric-navy" href="/customer/tailors.php">Shirts</a>
+                    <a class="service-card fabric-cream" href="/customer/tailors.php">Trousers</a>
+                    <a class="service-card fabric-detail" href="/customer/tailors.php">Kurtas</a>
+                    <a class="service-card fabric-dark" href="/customer/tailors.php">Suits &amp; jackets</a>
                 </div>
             </div>
         </section>
     </main>
-    <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">How it works</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
+    <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">About</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
 </body>
 </html>
