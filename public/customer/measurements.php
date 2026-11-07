@@ -13,49 +13,7 @@ function escape_measurement(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-/** @return array{values: array<string, string>, error: string|null} */
-function parse_measurement_lines(string $input): array
-{
-    $measurements = [];
-    $normalizedNames = [];
-
-    foreach (preg_split('/\R/u', $input) ?: [] as $line) {
-        $line = trim($line);
-        if ($line === '') {
-            continue;
-        }
-
-        if (preg_match('/\A(.{1,50}?)\s*=\s*([0-9]{1,3}(?:\.[0-9]{1,2})?)\z/u', $line, $matches) !== 1) {
-            return ['values' => [], 'error' => 'Use one measurement per line in the format Chest = 92.'];
-        }
-
-        $name = trim($matches[1]);
-        $amount = $matches[2];
-        if (preg_match('/\A[\p{L}\p{N}][\p{L}\p{N} _-]{0,49}\z/u', $name) !== 1) {
-            return ['values' => [], 'error' => 'Measurement names may use letters, numbers, spaces, underscores, and hyphens.'];
-        }
-        if ((float) $amount <= 0) {
-            return ['values' => [], 'error' => 'Measurement values must be greater than 0 cm.'];
-        }
-
-        $normalizedName = mb_strtolower($name, 'UTF-8');
-        if (isset($normalizedNames[$normalizedName])) {
-            return ['values' => [], 'error' => 'Each measurement name must be unique within a version.'];
-        }
-
-        $normalizedNames[$normalizedName] = true;
-        $measurements[$name] = $amount;
-        if (count($measurements) > 30) {
-            return ['values' => [], 'error' => 'Add no more than 30 measurements to one version.'];
-        }
-    }
-
-    if ($measurements === []) {
-        return ['values' => [], 'error' => 'Add at least one measurement.'];
-    }
-
-    return ['values' => $measurements, 'error' => null];
-}
+require_once dirname(__DIR__, 2) . '/includes/measurement-input.php';
 
 $errors = [];
 $formValues = ['profile_name' => '', 'gender' => '', 'measurements' => ''];
@@ -71,7 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submittedAction = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
     $formValues['profile_name'] = is_string($_POST['profile_name'] ?? null) ? trim($_POST['profile_name']) : '';
     $formValues['gender'] = is_string($_POST['gender'] ?? null) ? $_POST['gender'] : '';
-    $formValues['measurements'] = is_string($_POST['measurements'] ?? null) ? trim($_POST['measurements']) : '';
+    $rowInput = measurement_rows_to_lines($_POST['measurement_names'] ?? null, $_POST['measurement_values'] ?? null, $_POST['unit'] ?? 'cm');
+    $formValues['measurements'] = $rowInput['lines'];
+    if ($rowInput['error'] !== null) {
+        $errors['measurements'] = $rowInput['error'];
+    }
 
     $rawProfileId = $_POST['profile_id'] ?? null;
     if ($submittedAction === 'add_version') {
@@ -118,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $parsedMeasurements = parse_measurement_lines($formValues['measurements']);
-    if ($parsedMeasurements['error'] !== null) {
+    if (!isset($errors['measurements']) && $parsedMeasurements['error'] !== null) {
         $errors['measurements'] = $parsedMeasurements['error'];
     }
 
@@ -182,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $connection->commit();
             header(
                 'Location: /customer/measurements.php?saved='
-                . ($submittedAction === 'create_profile' ? 'profile' : 'version'),
+                . ($submittedAction === 'create_profile' ? 'profile' : 'version') . '&profile=' . $profileId,
                 true,
                 303
             );
@@ -234,101 +196,35 @@ if ($profiles !== []) {
         }
     }
 }
-?>
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Measurement profiles | NaapSetu</title>
-</head>
-<body>
-    <main>
-        <a href="/customer/dashboard.php">Back to dashboard</a>
-        <h1>Measurement Passport</h1>
-        <p>Create profiles and keep each measurement update as a separate version. Measurements are in centimetres.</p>
 
-        <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_measurement($successMessage) ?></p>
-        <?php endif; ?>
-        <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_measurement($errors['form']) ?></p>
-        <?php endif; ?>
-
-        <section>
-            <h2>Create a measurement profile</h2>
-            <form method="post" action="/customer/measurements.php" novalidate>
-                <input type="hidden" name="csrf_token" value="<?= escape_measurement(csrf_token()) ?>">
-                <input type="hidden" name="action" value="create_profile">
-                <div>
-                    <label for="profile_name">Profile name</label>
-                    <input id="profile_name" name="profile_name" type="text" maxlength="80" required value="<?= escape_measurement($formValues['profile_name']) ?>">
-                    <?php if (isset($errors['profile_name'])): ?>
-                        <p role="alert"><?= escape_measurement($errors['profile_name']) ?></p>
-                    <?php endif; ?>
-                </div>
-                <div>
-                    <label for="gender">Gender</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">Choose one</option>
-                        <option value="female"<?= $formValues['gender'] === 'female' ? ' selected' : '' ?>>Female</option>
-                        <option value="male"<?= $formValues['gender'] === 'male' ? ' selected' : '' ?>>Male</option>
-                    </select>
-                    <?php if (isset($errors['gender'])): ?>
-                        <p role="alert"><?= escape_measurement($errors['gender']) ?></p>
-                    <?php endif; ?>
-                </div>
-                <div>
-                    <label for="new_measurements">Measurements (cm)</label>
-                    <textarea id="new_measurements" name="measurements" rows="8" required placeholder="Chest = 92&#10;Waist = 74&#10;Sleeve = 58"><?= escape_measurement($submittedAction === 'create_profile' ? $formValues['measurements'] : '') ?></textarea>
-                    <small>Enter one measurement per line as Name = value. Use up to 30 measurements.</small>
-                    <?php if ($submittedAction === 'create_profile' && isset($errors['measurements'])): ?>
-                        <p role="alert"><?= escape_measurement($errors['measurements']) ?></p>
-                    <?php endif; ?>
-                </div>
-                <button type="submit">Create profile and save version 1</button>
-            </form>
-        </section>
-
-        <h2>Your profiles</h2>
-        <?php if ($profiles === []): ?>
-            <p>You have no measurement profiles yet.</p>
-        <?php else: ?>
-            <?php foreach ($profiles as $profile): ?>
-                <section>
-                    <h3><?= escape_measurement($profile['profile_name']) ?></h3>
-                    <p>Category: <?= escape_measurement(ucfirst($profile['gender'])) ?></p>
-
-                    <?php foreach ($versionsByProfile[$profile['profile_id']] ?? [] as $version): ?>
-                        <article>
-                            <h4>Version <?= (int) $version['version_no'] ?></h4>
-                            <p><time datetime="<?= escape_measurement($version['created_at']) ?>"><?= escape_measurement($version['created_at']) ?></time></p>
-                            <ul>
-                                <?php foreach ($version['values'] as $measurement): ?>
-                                    <li><?= escape_measurement($measurement['name']) ?>: <?= escape_measurement($measurement['value_cm']) ?> cm</li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </article>
-                    <?php endforeach; ?>
-
-                    <h4>Add a new version</h4>
-                    <form method="post" action="/customer/measurements.php" novalidate>
-                        <input type="hidden" name="csrf_token" value="<?= escape_measurement(csrf_token()) ?>">
-                        <input type="hidden" name="action" value="add_version">
-                        <input type="hidden" name="profile_id" value="<?= (int) $profile['profile_id'] ?>">
-                        <div>
-                            <label for="version_measurements_<?= (int) $profile['profile_id'] ?>">Updated measurements (cm)</label>
-                            <textarea id="version_measurements_<?= (int) $profile['profile_id'] ?>" name="measurements" rows="6" required placeholder="Chest = 93&#10;Waist = 75"><?= escape_measurement($submittedAction === 'add_version' && $submittedProfileId === (int) $profile['profile_id'] ? $formValues['measurements'] : '') ?></textarea>
-                            <small>Enter a complete new set. This creates a new version and preserves the earlier one.</small>
-                            <?php if ($submittedAction === 'add_version' && $submittedProfileId === (int) $profile['profile_id'] && isset($errors['measurements'])): ?>
-                                <p role="alert"><?= escape_measurement($errors['measurements']) ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <button type="submit">Save new version</button>
-                    </form>
-                </section>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </main>
-</body>
-</html>
+// Resolve selections only from this customer's already-authorized profile list.
+$selectedProfile = null;
+$wantedProfile = $submittedProfileId ?: ($_GET['profile'] ?? '');
+if (!is_scalar($wantedProfile)) $wantedProfile = '';
+foreach ($profiles as $profile) {
+    if ((string) $profile['profile_id'] === (string) $wantedProfile) $selectedProfile = $profile;
+}
+if ($selectedProfile === null && $profiles !== []) $selectedProfile = $profiles[0];
+$isCreating = isset($_GET['new']) || $profiles === [] || ($_SERVER['REQUEST_METHOD'] === 'POST' && $submittedAction === 'create_profile');
+$selectedVersions = $selectedProfile ? ($versionsByProfile[$selectedProfile['profile_id']] ?? []) : [];
+$selectedVersionId = array_key_first($selectedVersions);
+if (is_string($_GET['version'] ?? null) && isset($selectedVersions[$_GET['version']])) $selectedVersionId = (int) $_GET['version'];
+$selectedVersion = $selectedVersionId !== null ? $selectedVersions[$selectedVersionId] : null;
+$inputRows = $selectedVersion['values'] ?? [['name'=>'Chest','value_cm'=>''],['name'=>'Waist','value_cm'=>''],['name'=>'Sleeve','value_cm'=>'']];
+if ($isCreating) $inputRows = [['name'=>'Chest','value_cm'=>''],['name'=>'Waist','value_cm'=>''],['name'=>'Sleeve','value_cm'=>'']];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $inputRows = [];
+    $names = is_array($_POST['measurement_names'] ?? null) ? array_values($_POST['measurement_names']) : [];
+    $amounts = is_array($_POST['measurement_values'] ?? null) ? array_values($_POST['measurement_values']) : [];
+    foreach (array_slice($names, 0, 30) as $index=>$name) {
+        $inputRows[] = ['name'=>is_string($name) ? $name : '', 'value_cm'=>is_string($amounts[$index] ?? null) ? $amounts[$index] : ''];
+    }
+}
+$displayUnit = $_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['unit'] ?? '') === 'inch' ? 'inch' : 'cm';
+$permissions = [];
+if ($selectedProfile && !$isCreating) {
+    $sharing = $connection->prepare('SELECT DISTINCT tp.shop_name FROM measurement_permissions mp JOIN tailor_profiles tp ON tp.tailor_id=mp.tailor_id WHERE mp.profile_id=? AND mp.revoked_at IS NULL');
+    $sharing->execute([$selectedProfile['profile_id']]);
+    $permissions = $sharing->fetchAll();
+}
+require dirname(__DIR__, 2) . '/includes/measurement-passport-view.php';

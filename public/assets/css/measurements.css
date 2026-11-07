@@ -1,0 +1,37 @@
+.passport-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; }
+.passport-header h1 { font-size:clamp(1.7rem,2.6vw,2.5rem); font-weight:600; margin-bottom:.4rem; }
+.passport-header p { font-size:.875rem; margin:0; }
+.unit-picker { display:flex; align-items:center; gap:.6rem; font-size:.8rem; }
+.passport-grid { display:grid; grid-template-columns:180px minmax(280px,1fr) 220px; gap:1rem; align-items:start; }
+.passport-panel { background:#fffdfa; border:1px solid #e1dbd0; box-shadow:0 3px 8px #182c4210; border-radius:10px; padding:1rem; }
+.passport-panel h2 { font:650 .85rem/1.4 system-ui,sans-serif; margin:0 0 1rem; }
+.panel-heading { display:flex; justify-content:space-between; align-items:baseline; }
+.panel-heading a { font-size:1.6rem; text-decoration:none; line-height:1; }
+.profile-link { display:block; position:relative; padding:.8rem 1.3rem .8rem .6rem; border-bottom:1px solid #e5ddcf; text-decoration:none; font-size:.85rem; }
+.profile-link[aria-current] { background:#eee0c3; border-radius:6px; }
+.profile-link span { display:block; font-size:.75rem; }
+.profile-link .profile-chevron { position:absolute; right:.3rem; top:1rem; font-size:1.2rem; }
+.editor-heading { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+.version-picker label { display:block; font-size:.75rem; font-weight:650; }
+.version-picker > div { display:flex; gap:.3rem; }
+.passport-panel input,.passport-panel select,.unit-picker select { width:100%; min-height:38px; padding:.4rem .5rem; border:1px solid #c9c5bd; border-radius:5px; background:#fffefa; color:#182c42; font:inherit; font-size:.8rem; }
+.unit-picker select { width:auto; border-color:#b18a4a; }
+.profile-basics,.measurement-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.7fr) 24px; gap:.6rem; margin-bottom:1rem; align-items:end; }
+.profile-basics { grid-template-columns:1fr 1fr; }
+.measurement-rows { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:1rem; }
+.measurement-row { grid-template-columns:minmax(0,1fr) 24px; align-content:start; }
+.measurement-row > div:first-child { grid-column:1 / -1; }
+.version-picker button[type="submit"] { min-height:38px; padding:.4rem .6rem; font-size:.75rem; }
+.measurements-editor label { display:block; font-size:.75rem; font-weight:650; margin-bottom:.3rem; }
+.panel-note { font-size:.75rem; line-height:1.5; color:#53616c; }
+.small-button,.remove-measurement { background:transparent; color:#624719; border:1px solid #b18a4a; border-radius:5px; padding:.4rem .6rem; font-size:.75rem; }
+.remove-measurement { padding:.3rem; height:38px; }
+.save-measurements { width:100%; background:linear-gradient(110deg,#b98b42,#d4ae62) !important; font:500 .95rem Georgia,serif !important; min-height:40px !important; }
+.sharing-panel h2 { display:flex; align-items:center; gap:.4rem; }
+.sharing-panel svg { width:19px; height:19px; }
+.sharing-panel p,.sharing-panel li { font-size:.8rem; }
+.sharing-panel ul { list-style:none; padding:0; display:grid; gap:.8rem; }
+.shared-check { display:inline-block; margin-right:.5rem; color:#a47b35; }
+[hidden] { display:none !important; }
+@media(max-width:1200px) { .passport-grid { grid-template-columns:160px minmax(0,1fr); } .sharing-panel { grid-column:2; } }
+@media(max-width:760px) { .passport-grid { grid-template-columns:1fr; } .sharing-panel { grid-column:auto; } .saved-profiles { display:flex; gap:.5rem; flex-wrap:wrap; } .saved-profiles .panel-heading { flex-basis:100%; } .profile-link { flex:1 1 130px; } .passport-header { align-items:flex-start; } }
