@@ -93,3 +93,4 @@ button, .button { cursor: pointer; }
     html { scroll-behavior: auto; }
     *, *::before, *::after { transition: none !important; }
 }
+.password-toggle[hidden] { display: none; }

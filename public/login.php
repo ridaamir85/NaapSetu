@@ -62,11 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
 </head>
-<body>
-    <main>
+<body class="auth-page">
+    <a class="skip-link" href="#main">Skip to form</a>
+    <div class="auth-shell">
+    <?php require dirname(__DIR__) . '/includes/account-aside.php'; ?>
+    <main id="main" class="auth-main">
         <header>
-            <a href="index.php">NaapSetu</a>
+            <a href="index.php">← Back to home</a>
             <h1>Sign in</h1>
             <p>Access your NaapSetu account.</p>
         </header>
@@ -87,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     maxlength="150"
                     autocomplete="email"
                     required
+                    aria-invalid="<?= $error !== null ? 'true' : 'false' ?>"
                     value="<?= escape_login($email) ?>"
                 >
             </div>
@@ -100,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="current-password"
                     required
                 >
+                <button class="password-toggle" type="button" data-toggle-password="password" aria-controls="password" aria-pressed="false" hidden>Show password</button>
             </div>
 
             <button type="submit">Sign in</button>
@@ -107,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <p>Do not have an account? <a href="register.php">Register here</a>.</p>
     </main>
+    </div>
+    <script src="/assets/js/account.js" defer></script>
 </body>
 </html>
 

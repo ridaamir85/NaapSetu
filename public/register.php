@@ -17,7 +17,7 @@ $values = [
     'name' => '',
     'email' => '',
     'phone' => '',
-    'role' => 'customer',
+    'role' => ($_GET['role'] ?? '') === 'tailor' ? 'tailor' : 'customer',
 ];
 $errors = [];
 $successMessage = null;
@@ -82,11 +82,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
 </head>
-<body>
-    <main>
+<body class="auth-page">
+    <a class="skip-link" href="#main">Skip to form</a>
+    <div class="auth-shell">
+    <?php require dirname(__DIR__) . '/includes/account-aside.php'; ?>
+    <main id="main" class="auth-main">
         <header>
-            <a href="index.php">NaapSetu</a>
+            <a href="index.php">← Back to home</a>
             <h1>Create an account</h1>
             <p>Register as a customer or tailor.</p>
         </header>
@@ -113,7 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="name"
                     required
                     value="<?= escape($values['name']) ?>"
-                    aria-describedby="name-error"
+                    aria-invalid="<?= isset($errors['name']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['name']) ? 'aria-describedby="name-error"' : '' ?>
                 >
                 <?php if (isset($errors['name'])): ?>
                     <p id="name-error" role="alert"><?= escape($errors['name']) ?></p>
@@ -130,7 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="email"
                     required
                     value="<?= escape($values['email']) ?>"
-                    aria-describedby="email-error"
+                    aria-invalid="<?= isset($errors['email']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['email']) ? 'aria-describedby="email-error"' : '' ?>
                 >
                 <?php if (isset($errors['email'])): ?>
                     <p id="email-error" role="alert"><?= escape($errors['email']) ?></p>
@@ -146,7 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     maxlength="20"
                     autocomplete="tel"
                     value="<?= escape($values['phone']) ?>"
-                    aria-describedby="phone-error"
+                    aria-invalid="<?= isset($errors['phone']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['phone']) ? 'aria-describedby="phone-error"' : '' ?>
                 >
                 <?php if (isset($errors['phone'])): ?>
                     <p id="phone-error" role="alert"><?= escape($errors['phone']) ?></p>
@@ -187,8 +194,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     minlength="8"
                     autocomplete="new-password"
                     required
-                    aria-describedby="password-help password-error"
+                    aria-invalid="<?= isset($errors['password']) ? 'true' : 'false' ?>"
+                    aria-describedby="password-help<?= isset($errors['password']) ? ' password-error' : '' ?>"
                 >
+                <button class="password-toggle" type="button" data-toggle-password="password" aria-controls="password" aria-pressed="false" hidden>Show password</button>
                 <p id="password-help">Use at least 8 characters.</p>
                 <?php if (isset($errors['password'])): ?>
                     <p id="password-error" role="alert"><?= escape($errors['password']) ?></p>
@@ -204,7 +213,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     minlength="8"
                     autocomplete="new-password"
                     required
-                    aria-describedby="password-confirmation-error"
+                    aria-invalid="<?= isset($errors['password_confirmation']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['password_confirmation']) ? 'aria-describedby="password-confirmation-error"' : '' ?>
                 >
                 <?php if (isset($errors['password_confirmation'])): ?>
                     <p id="password-confirmation-error" role="alert">
@@ -215,7 +225,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit">Create account</button>
         </form>
+        <p>Already have an account? <a href="/login.php">Log in</a>.</p>
     </main>
+    </div>
+    <script src="/assets/js/account.js" defer></script>
 </body>
 </html>
 
