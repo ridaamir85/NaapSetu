@@ -83,16 +83,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/account.css">
 </head>
-<body class="auth-page">
+<body class="auth-page register-page">
     <a class="skip-link" href="#main">Skip to form</a>
     <div class="auth-shell">
     <?php require dirname(__DIR__) . '/includes/account-aside.php'; ?>
     <main id="main" class="auth-main">
         <header>
-            <a href="index.php">← Back to home</a>
-            <h1>Create an account</h1>
-            <p>Register as a customer or tailor.</p>
+            <h1>Create your NaapSetu account</h1>
+            <p>Join as a customer to get custom stitching, or as a tailor<br>to receive stitching requests.</p>
         </header>
 
         <?php if ($successMessage !== null): ?>
@@ -107,6 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post" action="register.php" novalidate>
             <input type="hidden" name="csrf_token" value="<?= escape(csrf_token()) ?>">
 
+            <fieldset class="role-options">
+                <legend>I am a</legend>
+                <label><input type="radio" name="role" value="customer" <?= $values['role'] === 'customer' ? 'checked' : '' ?>><span>Customer<small>Get custom stitching</small></span></label>
+                <label><input type="radio" name="role" value="tailor" <?= $values['role'] === 'tailor' ? 'checked' : '' ?>><span>Tailor<small>Receive stitching requests</small></span></label>
+                <?php if (isset($errors['role'])): ?><p role="alert"><?= escape($errors['role']) ?></p><?php endif; ?>
+            </fieldset>
+
             <div>
                 <label for="name">Full name</label>
                 <input
@@ -115,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     type="text"
                     maxlength="100"
                     autocomplete="name"
+                    placeholder="Enter your full name"
                     required
                     value="<?= escape($values['name']) ?>"
                     aria-invalid="<?= isset($errors['name']) ? 'true' : 'false' ?>"
@@ -133,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     type="email"
                     maxlength="150"
                     autocomplete="email"
+                    placeholder="Enter your email"
                     required
                     value="<?= escape($values['email']) ?>"
                     aria-invalid="<?= isset($errors['email']) ? 'true' : 'false' ?>"
@@ -160,44 +169,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
             </div>
 
-            <fieldset>
-                <legend>Account type</legend>
-                <label>
-                    <input
-                        type="radio"
-                        name="role"
-                        value="customer"
-                        <?= $values['role'] === 'customer' ? 'checked' : '' ?>
-                    >
-                    Customer
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        name="role"
-                        value="tailor"
-                        <?= $values['role'] === 'tailor' ? 'checked' : '' ?>
-                    >
-                    Tailor
-                </label>
-                <?php if (isset($errors['role'])): ?>
-                    <p role="alert"><?= escape($errors['role']) ?></p>
-                <?php endif; ?>
-            </fieldset>
-
             <div>
                 <label for="password">Password</label>
+                <div class="password-field">
                 <input
                     id="password"
                     name="password"
                     type="password"
                     minlength="8"
                     autocomplete="new-password"
+                    placeholder="Create a password"
                     required
                     aria-invalid="<?= isset($errors['password']) ? 'true' : 'false' ?>"
                     aria-describedby="password-help<?= isset($errors['password']) ? ' password-error' : '' ?>"
                 >
                 <button class="password-toggle" type="button" data-toggle-password="password" aria-controls="password" aria-pressed="false" hidden>Show password</button>
+                </div>
                 <p id="password-help">Use at least 8 characters.</p>
                 <?php if (isset($errors['password'])): ?>
                     <p id="password-error" role="alert"><?= escape($errors['password']) ?></p>
@@ -225,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <button type="submit">Create account</button>
         </form>
-        <p>Already have an account? <a href="/login.php">Log in</a>.</p>
+        <p class="account-switch">Already have an account? <a href="/login.php">Log in</a></p>
     </main>
     </div>
     <script src="/assets/js/account.js" defer></script>

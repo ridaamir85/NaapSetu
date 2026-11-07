@@ -1,0 +1,45 @@
+/* Public account screens, matching the Midnight & Brass reference. */
+.auth-shell { grid-template-columns: 43% 57%; }
+.auth-aside { background: radial-gradient(ellipse at 55% 15%, #19384c, #0c2332 75%); padding: clamp(2rem, 5vw, 5rem); }
+.auth-aside .wordmark { font-size: clamp(2.3rem, 3.2vw, 3.2rem); }
+.auth-aside h2 { font-size: clamp(1.9rem, 2.8vw, 2.8rem); line-height: 1.06; margin-top: 1.4rem; }
+.auth-aside img { height: 62%; object-position: 56% center; mask-image: linear-gradient(transparent, #000 12%); }
+.auth-main { max-width: 720px; padding: 2.5rem clamp(2rem, 5vw, 5rem); }
+.auth-main h1 { font-size: clamp(1.6rem, 2.2vw, 2.1rem); font-weight: 600; letter-spacing: -.025em; }
+.auth-main header p { font-size: .9rem; line-height: 1.45; color: #142536; margin-bottom: 1.75rem; }
+.auth-main label { font-size: .85rem; margin-bottom: .25rem; }
+.auth-main form > div { margin-bottom: 1.1rem; }
+.auth-main input:not([type="hidden"]):not([type="radio"]) { min-height: 40px; padding: .45rem .7rem; font-size: .9rem; background: #fffdf980; border-radius: 6px; }
+.auth-main button[type="submit"] { min-height: 42px; margin-top: 1rem; background: linear-gradient(115deg, #d5aa5c, #b98b42); color: #101d29; font-family: Georgia, serif; font-size: 1.1rem; }
+.account-switch { font-size: .85rem; text-align: center; margin-bottom: 0; }
+.account-switch a { margin-left: .5rem; font-weight: 650; }
+.password-field { position: relative; }
+.auth-main .password-field input { padding-right: 3rem !important; }
+.password-toggle { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%); margin: 0; width: 32px; height: 32px; padding: .3rem; font-size: 0; display: grid; place-items: center; border-radius: 4px; }
+.password-toggle::before { content: ''; width: 18px; height: 18px; background: currentColor; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-width='1.7' d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E") center/contain no-repeat; }
+.password-toggle[aria-pressed="true"] { color: #946a2f; background: #e5ddcf; }
+.password-toggle[hidden] { display: none; }
+.register-page .auth-shell { grid-template-columns: 39% 61%; }
+.register-page .auth-main { max-width: 800px; padding-block: 1.5rem; }
+.register-page .auth-main header p { margin-bottom: 1rem; }
+.register-page .auth-main form > div { margin-bottom: .65rem; }
+.register-page .auth-main .role-options { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; position: relative; margin-bottom: 1rem; padding-left: 3rem; }
+.role-options legend { position: absolute; top: .7rem; left: 0; font-size: .8rem; font-weight: 650; }
+.auth-main .role-options label { display: flex; align-items: center; gap: .6rem; margin: 0; padding: .55rem .7rem; font-size: .85rem; }
+.role-options small { display: block; font-weight: 400; font-size: .7rem; line-height: 1.35; }
+.role-options input { margin: 0; flex-shrink: 0; }
+.role-options [role="alert"] { grid-column: 1 / -1; }
+.auth-main #password-help { margin-bottom: 0; }
+@media (max-width: 760px) {
+    .auth-shell, .register-page .auth-shell { grid-template-columns: 1fr; }
+    .auth-aside { padding: 1.25rem 1.5rem; }
+    .auth-aside .wordmark { font-size: 2rem; }
+    .auth-aside .wordmark::after { display: none; }
+    .auth-main, .register-page .auth-main { padding: 1.75rem 1.5rem; }
+    .auth-main header p br { display: none; }
+}
+@media (max-width: 400px) {
+    .register-page .auth-main .role-options { padding-left: 0; padding-top: 1.7rem; }
+    .role-options legend { top: 0; }
+    .auth-main .role-options label { padding: .5rem; }
+}
