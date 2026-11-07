@@ -1,36 +1,19 @@
 <?php
-
 declare(strict_types=1);
-
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-
 $user = require_role('customer');
-?>
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Customer dashboard | NaapSetu</title>
-</head>
-<body>
-    <main>
-        <h1>Customer dashboard</h1>
-        <p>Welcome, <?= htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') ?>.</p>
-        <p>Your measurement profiles, styles, requests, and orders will appear here.</p>
-        <p><a href="/customer/measurements.php">Measurement profiles</a></p>
-        <p><a href="/customer/styles.php">My style profiles</a></p>
-        <p><a href="/customer/permissions.php">Measurement sharing permissions</a></p>
-        <p><a href="/customer/tailors.php">Browse tailors</a></p>
-        <p><a href="/customer/requests.php">My requests and quotations</a></p>
-        <p><a href="/customer/orders.php">My orders</a></p>
-        <p><a href="/customer/feedback.php">My feedback and alterations</a></p>
-
-        <form method="post" action="/logout.php">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
-            <button type="submit">Sign out</button>
-        </form>
-    </main>
-</body>
-</html>
-
+$db = database();
+$stmt = $db->prepare('SELECT COUNT(*) FROM order_requests WHERE customer_id = ?');
+$stmt->execute([$user['user_id']]);
+$requestCount = (int) $stmt->fetchColumn();
+$stmt = $db->prepare("SELECT COUNT(*) FROM quotations q JOIN order_requests r ON r.request_id=q.request_id WHERE r.customer_id=? AND q.status='sent'");
+$stmt->execute([$user['user_id']]);
+$quotationCount = (int) $stmt->fetchColumn();
+$stmt = $db->prepare('SELECT o.order_id, o.status, s.garment_type, p.shop_name, f.received_at FROM orders o JOIN quotations q ON q.quotation_id=o.quotation_id JOIN order_requests r ON r.request_id=q.request_id JOIN tailor_services s ON s.service_id=r.service_id AND s.tailor_id=r.tailor_id JOIN tailor_profiles p ON p.tailor_id=r.tailor_id LEFT JOIN fabric_records f ON f.order_id=o.order_id WHERE r.customer_id=? ORDER BY o.confirmed_at DESC, o.order_id DESC');
+$stmt->execute([$user['user_id']]);
+$allOrders = $stmt->fetchAll();
+$orders = array_values(array_filter($allOrders, fn($order) => $order['status'] !== 'delivered'));
+$activeCount = count($orders);
+$completedCount = count($allOrders) - $activeCount;
+$orders = array_slice($orders, 0, 3);
+require dirname(__DIR__, 2) . '/includes/customer-dashboard-view.php';
