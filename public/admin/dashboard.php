@@ -123,19 +123,7 @@ $title = $titles[$view];
 <body class="admin-page">
     <a class="skip-link" href="#main">Skip to admin content</a>
     <div class="admin-shell">
-        <aside class="admin-sidebar">
-            <a class="admin-wordmark" href="/admin/dashboard.php">NaapSetu</a>
-            <nav aria-label="Admin navigation">
-                <a href="/admin/dashboard.php"<?= $view === 'overview' ? ' aria-current="page"' : '' ?>><span aria-hidden="true">⌂</span>Overview</a>
-                <a href="/admin/dashboard.php?view=users"<?= $view === 'users' ? ' aria-current="page"' : '' ?>><span aria-hidden="true">♙</span>Users</a>
-                <a href="/admin/dashboard.php?view=tailors"<?= $view === 'tailors' ? ' aria-current="page"' : '' ?>><span aria-hidden="true">♧</span>Tailors</a>
-                <a href="/admin/dashboard.php?view=services"<?= $view === 'services' ? ' aria-current="page"' : '' ?>><span aria-hidden="true">✂</span>Services</a>
-            </nav>
-            <form method="post" action="/logout.php" class="admin-signout">
-                <input type="hidden" name="csrf_token" value="<?= escape_admin_dashboard(csrf_token()) ?>">
-                <button type="submit"><span aria-hidden="true">↪</span>Sign out</button>
-            </form>
-        </aside>
+        <?php $adminSection = $view; require dirname(__DIR__, 2) . '/includes/admin-navigation.php'; ?>
 
         <main id="main" class="admin-main">
             <header class="admin-heading">

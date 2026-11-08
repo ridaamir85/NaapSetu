@@ -52,6 +52,15 @@ button.admin-filter-button { min-height:36px; padding:.4rem .8rem; border:1px so
 .admin-empty p { margin:0; color:#747b7c; font-size:.78rem; }
 .admin-access-note { margin:.8rem 0 0; color:#737a7b; font-size:.72rem; }
 .admin-access-note a { color:#765a2d; font-weight:700; }
+.admin-alert { margin:0 0 .8rem; padding:.7rem .85rem; border:1px solid; border-radius:8px; font-size:.8rem; }
+.admin-alert-success { border-color:#b5d2bd; background:#edf6ef; color:#28553a; }
+.admin-alert-error { border-color:#dfb9b1; background:#fbefec; color:#7b3027; }
+.admin-users-table { min-width:760px; }
+.admin-access-form { margin:0; }
+button.admin-access-button { min-height:33px; padding:.35rem .65rem; border:1px solid; border-radius:6px; font-size:.68rem; font-weight:700; cursor:pointer; }
+button.admin-access-button:hover { transform:translateY(-1px); }
+button.admin-access-button.deactivate-button { border-color:#d8b5ac; background:#fbefec; color:#79392e; }
+button.admin-access-button.activate-button { border-color:#9dbda4; background:#edf6ef; color:#28553a; }
 .admin-page .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @media(max-width:760px) { .admin-shell { grid-template-columns:1fr; } .admin-sidebar { position:static; height:auto; min-height:0; gap:.75rem; padding:.8rem 1rem; } .admin-wordmark { padding:.2rem .2rem .65rem; } .admin-sidebar nav { display:flex; flex-wrap:wrap; gap:.35rem; } .admin-sidebar nav a { min-height:36px; padding:.45rem .55rem; font-size:.74rem; } .admin-signout { margin:0; } .admin-signout button { width:auto; min-height:32px; padding:.35rem .5rem; } .admin-main { padding:1rem; } }
 @media(max-width:560px) { .admin-stats { grid-template-columns:1fr; gap:.55rem; } .admin-stat { padding:.75rem; } .admin-panel-heading { align-items:flex-start; flex-direction:column; gap:.45rem; } .admin-filters { align-items:stretch; } .admin-filters label,.admin-filters select,.admin-search,.admin-filter-button { width:100%; } .admin-view-all { margin:0; } .admin-table { min-width:650px; } }

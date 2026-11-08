@@ -106,57 +106,56 @@ $accounts = $statement->fetchAll();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Manage accounts | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
 </head>
-<body>
-    <main>
-        <a href="/admin/dashboard.php">Back to dashboard</a>
-        <h1>Customer and tailor accounts</h1>
+<body class="admin-page">
+    <a class="skip-link" href="#main">Skip to account list</a>
+    <div class="admin-shell">
+        <?php $adminSection = 'users'; require dirname(__DIR__, 2) . '/includes/admin-navigation.php'; ?>
+        <main id="main" class="admin-main">
+            <header class="admin-heading">
+                <div><p class="admin-eyebrow">Account access</p><h1>Manage users</h1><p>Activate or deactivate customer and tailor accounts.</p></div>
+            </header>
 
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_admin_user($successMessage) ?></p>
+            <p class="admin-alert admin-alert-success" role="status"><?= escape_admin_user($successMessage) ?></p>
         <?php endif; ?>
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_admin_user($errors['form']) ?></p>
+            <p class="admin-alert admin-alert-error" role="alert"><?= escape_admin_user($errors['form']) ?></p>
         <?php endif; ?>
 
-        <?php if ($accounts === []): ?>
-            <p>No customer or tailor accounts are registered yet.</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Role</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Created</th>
-                        <th scope="col">Access</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($accounts as $account): ?>
-                        <tr>
-                            <td><?= escape_admin_user($account['name']) ?></td>
-                            <td><?= escape_admin_user($account['email']) ?></td>
-                            <td><?= escape_admin_user($account['role']) ?></td>
-                            <td><?= (int) $account['is_active'] === 1 ? 'Active' : 'Deactivated' ?></td>
-                            <td><time datetime="<?= escape_admin_user($account['created_at']) ?>"><?= escape_admin_user($account['created_at']) ?></time></td>
-                            <td>
-                                <form method="post" action="/admin/users.php">
-                                    <input type="hidden" name="csrf_token" value="<?= escape_admin_user(csrf_token()) ?>">
-                                    <input type="hidden" name="user_id" value="<?= (int) $account['user_id'] ?>">
-                                    <?php if ((int) $account['is_active'] === 1): ?>
-                                        <button type="submit" name="action" value="deactivate">Deactivate</button>
-                                    <?php else: ?>
-                                        <button type="submit" name="action" value="activate">Activate</button>
-                                    <?php endif; ?>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </main>
+            <section class="admin-list-panel" aria-labelledby="accounts-title">
+                <header class="admin-panel-heading"><div><p class="admin-eyebrow">Account directory</p><h2 id="accounts-title">Customer and tailor accounts</h2></div><a href="/admin/dashboard.php">← Admin overview</a></header>
+                <?php if ($accounts === []): ?>
+                    <div class="admin-empty"><span aria-hidden="true">⌕</span><h3>No accounts yet</h3><p>Customer and tailor accounts will appear here.</p></div>
+                <?php else: ?>
+                    <div class="admin-table-wrap"><table class="admin-table admin-users-table">
+                        <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Joined</th><th scope="col">Access</th></tr></thead>
+                        <tbody>
+                            <?php foreach ($accounts as $account): ?>
+                                <tr>
+                                    <td><strong><?= escape_admin_user($account['name']) ?></strong></td>
+                                    <td><?= escape_admin_user($account['email']) ?></td>
+                                    <td><span class="admin-role"><?= escape_admin_user(ucfirst($account['role'])) ?></span></td>
+                                    <td><span class="admin-status <?= (int) $account['is_active'] === 1 ? 'is-active' : 'is-inactive' ?>"><?= (int) $account['is_active'] === 1 ? 'Active' : 'Inactive' ?></span></td>
+                                    <td><time datetime="<?= escape_admin_user($account['created_at']) ?>"><?= escape_admin_user(date('M j, Y', strtotime($account['created_at']))) ?></time></td>
+                                    <td><form method="post" action="/admin/users.php" class="admin-access-form">
+                                        <input type="hidden" name="csrf_token" value="<?= escape_admin_user(csrf_token()) ?>">
+                                        <input type="hidden" name="user_id" value="<?= (int) $account['user_id'] ?>">
+                                        <?php if ((int) $account['is_active'] === 1): ?>
+                                            <button class="admin-access-button deactivate-button" type="submit" name="action" value="deactivate">Deactivate</button>
+                                        <?php else: ?>
+                                            <button class="admin-access-button activate-button" type="submit" name="action" value="activate">Activate</button>
+                                        <?php endif; ?>
+                                    </form></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table></div>
+                <?php endif; ?>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
