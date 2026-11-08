@@ -1,0 +1,69 @@
+.orders-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; margin-bottom:1.2rem; }
+.orders-heading .eyebrow,.orders-page .eyebrow { margin:0 0 .35rem; color:#9a7131; font-size:.72rem; font-weight:700; letter-spacing:.11em; text-transform:uppercase; }
+.orders-heading h1 { margin:0 0 .45rem; color:#172f40; font:600 clamp(1.7rem,2.5vw,2.2rem)/1.2 Georgia,serif; }
+.orders-heading > div > p:last-child { margin:0; color:#5f6769; font-size:.9rem; }
+.orders-layout { display:grid; grid-template-columns:minmax(220px, .34fr) minmax(0, 1fr); align-items:start; gap:1rem; }
+.orders-list-panel,.order-detail,.orders-empty { min-width:0; background:#fffdfa; border:1px solid #e2ddd3; border-radius:13px; box-shadow:0 4px 13px #182c420a; }
+.orders-list-panel { overflow:hidden; }
+.orders-panel-heading { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.9rem 1rem; border-bottom:1px solid #ebe6dd; }
+.orders-panel-heading h2 { margin:0; color:#183344; font:600 1.05rem Georgia,serif; }
+.orders-panel-heading > span { color:#747a7b; font-size:.72rem; }
+.orders-list { display:grid; }
+.order-list-item { display:grid; gap:.32rem; padding:.85rem 1rem; border-bottom:1px solid #eee9e0; color:inherit; text-decoration:none; transition:background-color .15s ease,border-color .15s ease; }
+.order-list-item:last-child { border-bottom:0; }
+.order-list-item:hover { background:#faf6ed; }
+.order-list-item:focus-visible,.orders-page a:focus-visible { outline:3px solid #a87b31; outline-offset:2px; position:relative; z-index:1; }
+.order-list-item.is-selected { background:#f5eddd; box-shadow:inset 3px 0 #b18a4a; }
+.order-list-topline { display:flex; align-items:center; justify-content:space-between; gap:.45rem; }
+.order-list-topline > strong { color:#183344; font-size:.77rem; }
+.order-status { display:inline-flex; align-items:center; padding:.27rem .58rem; border-radius:999px; background:#f3ead7; color:#765a2d; font-size:.66rem; font-weight:700; line-height:1.2; white-space:nowrap; }
+.status-cutting,.status-stitching { background:#f7efd9; color:#806122; }
+.status-ready,.status-delivered { background:#e7f2e9; color:#286144; }
+.order-list-garment { color:#273f4c; font-size:.83rem; font-weight:650; }
+.order-list-tailor,.order-list-date { color:#747a7b; font-size:.72rem; }
+.order-detail { padding:1.1rem; }
+.order-detail-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding-bottom:.9rem; border-bottom:1px solid #ebe6dd; }
+.order-detail-heading h2 { margin:0 0 .28rem; color:#183344; font:600 1.3rem/1.25 Georgia,serif; }
+.order-detail-heading p { margin:0; color:#62696b; font-size:.82rem; }
+.order-status-large { margin-top:.2rem; font-size:.72rem; }
+.order-progress-section { padding:1rem 0 .85rem; }
+.order-progress-section h3,.order-information-card h3,.order-notes h3 { margin:0 0 .75rem; color:#324957; font-size:.85rem; font-weight:700; }
+.order-progress { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); padding:0; margin:0; list-style:none; }
+.order-progress li { position:relative; display:grid; justify-items:center; align-content:start; gap:.38rem; min-width:0; padding:0 .12rem; text-align:center; }
+.order-progress li::before { content:''; position:absolute; z-index:0; top:11px; left:-50%; right:50%; height:2px; background:#d6d2c9; }
+.order-progress li:first-child::before { display:none; }
+.progress-marker { position:relative; z-index:1; display:grid; place-items:center; width:23px; height:23px; border:2px solid #b9b8b2; border-radius:50%; background:#fffdfa; color:#fff; font-size:.72rem; line-height:1; }
+.order-progress .is-done::before { background:#b18a4a; }
+.order-progress .is-done .progress-marker { border-color:#b18a4a; background:#b18a4a; }
+.order-progress .is-current .progress-marker { border-color:#a87b31; background:#fffdfa; box-shadow:inset 0 0 0 5px #b18a4a,0 0 0 3px #f2e7d0; }
+.progress-label { color:#687174; font-size:.67rem; line-height:1.25; overflow-wrap:anywhere; }
+.order-progress .is-done .progress-label,.order-progress .is-current .progress-label { color:#273f4c; font-weight:700; }
+.progress-date { color:#898d8d; font-size:.62rem; line-height:1.2; }
+.order-information-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem; }
+.order-information-card { min-width:0; padding:.85rem; border:1px solid #ebe6dd; border-radius:9px; background:#fff; }
+.order-information-card h3 { margin-bottom:.65rem; }
+.order-facts { display:grid; gap:.5rem; margin:0; }
+.order-facts > div { display:flex; align-items:baseline; justify-content:space-between; gap:.75rem; }
+.order-facts dt { color:#737a7b; font-size:.72rem; }
+.order-facts dd { margin:0; color:#273f4c; font-size:.74rem; font-weight:600; text-align:right; overflow-wrap:anywhere; }
+.order-history { display:grid; gap:.6rem; padding:0; margin:0; list-style:none; }
+.order-history li { position:relative; display:grid; grid-template-columns:10px minmax(0,1fr); gap:.5rem; align-items:start; }
+.history-dot { position:relative; z-index:1; width:8px; height:8px; margin-top:.3rem; border:2px solid #b18a4a; border-radius:50%; background:#fffdfa; }
+.order-history li:not(:last-child)::after { content:''; position:absolute; top:.65rem; bottom:-.55rem; left:3px; width:1px; background:#d8c8a8; }
+.order-history li > span:last-child { display:grid; gap:.15rem; }
+.order-history strong { color:#324957; font-size:.73rem; }
+.order-history time { color:#777e7e; font-size:.67rem; }
+.order-style-name { margin:0 0 .55rem; color:#273f4c; font-size:.78rem; font-weight:700; }
+.order-style-facts { gap:.35rem; }
+.order-muted { margin:0; color:#777e7e; font-size:.75rem; line-height:1.5; }
+.order-notes { margin-top:.7rem; padding:.85rem; border-radius:9px; background:#f7f4ed; }
+.order-notes h3 { margin-bottom:.35rem; }
+.order-notes p { margin:0; color:#535e62; font-size:.78rem; line-height:1.55; overflow-wrap:anywhere; }
+.orders-empty { display:grid; justify-items:center; gap:.6rem; padding:3rem 1.5rem; text-align:center; }
+.orders-empty-icon { display:grid; place-items:center; width:52px; height:52px; border-radius:50%; background:#f5eddd; color:#a97e38; font-size:1.65rem; }
+.orders-empty h2 { margin:.2rem 0 0; color:#183344; font:600 1.4rem/1.3 Georgia,serif; }
+.orders-empty p { max-width:440px; margin:0 0 .4rem; color:#646a6c; font-size:.88rem; line-height:1.6; }
+.orders-empty .outline-button { padding:.6rem .9rem; }
+@media(max-width:1050px) { .orders-layout { grid-template-columns:minmax(195px,.32fr) minmax(0,1fr); gap:.7rem; } .order-detail { padding:.9rem; } .order-progress { grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:.8rem; } .order-progress li:nth-child(4)::before { display:none; } }
+@media(max-width:760px) { .orders-layout { grid-template-columns:1fr; } .orders-list { grid-template-columns:repeat(2,minmax(0,1fr)); } .order-list-item:nth-child(odd) { border-right:1px solid #eee9e0; } .order-list-item:nth-last-child(-n+2) { border-bottom:0; } .order-list-item.is-selected { box-shadow:inset 3px 0 #b18a4a; } }
+@media(max-width:480px) { .orders-main { padding-inline:.8rem; } .orders-list { grid-template-columns:1fr; } .order-list-item:nth-child(odd) { border-right:0; } .order-list-item:nth-last-child(2) { border-bottom:1px solid #eee9e0; } .order-detail-heading { flex-direction:column; gap:.55rem; } .order-progress { grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:.75rem; } .order-progress li::before { display:none; } .order-information-grid { grid-template-columns:1fr; } .order-facts > div { gap:.4rem; } }
