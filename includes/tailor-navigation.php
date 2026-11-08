@@ -8,7 +8,7 @@ $tailorNavigation = [
     'orders' => ['Orders', '/tailor/orders.php', '□'],
     'alterations' => ['Alterations', '/tailor/alterations.php', '↻'],
     'services' => ['Services', '/tailor/services.php', '✂'],
-    'profile' => ['Profile & services', '/tailor/profile.php', '◉'],
+    'profile' => ['Profile', '/tailor/profile.php', '◉'],
     'security' => ['Change password', '/change-password.php', '♙'],
 ];
 ?>
