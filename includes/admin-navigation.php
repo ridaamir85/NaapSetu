@@ -5,6 +5,7 @@ $adminNavigation = [
     'users' => ['Users', '/admin/dashboard.php?view=users', '♙'],
     'tailors' => ['Tailors', '/admin/dashboard.php?view=tailors', '♧'],
     'services' => ['Services', '/admin/dashboard.php?view=services', '✂'],
+    'recovery' => ['Password recovery', '/admin/password-recovery.php', '♧'],
     'security' => ['Change password', '/change-password.php', '♙'],
 ];
 ?>

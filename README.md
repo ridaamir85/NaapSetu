@@ -103,3 +103,15 @@ php database/reset_password.php
 The CLI tool generates a random temporary password, displays it once, and sets `must_change_password=1`. Share the temporary password privately with the verified user. After login the user must enter the temporary password and choose a different private password (12–72 characters) before accessing their dashboard. Never send passwords through a public channel or commit real credentials.
 
 Automated reset emails are not implemented. Test the forced-change flow with a **non-demo test account**; `database/seed_demo.php` may overwrite the fixed demo accounts' passwords when rerun.
+
+## Password recovery request form (migration 004)
+
+For an existing Ubuntu database apply this migration **once** (after migration 003):
+
+```bash
+sudo mysql naapsetu < database/migrations/004_add_password_recovery_requests.sql
+```
+
+The public `/password-recovery.php` form accepts an email and displays a generic confirmation whether or not that email is registered. A registered active user gets at most one pending recovery request. Administrators see pending requests at `/admin/password-recovery.php`.
+
+Before using `php database/reset_password.php`, an administrator must independently verify the requester's identity. The CLI tool creates a temporary password and forces a private change at login. The admin marks the request resolved only after completing the offline steps. The public form neither sends email nor automatically changes passwords. For a public deployment, add request-rate limits and abuse monitoring in front of this endpoint.

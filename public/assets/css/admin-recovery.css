@@ -1,0 +1,11 @@
+/* Additive admin styles: reuse navy sidebar, ivory surfaces and brass actions. */
+.admin-recovery-guide { margin:0 0 1rem; padding:1.1rem 1.3rem; border:1px solid #e0dbd1; border-radius:10px; background:#fffdfa; }
+.admin-recovery-guide h2 { margin:0 0 .4rem; font:600 1.2rem Georgia,serif; color:#183344; }
+.admin-recovery-guide p { margin:.3rem 0; font-size:.84rem; line-height:1.6; color:#334750; }
+.admin-recovery-guide code { font-size:.85em; padding:.12rem .3rem; border-radius:4px; background:#f3ead7; }
+.recovery-table { min-width:780px; }
+.recovery-actions { display:flex; gap:.45rem; align-items:center; margin:0; }
+.recovery-actions button { border:1px solid #aa813d; border-radius:6px; background:linear-gradient(110deg,#b98b42,#d4ae62); color:#162b3d; padding:.48rem .65rem; font-size:.72rem; font-weight:650; cursor:pointer; }
+.recovery-actions button.recovery-dismiss { background:#fffdfa; border-color:#c4bbb0; }
+.recovery-actions button:hover { box-shadow:0 3px 8px #182c4220; }
+@media(max-width:760px){.admin-recovery-guide {padding:.9rem;}}
