@@ -95,92 +95,117 @@ $profilesStatement = $connection->prepare(
 );
 $profilesStatement->execute(['customer_id' => $user['user_id']]);
 $styleProfiles = $profilesStatement->fetchAll();
+$showStyleForm = $errors !== [] || isset($_GET['new']);
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My style profiles | NaapSetu</title>
+    <title>Style profiles | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/customer.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
-<body>
-    <main>
-        <a href="/customer/dashboard.php">Back to dashboard</a>
-        <h1>My style profiles</h1>
-        <p>Save reusable garment preferences and choose one when requesting stitching.</p>
-
-        <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_style($successMessage) ?></p>
-        <?php endif; ?>
-        <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_style($errors['form']) ?></p>
-        <?php endif; ?>
-
-        <h2>Create a style profile</h2>
-        <form method="post" action="/customer/styles.php" novalidate>
-            <input type="hidden" name="csrf_token" value="<?= escape_style(csrf_token()) ?>">
-            <div>
-                <label for="name">Profile name</label>
-                <input id="name" name="name" type="text" maxlength="80" required value="<?= escape_style($formValues['name']) ?>">
-                <?php if (isset($errors['name'])): ?>
-                    <p role="alert"><?= escape_style($errors['name']) ?></p>
-                <?php endif; ?>
-            </div>
-            <?php foreach ($choices as $field => $options): ?>
+<body class="customer-page styles-page">
+    <a class="skip-link" href="#main">Skip to style profiles</a>
+    <div class="customer-shell">
+        <?php $customerSection = 'styles'; require dirname(__DIR__, 2) . '/includes/customer-navigation.php'; ?>
+        <main id="main" class="customer-main styles-main">
+            <header class="styles-heading">
                 <div>
-                    <label for="<?= escape_style($field) ?>"><?= escape_style(ucwords(str_replace('_', ' ', $field))) ?></label>
-                    <select id="<?= escape_style($field) ?>" name="<?= escape_style($field) ?>">
-                        <option value="">No preference</option>
-                        <?php foreach ($options as $option): ?>
-                            <option value="<?= escape_style($option) ?>"<?= $formValues[$field] === $option ? ' selected' : '' ?>><?= escape_style($option) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors[$field])): ?>
-                        <p role="alert"><?= escape_style($errors[$field]) ?></p>
-                    <?php endif; ?>
+                    <p class="eyebrow">Your signature details</p>
+                    <h1>Style Profiles</h1>
+                    <p>Save the details you love and reuse them with your next stitching request.</p>
                 </div>
-            <?php endforeach; ?>
-            <div>
-                <label for="embroidery">Embroidery preference</label>
-                <input id="embroidery" name="embroidery" type="text" maxlength="120" value="<?= escape_style($formValues['embroidery']) ?>">
-                <?php if (isset($errors['embroidery'])): ?>
-                    <p role="alert"><?= escape_style($errors['embroidery']) ?></p>
-                <?php endif; ?>
-            </div>
-            <div>
-                <label for="other_notes">Additional style details</label>
-                <textarea id="other_notes" name="other_notes" maxlength="1000" rows="4"><?= escape_style($formValues['other_notes']) ?></textarea>
-                <?php if (isset($errors['other_notes'])): ?>
-                    <p role="alert"><?= escape_style($errors['other_notes']) ?></p>
-                <?php endif; ?>
-                <?php if (isset($errors['preferences'])): ?>
-                    <p role="alert"><?= escape_style($errors['preferences']) ?></p>
-                <?php endif; ?>
-            </div>
-            <button type="submit">Save style profile</button>
-        </form>
-
-        <h2>Saved profiles</h2>
-        <?php if ($styleProfiles === []): ?>
-            <p>You have no saved style profiles yet.</p>
-        <?php else: ?>
-            <?php foreach ($styleProfiles as $styleProfile): ?>
-                <section>
-                    <h3><?= escape_style($styleProfile['name']) ?></h3>
-                    <?php $preferences = json_decode((string) $styleProfile['preferences'], true); ?>
-                    <?php if (is_array($preferences) && $preferences !== []): ?>
-                        <dl>
-                            <?php foreach ($preferences as $preference => $value): ?>
-                                <dt><?= escape_style(ucwords(str_replace('_', ' ', (string) $preference))) ?></dt>
-                                <dd><?= escape_style((string) $value) ?></dd>
+                <details class="style-create" id="create-style" <?= $showStyleForm ? 'open' : '' ?>>
+                    <summary class="button"><span aria-hidden="true">＋</span> Add style</summary>
+                    <div class="style-form-panel">
+                        <h2>Create a style profile</h2>
+                        <?php if (isset($errors['form'])): ?>
+                            <p class="style-alert" role="alert"><?= escape_style($errors['form']) ?></p>
+                        <?php endif; ?>
+                        <?php if (isset($errors['preferences'])): ?>
+                            <p class="style-alert" role="alert"><?= escape_style($errors['preferences']) ?></p>
+                        <?php endif; ?>
+                        <form method="post" action="/customer/styles.php" novalidate>
+                            <input type="hidden" name="csrf_token" value="<?= escape_style(csrf_token()) ?>">
+                            <div class="style-field style-field-wide">
+                                <label for="name">Profile name</label>
+                                <input id="name" name="name" type="text" maxlength="80" required value="<?= escape_style($formValues['name']) ?>" placeholder="e.g. Everyday Kurta">
+                                <?php if (isset($errors['name'])): ?><p class="style-alert" role="alert"><?= escape_style($errors['name']) ?></p><?php endif; ?>
+                            </div>
+                            <?php foreach ($choices as $field => $options): ?>
+                                <div class="style-field">
+                                    <label for="<?= escape_style($field) ?>"><?= escape_style(ucwords(str_replace('_', ' ', $field))) ?></label>
+                                    <select id="<?= escape_style($field) ?>" name="<?= escape_style($field) ?>">
+                                        <option value="">No preference</option>
+                                        <?php foreach ($options as $option): ?>
+                                            <option value="<?= escape_style($option) ?>"<?= $formValues[$field] === $option ? ' selected' : '' ?>><?= escape_style($option) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php if (isset($errors[$field])): ?><p class="style-alert" role="alert"><?= escape_style($errors[$field]) ?></p><?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
-                        </dl>
-                    <?php else: ?>
-                        <p>No style preferences are saved.</p>
-                    <?php endif; ?>
-                </section>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </main>
+                            <div class="style-field">
+                                <label for="embroidery">Embroidery preference</label>
+                                <input id="embroidery" name="embroidery" type="text" maxlength="120" value="<?= escape_style($formValues['embroidery']) ?>" placeholder="e.g. Simple cuffs">
+                                <?php if (isset($errors['embroidery'])): ?><p class="style-alert" role="alert"><?= escape_style($errors['embroidery']) ?></p><?php endif; ?>
+                            </div>
+                            <div class="style-field style-field-wide">
+                                <label for="other_notes">Additional details <span>(optional)</span></label>
+                                <textarea id="other_notes" name="other_notes" maxlength="1000" rows="3" placeholder="Any other details for the tailor"><?= escape_style($formValues['other_notes']) ?></textarea>
+                                <?php if (isset($errors['other_notes'])): ?><p class="style-alert" role="alert"><?= escape_style($errors['other_notes']) ?></p><?php endif; ?>
+                            </div>
+                            <button type="submit">Save style profile</button>
+                        </form>
+                    </div>
+                </details>
+            </header>
+
+            <?php if ($successMessage !== null): ?>
+                <p class="style-success" role="status"><?= escape_style($successMessage) ?></p>
+            <?php endif; ?>
+
+            <section class="style-gallery" aria-label="Saved style profiles">
+                <?php if ($styleProfiles === []): ?>
+                    <div class="style-empty">
+                        <span class="style-empty-mark" aria-hidden="true">✂</span>
+                        <h2>Your style collection starts here</h2>
+                        <p>Create a profile to save neckline, sleeve, fit, and embroidery preferences for future requests.</p>
+                    </div>
+                <?php else: ?>
+                    <?php $styleImages = ['/assets/images/fabric-kurtas.jpg', '/assets/images/fabric-suits.jpg', '/assets/images/fabric-shirts.jpg']; ?>
+                    <?php foreach ($styleProfiles as $styleProfile): ?>
+                        <?php
+                        $imageIndex = ((int) $styleProfile['style_id'] - 1) % count($styleImages);
+                        $preferences = json_decode((string) $styleProfile['preferences'], true);
+                        $preferences = is_array($preferences)
+                            ? array_filter($preferences, static fn ($value): bool => is_scalar($value) && (string) $value !== '')
+                            : [];
+                        ?>
+                        <article class="style-card">
+                            <img class="style-card-image" src="<?= $styleImages[$imageIndex] ?>" alt="Fabric detail for <?= escape_style($styleProfile['name']) ?>" loading="lazy" width="720" height="480">
+                            <div class="style-card-content">
+                                <h2><?= escape_style($styleProfile['name']) ?></h2>
+                                <?php if ($preferences !== []): ?>
+                                    <ul class="style-preferences">
+                                        <?php foreach ($preferences as $preference => $value): ?>
+                                            <li>
+                                                <span class="preference-label"><?= escape_style(ucwords(str_replace('_', ' ', (string) $preference))) ?>:</span>
+                                                <?= escape_style((string) $value) ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php else: ?>
+                                    <p class="style-card-empty">No preferences saved.</p>
+                                <?php endif; ?>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
