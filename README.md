@@ -1,6 +1,5 @@
 <div align="center">
-  <img src="public/assets/images/naapsetu-emblem.svg" alt="NaapSetu scissors emblem" width="96" height="96">
-  <h1>NaapSetu</h1>
+  <h1><img src="public/assets/images/naapsetu-emblem.svg" alt="NaapSetu scissors emblem" width="56" height="56"> NaapSetu</h1>
   <p><strong>Custom stitching. Made simple.</strong></p>
   <p>A web-based platform for custom tailoring requests, digital measurements, quotations, and order tracking.</p>
   <p><strong>PHP · MySQL · HTML · CSS · JavaScript · Apache / LAMP</strong></p>
@@ -12,7 +11,7 @@
 
 **NaapSetu** connects customers with tailors through a structured custom-stitching workflow. Customers can maintain reusable measurement and style profiles, describe the garments they want stitched, share a reference image, review a tailor's quotation, and follow order progress. Tailors manage their specializations, incoming requests, fabric arrangements, orders, and alterations.
 
-NaapSetu is **not a ready-made clothing store**. The platform focuses on made-to-measure stitching, clear customer–tailor communication, and managing the journey from quotation to delivery.
+NaapSetu is **not a ready-made clothing store**. It focuses on made-to-measure orders, clear customer–tailor communication, and progress from quotation to delivery.
 
 ## Key features
 
@@ -28,27 +27,18 @@ NaapSetu is **not a ready-made clothing store**. The platform focuses on made-to
 | Share/revoke measurement access | Respond to alteration requests | |
 | Submit fit feedback and alterations | See actionable sidebar activity counts | |
 
-### Tailoring workflow
+## How it works
 
-```text
-Customer selects a tailor
-          ↓
-Describes the garment, shares measurements and preferences
-          ↓
-Tailor reviews the request and sends a quotation
-          ↓
-Customer accepts the quotation → Order is created
-          ↓
-Tailor arranges and records the fabric
-          ↓
-Confirmed → Fabric Arranged → Cutting → Stitching → Ready → Delivered
-          ↓
-Customer can provide fit feedback or request an alteration
-```
+1. **Choose a tailor** — Browse shops offering men's or women's tailoring.
+2. **Share your requirements** — Describe the garment, choose measurements and add styling or fabric preferences.
+3. **Review a quotation** — The tailor proposes a price and expected completion date; the customer decides whether to accept.
+4. **Arrange fabric and stitch** — The tailor arranges fabric and records its details before cutting.
+5. **Track the order** — Follow progress through to delivery.
+6. **Give feedback** — Share fit feedback or request an alteration after delivery.
 
-For new requests, the **tailor arranges the fabric**. The customer may specify a preferred type, colour, and additional notes; fabric quantity is an internal tailor record. Customers can optionally attach a JPG, PNG, or WebP styling-reference image (up to 5 MB). Access to uploaded references is checked by the application, and files are stored outside the public web directory.
+**Order milestones:** Confirmed → Fabric Arranged → Cutting → Stitching → Ready → Delivered
 
-The sidebar numbers represent **pending workflow actions**, not a separate unread-notification system.
+*Fabric Arranged* is a recorded milestone; the core order status advances from Confirmed to Cutting once fabric has been arranged. Customers can upload optional styling reference images, stored privately and available only to authorized users.
 
 ## Technology stack
 
@@ -109,32 +99,13 @@ For a **new, empty installation**, run the complete schema:
 sudo mysql < database/schema.sql
 ```
 
-The schema creates the `naapsetu` database and its **15 core tables** for users, profiles, measurements, permissions, requests, quotations, orders, fabric, feedback, and alterations.
+The schema creates the `naapsetu` database and the **15 core project tables**.
 
-**Important:** The SQL migrations are for upgrading *older existing databases*. Do not run the historical migrations after importing the current fresh schema; they may attempt to add columns that already exist.
+For existing installations, review the applicable one-time scripts in `database/migrations/`. The current schema already includes the latest tables and columns, so do not reapply those migrations to a fresh installation.
 
-For older installations, inspect which migrations have already been applied before running any of these one-time updates:
+### 3. Reference image storage
 
-| Migration | Purpose |
-| --- | --- |
-| `001_add_user_active_status.sql` | Account activation |
-| `002_add_request_fabric_and_notes.sql` | Early fabric and request notes |
-| `003_add_password_change_requirement.sql` | Password-change requirement |
-| `006_tailoring_specializations_and_request_details.sql` | Tailoring specializations, garment descriptions, fabric preferences and image references |
-| `007_remove_password_recovery.sql` | Remove discontinued password-recovery data |
-| `008_remove_notification_reads.sql` | Remove obsolete notification-read data |
-
-Migration numbers `004` and `005` are intentionally absent from the current repository because those discontinued features were removed.
-
-### 3. Prepare private image storage
-
-Create a writable directory **outside** the public document root. For an installation at `/var/www/naapsetu`:
-
-```bash
-sudo install -d -o www-data -g www-data -m 0750 /var/www/naapsetu/storage/request-images
-```
-
-Adjust the directory to match your actual repository location and the account running PHP. Ensure PHP upload settings permit 5 MB reference images. Do **not** expose `storage/` directly through Apache.
+Styling reference images are stored in a protected, writable `storage/request-images/` directory outside the public web root. Configure permissions for the PHP web-server user and allow uploads up to 5 MB. Do not expose this directory directly through Apache.
 
 ### 4. Run the application
 
@@ -148,21 +119,9 @@ Open **http://127.0.0.1:8000** in your browser.
 
 For Apache, configure a virtual host whose `DocumentRoot` points to the repository's `public/` directory (for example, `http://naapsetu.local/`).
 
-### 5. Optional demonstration data
+### 5. Optional local test data
 
-```bash
-php database/seed_demo.php
-```
-
-This creates or refreshes local demo users and sample records. The script can be rerun, but **resets the seeded account passwords** and reactivates those accounts; use it only in a development environment.
-
-| Role | Email | Password |
-| --- | --- | --- |
-| Admin | `demo.admin@naapsetu.test` | `DemoAdmin!2026` |
-| Customer | `demo.customer@naapsetu.test` | `DemoCustomer!2026` |
-| Tailor | `demo.tailor@naapsetu.test` | `DemoTailor!2026` |
-
-> These accounts are strictly for local testing. Never use demo passwords in a public deployment.
+An optional utility, `database/seed_demo.php`, is available to generate sample accounts and records for local development. It is **not required** to use NaapSetu. Running it may reset the passwords of its sample accounts; use it only in a disposable development environment.
 
 ## Suggested demonstration
 
