@@ -125,3 +125,13 @@ sudo mysql naapsetu < database/migrations/005_add_notification_reads.sql
 ```
 
 The customer, tailor and admin sidebars show unread counts on **relevant** sections and an overall Notifications inbox. Events are derived from the existing owned business records (stitching requests, quotations, order history, feedback, alterations and admin recovery requests), and a per-user read receipt is recorded only when **View update** is clicked. This is an in-app activity system, not browser push notifications or email. No external service is required. For a production-scale site, add pagination and improve event timestamps for alterations.
+
+## Admin dashboard password resets (no terminal required)
+
+The administrator can open **Password recovery** on the admin sidebar and review a pending customer/tailor request. After independently verifying the account owner, they must enter **their own admin password** and select **Generate temporary password**. The system immediately replaces the target's password hash, sets `must_change_password=1`, and marks the recovery request resolved within one transaction.
+
+The generated temporary password is **displayed once** on the admin page and never stored in plaintext in MySQL, a session, a URL, or the repository. The administrator must share it privately with the verified user. Refreshing or leaving the result page permanently hides it. On their next login the user must enter the temporary password and set their own private replacement before proceeding.
+
+Inactive users and admin accounts are not eligible for a dashboard-initiated reset. The existing owner-only CLI script is retained as an emergency maintenance tool, not required for the normal customer/tailor recovery flow.
+
+For local HTTP development, treat temporary passwords as test secrets only. Before exposing the site publicly, add HTTPS, authentication rate limiting, and verified delivery or self-service email reset.

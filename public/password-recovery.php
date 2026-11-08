@@ -25,7 +25,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $connection = database();
             $statement = $connection->prepare(
                 'INSERT IGNORE INTO password_recovery_requests (user_id) '
-                . 'SELECT user_id FROM users WHERE email = :email AND is_active = 1'
+                . 'SELECT user_id FROM users WHERE email = :email AND is_active = 1 AND role IN ('customer','tailor')'
             );
             $statement->execute(['email' => $email]);
             unset($_SESSION['csrf_token']);
@@ -60,7 +60,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 <h2>Recovery request submitted</h2>
                 <p>If an active account exists with that email, an administrator can review the request.</p>
             </div>
-            <p class="recovery-instructions">The administrator must independently verify that you own the account before giving you a temporary password. No email is sent automatically.</p>
+            <p class="recovery-instructions">The administrator will verify account ownership before generating a temporary password from the admin dashboard. No email is sent automatically.</p>
             <div class="ui-next-step"><a class="ui-primary-action" href="/login.php">Back to login</a><a href="/password-recovery.php">Submit another request</a></div>
         <?php else: ?>
             <header><h1>Forgot your password?</h1><p>Enter your registered email to request help recovering your account.</p></header>
