@@ -150,7 +150,7 @@ function naapsetu_notice_form(array $item, string $label = 'Mark as read'): void
     </form>
 <?php }
 function naapsetu_render_section_updates(PDO $db, array $viewer, string $section): void {
-    $items=naapsetu_section_unread($db, $viewer);
+    $items=naapsetu_section_unread($db, $viewer, $section);
     $items=array_values(array_filter($items, static fn(array $n): bool=>$n['section']===$section));
     if (!$items) return; ?>
     <section class="section-unread-updates" aria-label="Unread activity">
