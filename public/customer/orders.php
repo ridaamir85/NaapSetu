@@ -72,6 +72,7 @@ $history = [];
 $styleSnapshot = [];
 $stylePreferences = [];
 $historyByStatus = [];
+$displayTimeline = [];
 $currentStage = 0;
 $trackingStages = [
     'confirmed' => 'Confirmed',
@@ -91,7 +92,12 @@ if ($selectedOrder !== null) {
     $history = $historyStatement->fetchAll();
     foreach ($history as $entry) {
         $historyByStatus[(string) $entry['status']] = $entry['changed_at'];
+        $displayTimeline[] = ['status' => (string) $entry['status'], 'changed_at' => (string) $entry['changed_at']];
     }
+    if ($selectedOrder['fabric_received_at'] !== null) {
+        $displayTimeline[] = ['status' => 'fabric_arranged', 'changed_at' => (string) $selectedOrder['fabric_received_at']];
+    }
+    usort($displayTimeline, static fn (array $a, array $b): int => strcmp($b['changed_at'], $a['changed_at']));
 
     $decodedStyle = json_decode((string) $selectedOrder['style_snapshot'], true);
     if (is_array($decodedStyle)) {
@@ -113,7 +119,7 @@ if ($selectedOrder !== null) {
     ];
     $currentStage = $statusStage[$selectedOrder['status']] ?? 0;
     if ($selectedOrder['status'] === 'confirmed' && $selectedOrder['fabric_received_at'] !== null) {
-        $currentStage = 2;
+        $currentStage = 1;
     }
 }
 
@@ -209,12 +215,12 @@ $customerSection = 'orders';
                         <div class="order-information-grid">
                             <section class="order-information-card" aria-labelledby="history-title">
                                 <h3 id="history-title">Timeline history</h3>
-                                <?php if ($history === []): ?>
+                                <?php if ($displayTimeline === []): ?>
                                     <p class="order-muted">No status updates have been recorded yet.</p>
                                 <?php else: ?>
                                     <ol class="order-history">
-                                        <?php foreach ($history as $entry): ?>
-                                            <li><span class="history-dot" aria-hidden="true"></span><span><strong><?= escape_customer_order(customer_order_label((string) $entry['status'])) ?></strong><time datetime="<?= escape_customer_order($entry['changed_at']) ?>"><?= escape_customer_order(customer_order_date($entry['changed_at'], 'M j, Y · g:i a')) ?></time></span></li>
+                                        <?php foreach ($displayTimeline as $entry): ?>
+                                            <li><span class="history-dot" aria-hidden="true"></span><span><strong><?= escape_customer_order(($entry['status'] === 'fabric_arranged' ? 'Fabric arranged' : customer_order_label((string) $entry['status']))) ?></strong><time datetime="<?= escape_customer_order($entry['changed_at']) ?>"><?= escape_customer_order(customer_order_date($entry['changed_at'], 'M j, Y · g:i a')) ?></time></span></li>
                                         <?php endforeach; ?>
                                     </ol>
                                 <?php endif; ?>

@@ -314,7 +314,7 @@ if ($selectedOrder !== null) {
     if ($selectedOrder['fabric_received_at'] !== null) {
         $orderTimeline[] = ['status' => 'fabric_arranged', 'changed_at' => (string) $selectedOrder['fabric_received_at']];
     }
-    usort($orderTimeline, static fn (array $a, array $b): int => strcmp($a['changed_at'], $b['changed_at']));
+    usort($orderTimeline, static fn (array $a, array $b): int => strcmp($b['changed_at'], $a['changed_at']));
 }
 $viewCounts = ['all' => count($allOrders), 'in_progress' => 0, 'completed' => 0];
 foreach ($allOrders as $order) {
@@ -324,13 +324,15 @@ foreach ($allOrders as $order) {
         $viewCounts['in_progress']++;
     }
 }
-$selectedOrderStages = ['confirmed', 'cutting', 'stitching', 'ready', 'delivered'];
-$currentOrderStage = $selectedOrder === null ? 0 : array_search($selectedOrder['status'], $selectedOrderStages, true);
-if ($currentOrderStage === false) {
-    $currentOrderStage = 0;
+$selectedOrderStages = ['confirmed', 'fabric_arranged', 'cutting', 'stitching', 'ready', 'delivered'];
+$orderStageIndexes = ['confirmed' => 0, 'cutting' => 2, 'stitching' => 3, 'ready' => 4, 'delivered' => 5];
+$currentOrderStage = $selectedOrder === null ? 0 : ($orderStageIndexes[$selectedOrder['status']] ?? 0);
+if ($selectedOrder !== null && $selectedOrder['status'] === 'confirmed' && $selectedOrder['fabric_received_at'] !== null) {
+    $currentOrderStage = 1;
 }
 $statusNames = [
     'confirmed' => 'Confirmed',
+    'fabric_arranged' => 'Fabric arranged',
     'cutting' => 'Cutting',
     'stitching' => 'Stitching',
     'ready' => 'Ready',
@@ -439,7 +441,10 @@ $fabricFormSource = $selectedOrder === null
                     <section class="order-detail-card" aria-labelledby="progress-history-title">
                         <h3 id="progress-history-title">Progress history</h3>
                         <ol class="order-progress-track" aria-label="Order status progress">
-                            <?php foreach ($selectedOrderStages as $index => $stage): $done = $index < $currentOrderStage; $current = $index === $currentOrderStage; ?>
+                            <?php foreach ($selectedOrderStages as $index => $stage):
+                                $done = $index < $currentOrderStage && ($stage !== 'fabric_arranged' || $selectedOrder['fabric_received_at'] !== null);
+                                $current = $index === $currentOrderStage;
+                            ?>
                                 <li class="<?= $done ? 'is-done' : ($current ? 'is-current' : 'is-upcoming') ?>" <?= $current ? 'aria-current="step"' : '' ?>><span class="progress-dot" aria-hidden="true"><?= $done ? '✓' : '' ?></span><span><?= escape_tailor_order($statusNames[$stage]) ?></span></li>
                             <?php endforeach; ?>
                         </ol>

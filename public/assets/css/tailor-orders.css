@@ -63,7 +63,7 @@
 .order-form-field input,.order-form-field select,.status-form select { width:100%; min-width:0; min-height:35px; font-size:.7rem; }
 .field-error { margin:0; color:#8b3030; font-size:.66rem; }
 .fabric-form .order-action-button { grid-column:1/-1; justify-self:start; }
-.order-progress-track { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); padding:0; margin:0 0 .75rem; list-style:none; }
+.order-progress-track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); padding:0; margin:0 0 .75rem; list-style:none; }
 .order-progress-track li { position:relative; display:grid; justify-items:center; gap:.35rem; min-width:0; text-align:center; }
 .order-progress-track li::before { content:''; position:absolute; top:10px; left:-50%; right:50%; height:2px; background:#d6d2c9; }
 .order-progress-track li:first-child::before { display:none; }
