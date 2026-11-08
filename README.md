@@ -135,3 +135,6 @@ The generated temporary password is **displayed once** on the admin page and nev
 Inactive users and admin accounts are not eligible for a dashboard-initiated reset. The existing owner-only CLI script is retained as an emergency maintenance tool, not required for the normal customer/tailor recovery flow.
 
 For local HTTP development, treat temporary passwords as test secrets only. Before exposing the site publicly, add HTTPS, authentication rate limiting, and verified delivery or self-service email reset.
+
+## Per-item unread markers in work pages
+Each relevant customer, tailor, or admin work page displays **Unread updates** above its cards. Every item has its own View update action, using a CSRF-checked POST and a per-user row in notification_reads. The sidebar count drops one at a time; opening a page by itself does not clear notifications. Quotation and alteration cards also show individual New markers and Mark as read buttons. No additional migration is needed beyond 005. Updates appear on page reload (not via web push).

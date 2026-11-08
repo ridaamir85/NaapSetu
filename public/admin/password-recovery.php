@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
+require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 $user = require_role('admin');
 $db = database();
 
@@ -179,6 +180,7 @@ $requests = $statement->fetchAll();
             </section>
         <?php endif; ?>
 
+<?php naapsetu_render_section_updates($db, $user, 'recovery'); ?>
         <section class="admin-list-panel" aria-labelledby="recovery-list-title">
             <header class="admin-panel-heading"><div><p class="admin-eyebrow">Pending</p>
                 <h2 id="recovery-list-title"><?= count($requests) ?> recovery request<?= count($requests) === 1 ? '' : 's' ?></h2>

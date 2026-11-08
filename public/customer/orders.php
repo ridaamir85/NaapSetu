@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
+require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 
 $user = require_role('customer');
@@ -143,6 +144,7 @@ $customerSection = 'orders';
                 </div>
             </header>
 
+<?php naapsetu_render_section_updates($connection, $user, 'orders'); ?>
             <?php if ($orders === []): ?>
                 <section class="orders-empty" aria-labelledby="orders-empty-title">
                     <span class="orders-empty-icon" aria-hidden="true">□</span>

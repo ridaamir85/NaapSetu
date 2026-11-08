@@ -133,3 +133,41 @@ function naapsetu_notification_counts(array $items): array
     }
     return $counts;
 }
+
+function naapsetu_section_unread(PDO $db, array $viewer, string $section): array {
+    return array_values(array_filter(naapsetu_notifications($db, $viewer),
+        static fn(array $n): bool => $n['unread'] && $n['section'] === $section));
+}
+function naapsetu_find_notice(array $items, string $key): ?array {
+    foreach ($items as $item) if ($item['key'] === $key && $item['unread']) return $item;
+    return null;
+}
+function naapsetu_notice_form(array $item, string $label = 'Mark as read'): void { ?>
+    <form class="notice-read-form" method="post" action="/notifications.php">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+      <input type="hidden" name="event_key" value="<?= htmlspecialchars($item['key'], ENT_QUOTES, 'UTF-8') ?>">
+      <button type="submit"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?> →</button>
+    </form>
+<?php }
+function naapsetu_render_section_updates(PDO $db, array $viewer, string $section): void {
+    $items=naapsetu_section_unread($db, $viewer);
+    $items=array_values(array_filter($items, static fn(array $n): bool=>$n['section']===$section));
+    if (!$items) return; ?>
+    <section class="section-unread-updates" aria-label="Unread activity">
+      <header class="section-unread-heading">
+        <div><span class="section-unread-eyebrow">New activity</span>
+        <h2>Unread updates <span class="section-unread-total"><?= count($items) ?></span></h2></div>
+        <a href="/notifications.php">All notifications</a>
+      </header>
+      <div class="section-unread-list">
+      <?php foreach ($items as $item): ?>
+        <article class="section-unread-row">
+          <span class="section-unread-dot" aria-hidden="true"></span>
+          <div class="section-unread-copy"><strong><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></strong>
+          <p><?= htmlspecialchars($item['detail'], ENT_QUOTES, 'UTF-8') ?></p></div>
+          <?php naapsetu_notice_form($item, 'View update'); ?>
+        </article>
+      <?php endforeach; ?>
+      </div>
+    </section>
+<?php }

@@ -21,3 +21,24 @@
 .tailor-sidebar nav a .nav-unread,.admin-sidebar nav a .nav-unread { width:auto; flex:0 0 auto; }
 .notification-item button:focus-visible,.notification-item button:hover { outline-offset:2px; box-shadow:0 2px 7px #1b2e3c20; }
 @media(max-width:760px){.notification-item {align-items:stretch;}.notification-item form,.notification-item button {width:100%;}}
+
+/* In-page unread cards, matching NaapSetu Midnight & Brass. */
+.section-unread-updates{margin:1rem 0 1.25rem;overflow:hidden;background:#fffdfa;border:1px solid #d9cba9;border-radius:12px;box-shadow:0 3px 10px #182c420a;}
+.section-unread-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.85rem 1rem;border-bottom:1px solid #e9e0cd;background:#fbf6eb;flex-wrap:wrap;}
+.section-unread-eyebrow{color:#966e31;font-size:.65rem;letter-spacing:.12em;font-weight:750;text-transform:uppercase;}
+.section-unread-heading h2{color:#183344;font:600 1.12rem Georgia,serif;margin:.25rem 0 0;}
+.section-unread-total,.item-unread-pill{display:inline-flex;align-items:center;justify-content:center;background:#eddbb8;color:#76511c;border-radius:99px;padding:.2rem .5rem;font:700 .69rem system-ui,sans-serif;}
+.section-unread-heading a{color:#765a2d;font-size:.76rem;font-weight:700;}
+.section-unread-row{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.85rem 1rem;border-top:1px solid #f0ece4;}
+.section-unread-row:first-child{border-top:0;}
+.section-unread-dot{width:9px;height:9px;flex:none;border-radius:50%;background:#b88b3e;box-shadow:0 0 0 3px #f6ebd4;}
+.section-unread-copy{flex:1 1 200px;min-width:0;}
+.section-unread-copy strong{font-size:.84rem;color:#183344;}
+.section-unread-copy p{font-size:.76rem;color:#59676c;margin:.2rem 0 0;line-height:1.5;}
+.notice-read-form{margin:0;flex:none;}
+.notice-read-form button{min-height:34px;padding:.4rem .75rem;background:linear-gradient(110deg,#b98b42,#d4ae62);border:1px solid #a77d36;border-radius:6px;color:#142536;font:700 .72rem system-ui,sans-serif;cursor:pointer;}
+.notice-read-form button:hover{box-shadow:0 3px 7px #182c4224;}
+.notice-read-form button:focus-visible{outline:3px solid #a87b31;outline-offset:2px;}
+.unread-highlight{border-left:3px solid #bc934e!important;background-color:#fffaf0!important;}
+.alteration-item .notice-read-form{margin-top:.5rem;}
+@media(max-width:650px){.section-unread-row{align-items:flex-start;}.notice-read-form{margin-left:17px;}}
