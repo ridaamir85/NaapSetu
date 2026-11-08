@@ -226,79 +226,94 @@ $activePermissions = $activeStatement->fetchAll();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Measurement sharing permissions | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/customer.css">
+    <link rel="stylesheet" href="/assets/css/permissions.css">
 </head>
-<body>
-    <main>
-        <a href="/customer/dashboard.php">Back to dashboard</a>
-        <h1>Measurement sharing permissions</h1>
-        <p>Grant a tailor access to a measurement profile. Revoking access immediately prevents the tailor from viewing it.</p>
+<body class="customer-page permissions-page">
+    <a class="skip-link" href="#main">Skip to sharing permissions</a>
+    <div class="customer-shell">
+        <?php $customerSection = 'permissions'; require dirname(__DIR__, 2) . '/includes/customer-navigation.php'; ?>
+        <main id="main" class="customer-main permissions-main">
+            <header class="permissions-heading">
+                <div>
+                    <p class="eyebrow">Your measurements, your choice</p>
+                    <h1>Sharing Permissions</h1>
+                    <p>Choose which tailor can view a measurement profile. You can revoke access when it’s no longer needed.</p>
+                </div>
+                <a class="button permissions-profile-link" href="/customer/measurements.php">Manage measurements <span aria-hidden="true">→</span></a>
+            </header>
 
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_permission($successMessage) ?></p>
+            <p class="permissions-alert permissions-success" role="status"><?= escape_permission($successMessage) ?></p>
         <?php endif; ?>
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_permission($errors['form']) ?></p>
+            <p class="permissions-alert permissions-error" role="alert"><?= escape_permission($errors['form']) ?></p>
         <?php endif; ?>
 
-        <?php if ($profiles === []): ?>
-            <p>Create a measurement profile before sharing it.</p>
-            <p><a href="/customer/measurements.php">Create a measurement profile</a></p>
-        <?php elseif ($tailors === []): ?>
-            <p>There are no tailor shops to share with yet.</p>
-        <?php else: ?>
-            <h2>Grant access</h2>
-            <form method="post" action="/customer/permissions.php" novalidate>
-                <input type="hidden" name="csrf_token" value="<?= escape_permission(csrf_token()) ?>">
-                <input type="hidden" name="action" value="grant">
-                <div>
-                    <label for="profile_id">Measurement profile</label>
-                    <select id="profile_id" name="profile_id" required>
-                        <option value="">Choose a profile</option>
-                        <?php foreach ($profiles as $profile): ?>
-                            <option value="<?= (int) $profile['profile_id'] ?>"<?= $selectedProfileId === (string) $profile['profile_id'] ? ' selected' : '' ?>><?= escape_permission($profile['profile_name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors['profile_id'])): ?>
-                        <p role="alert"><?= escape_permission($errors['profile_id']) ?></p>
-                    <?php endif; ?>
-                </div>
-                <div>
-                    <label for="tailor_id">Tailor shop</label>
-                    <select id="tailor_id" name="tailor_id" required>
-                        <option value="">Choose a tailor</option>
-                        <?php foreach ($tailors as $tailor): ?>
-                            <option value="<?= (int) $tailor['tailor_id'] ?>"<?= $selectedTailorId === (string) $tailor['tailor_id'] ? ' selected' : '' ?>>
-                                <?= escape_permission($tailor['shop_name']) ?> — <?= escape_permission($tailor['city']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors['tailor_id'])): ?>
-                        <p role="alert"><?= escape_permission($errors['tailor_id']) ?></p>
-                    <?php endif; ?>
-                </div>
-                <button type="submit">Grant access</button>
-            </form>
-        <?php endif; ?>
-
-        <h2>Active access</h2>
-        <?php if ($activePermissions === []): ?>
-            <p>No tailors can currently view your measurement profiles.</p>
-        <?php else: ?>
-            <ul>
-                <?php foreach ($activePermissions as $permission): ?>
-                    <li>
-                        <?= escape_permission($permission['profile_name']) ?> shared with
-                        <?= escape_permission($permission['shop_name']) ?> (<?= escape_permission($permission['city']) ?>)
-                        <form method="post" action="/customer/permissions.php">
+            <div class="permissions-layout">
+                <section class="grant-permission-card" aria-labelledby="grant-title">
+                    <div class="permission-card-heading">
+                        <span class="permission-icon" aria-hidden="true">♧</span>
+                        <div><p class="permissions-eyebrow">Secure sharing</p><h2 id="grant-title">Grant tailor access</h2><p>Select a profile and the shop that may view it.</p></div>
+                    </div>
+                    <?php if ($profiles === []): ?>
+                        <div class="permission-empty-state"><h3>Create a measurement profile first</h3><p>You need a saved profile before you can share measurements with a tailor.</p><a class="button" href="/customer/measurements.php">Create a measurement profile <span aria-hidden="true">→</span></a></div>
+                    <?php elseif ($tailors === []): ?>
+                        <div class="permission-empty-state"><h3>No tailor shops are available yet</h3><p>Once a shop is available, you can grant it access to a measurement profile.</p><a class="outline-button" href="/customer/tailors.php">Browse tailors</a></div>
+                    <?php else: ?>
+                        <form class="permission-grant-form" method="post" action="/customer/permissions.php" novalidate>
                             <input type="hidden" name="csrf_token" value="<?= escape_permission(csrf_token()) ?>">
-                            <input type="hidden" name="action" value="revoke">
-                            <input type="hidden" name="permission_id" value="<?= (int) $permission['permission_id'] ?>">
-                            <button type="submit">Revoke access</button>
+                            <input type="hidden" name="action" value="grant">
+                            <div class="permission-field">
+                                <label for="profile_id">Measurement profile</label>
+                                <select id="profile_id" name="profile_id" required>
+                                    <option value="">Choose a profile</option>
+                                    <?php foreach ($profiles as $profile): ?>
+                                        <option value="<?= (int) $profile['profile_id'] ?>"<?= $selectedProfileId === (string) $profile['profile_id'] ? ' selected' : '' ?>><?= escape_permission($profile['profile_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if (isset($errors['profile_id'])): ?><p class="permission-field-error" role="alert"><?= escape_permission($errors['profile_id']) ?></p><?php endif; ?>
+                            </div>
+                            <div class="permission-field">
+                                <label for="tailor_id">Tailor shop</label>
+                                <select id="tailor_id" name="tailor_id" required>
+                                    <option value="">Choose a tailor</option>
+                                    <?php foreach ($tailors as $tailor): ?>
+                                        <option value="<?= (int) $tailor['tailor_id'] ?>"<?= $selectedTailorId === (string) $tailor['tailor_id'] ? ' selected' : '' ?>><?= escape_permission($tailor['shop_name']) ?> · <?= escape_permission($tailor['city']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if (isset($errors['tailor_id'])): ?><p class="permission-field-error" role="alert"><?= escape_permission($errors['tailor_id']) ?></p><?php endif; ?>
+                            </div>
+                            <p class="permission-form-note"><span aria-hidden="true">ⓘ</span> The tailor can view the profile only while access is active. You can revoke it later, unless an active order still needs the measurements.</p>
+                            <button class="button permission-submit" type="submit">Grant access <span aria-hidden="true">→</span></button>
                         </form>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </main>
+                    <?php endif; ?>
+                </section>
+
+                <section class="active-permissions-section" aria-labelledby="active-permissions-title">
+                    <header class="active-permissions-heading"><div><p class="permissions-eyebrow">Currently shared</p><h2 id="active-permissions-title">Active access</h2></div><span class="permission-count"><?= count($activePermissions) ?> <?= count($activePermissions) === 1 ? 'shop' : 'shops' ?></span></header>
+                    <?php if ($activePermissions === []): ?>
+                        <div class="permissions-empty-card"><span class="permissions-empty-icon" aria-hidden="true">♢</span><h3>No active sharing yet</h3><p>No tailor can currently view your measurement profiles. Grant access to a shop when you’re ready to share them.</p></div>
+                    <?php else: ?>
+                        <div class="active-permission-list">
+                            <?php foreach ($activePermissions as $permission): ?>
+                                <article class="active-permission-card">
+                                    <span class="shared-shop-mark" aria-hidden="true">✂</span>
+                                    <div class="active-permission-info"><p class="shared-profile-name"><?= escape_permission($permission['profile_name']) ?></p><h3><?= escape_permission($permission['shop_name']) ?></h3><p><?= escape_permission($permission['city']) ?> <span aria-hidden="true">·</span> Shared <?= escape_permission(date('M j, Y', strtotime($permission['granted_at']))) ?></p></div>
+                                    <form method="post" action="/customer/permissions.php" class="revoke-form">
+                                        <input type="hidden" name="csrf_token" value="<?= escape_permission(csrf_token()) ?>">
+                                        <input type="hidden" name="action" value="revoke">
+                                        <input type="hidden" name="permission_id" value="<?= (int) $permission['permission_id'] ?>">
+                                        <button class="revoke-button" type="submit">Revoke access</button>
+                                    </form>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </section>
+            </div>
+        </main>
+    </div>
 </body>
 </html>

@@ -1,0 +1,49 @@
+.permissions-page { background:#f6f2e9; }
+.permissions-main { max-width:1220px; }
+.permissions-heading { display:flex; align-items:center; justify-content:space-between; gap:1.3rem; margin-bottom:1rem; }
+.permissions-heading .eyebrow,.permissions-eyebrow { margin:0 0 .35rem; color:#9a7131; font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+.permissions-heading h1 { margin:0 0 .4rem; color:#172f40; font:600 clamp(1.65rem,2.5vw,2.15rem)/1.2 Georgia,serif; letter-spacing:-.02em; }
+.permissions-heading > div > p:last-child { max-width:620px; margin:0; color:#616d70; font-size:.84rem; line-height:1.5; }
+.permissions-profile-link { flex:0 0 auto; min-height:38px; padding:.45rem .8rem; background:linear-gradient(110deg,#bb8d43,#d8af60); color:#172c3d; font-size:.75rem; white-space:nowrap; }
+.permissions-alert { padding:.72rem .9rem; margin:0 0 .85rem; border-radius:8px; font-size:.8rem; }
+.permissions-success { border:1px solid #c6dfcc; background:#e9f4eb; color:#24583e; }
+.permissions-error { border:1px solid #eccdca; background:#fbebea; color:#8b3030; }
+.permissions-layout { display:grid; grid-template-columns:minmax(270px,.78fr) minmax(0,1.22fr); align-items:start; gap:.9rem; }
+.grant-permission-card,.active-permissions-section { min-width:0; padding:1rem; border:1px solid #e0dbd1; border-radius:12px; background:#fffdfa; box-shadow:0 4px 13px #182c420a; }
+.permission-card-heading { display:flex; align-items:flex-start; gap:.65rem; padding-bottom:.75rem; margin-bottom:.85rem; border-bottom:1px solid #eee9e0; }
+.permission-icon { display:grid; place-items:center; width:37px; height:37px; flex:0 0 37px; border-radius:10px; background:#f3ead7; color:#906a30; font-size:1.15rem; }
+.permission-card-heading h2,.active-permissions-heading h2 { margin:0 0 .2rem; color:#183344; font:600 1.12rem/1.25 Georgia,serif; }
+.permission-card-heading > div > p:last-child { margin:0; color:#737a7b; font-size:.72rem; }
+.permission-grant-form { display:grid; gap:.75rem; }
+.permission-field { display:grid; gap:.3rem; min-width:0; }
+.permission-field label { color:#344a55; font-size:.73rem; font-weight:700; }
+.permission-field select { width:100%; min-width:0; min-height:39px; padding:.45rem .65rem; border:1px solid #d5cec2; border-radius:6px; background:#fff; color:#273c48; font:400 .78rem system-ui,sans-serif; }
+.permission-field select:focus-visible,.permissions-page a:focus-visible,.permissions-page button:focus-visible { outline:3px solid #237caa; outline-offset:3px; }
+.permission-field-error { margin:0; color:#8b3030; font-size:.69rem; }
+.permission-form-note { display:flex; gap:.4rem; margin:0; padding:.6rem .65rem; border-radius:7px; background:#f7f1e4; color:#6a5b3c; font-size:.68rem; line-height:1.45; }
+.permission-submit { min-height:38px; padding:.45rem .75rem; background:linear-gradient(110deg,#bb8d43,#d8af60); color:#172c3d; font-size:.75rem; }
+.permission-empty-state { display:grid; justify-items:start; gap:.45rem; }
+.permission-empty-state h3 { margin:0; color:#324957; font:600 .9rem system-ui,sans-serif; }
+.permission-empty-state p { margin:0 0 .2rem; color:#6f7778; font-size:.75rem; line-height:1.5; }
+.permission-empty-state .button { min-height:36px; padding:.42rem .7rem; background:linear-gradient(110deg,#bb8d43,#d8af60); color:#172c3d; font-size:.72rem; }
+.permission-empty-state .outline-button { display:inline-flex; min-height:34px; align-items:center; padding:.4rem .65rem; border:1px solid #b18a4a; border-radius:6px; color:#694c22; font-size:.72rem; text-decoration:none; }
+.active-permissions-heading { display:flex; align-items:center; justify-content:space-between; gap:.8rem; padding-bottom:.7rem; margin-bottom:.7rem; border-bottom:1px solid #eee9e0; }
+.active-permissions-heading h2 { margin:0; }
+.permission-count { display:inline-flex; align-items:center; padding:.27rem .55rem; border-radius:99px; background:#f3ead7; color:#765a2d; font-size:.66rem; font-weight:700; white-space:nowrap; }
+.permissions-empty-card { display:grid; justify-items:center; gap:.4rem; padding:1.5rem .8rem; border:1px dashed #d8d0c1; border-radius:8px; background:#fcfaf5; text-align:center; }
+.permissions-empty-icon { display:grid; place-items:center; width:38px; height:38px; border-radius:50%; background:#f3ead7; color:#906a30; font-size:1.15rem; }
+.permissions-empty-card h3 { margin:0; color:#324957; font:600 .9rem system-ui,sans-serif; }
+.permissions-empty-card p { max-width:340px; margin:0; color:#737a7b; font-size:.72rem; line-height:1.5; }
+.active-permission-list { display:grid; gap:.55rem; }
+.active-permission-card { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.65rem; padding:.7rem; border:1px solid #ebe6dd; border-radius:8px; background:#fff; }
+.shared-shop-mark { display:grid; place-items:center; width:37px; height:37px; border-radius:9px; background:#f4eddf; color:#8c692f; font-size:1.05rem; }
+.active-permission-info { min-width:0; }
+.shared-profile-name { margin:0 0 .15rem; color:#8b6a35; font-size:.64rem; font-weight:650; }
+.active-permission-info h3 { margin:0 0 .15rem; color:#263e4b; font:600 .9rem/1.25 Georgia,serif; overflow-wrap:anywhere; }
+.active-permission-info > p:last-child { margin:0; color:#778080; font-size:.66rem; }
+.revoke-form { margin:0; }
+.revoke-button { min-height:32px; padding:.35rem .55rem; border:1px solid #d9c5c0; border-radius:6px; background:#fffdfa; color:#8b4e46; font:600 .67rem system-ui,sans-serif; cursor:pointer; }
+.revoke-button:hover { border-color:#c58e85; background:#fbf0ee; }
+@media(max-width:900px) { .permissions-layout { grid-template-columns:1fr; } }
+@media(max-width:760px) { .permissions-heading { align-items:flex-start; flex-direction:column; gap:.7rem; } .permissions-profile-link { align-self:flex-start; } }
+@media(max-width:480px) { .permissions-main { padding:1rem .85rem; } .grant-permission-card,.active-permissions-section { padding:.8rem; } .active-permission-card { grid-template-columns:auto minmax(0,1fr); } .revoke-form { grid-column:2; justify-self:start; } }
