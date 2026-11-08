@@ -217,8 +217,6 @@ if ($selectedAlterationId === null) {
                         <div class="alteration-card-icon" aria-hidden="true">✂</div>
                         <div><p class="alterations-eyebrow">Alteration #<?= (int) $alteration['alteration_id'] ?></p><h2><?= escape_tailor_alteration($alteration['customer_name']) ?></h2><p><?= escape_tailor_alteration($alteration['garment_type']) ?> <span aria-hidden="true">·</span> <a href="/tailor/orders.php?order_id=<?= (int) $alteration['order_id'] ?>">Order ORD-<?= str_pad((string) $alteration['order_id'], 4, '0', STR_PAD_LEFT) ?></a></p></div>
                         <span class="alteration-status status-<?= escape_tailor_alteration($alteration['status']) ?>"><?= escape_tailor_alteration(ucwords(str_replace('_', ' ', $alteration['status']))) ?></span>
-<?php $newTailorAlteration = naapsetu_find_notice($tailorUnread, 'alteration:' . (int) $alteration['alteration_id']); ?>
-<?php if ($newTailorAlteration !== null): ?><span class="item-unread-pill">New request</span><?php endif; ?>
                     </header>
 <div class="alteration-card-body"><h3>Requested adjustment</h3><p><?= nl2br(escape_tailor_alteration($alteration['issue']), false) ?></p></div>
 

@@ -321,8 +321,6 @@ unset($request);
                         <?php foreach ($request['quotations'] as $quotation): ?>
                             <article class="quotation-card">
                                 <div class="quotation-details"><h4>Quotation #<?= (int) $quotation['quotation_id'] ?></h4>
-<?php $newQuote = naapsetu_find_notice($customerUnread, 'quote:' . (int) $quotation['quotation_id']); ?>
-<?php if ($newQuote !== null): ?><span class="item-unread-pill">New quotation</span><?php endif; ?>
                                     <p class="quotation-price">PKR <?= escape_customer_request(number_format((float) $quotation['amount'], 2)) ?></p>
                                     <p class="quotation-deadline">Estimated completion by <time datetime="<?= escape_customer_request($quotation['deadline']) ?>"><?= escape_customer_request(date('M j, Y', strtotime($quotation['deadline']))) ?></time></p>
                                 </div>
