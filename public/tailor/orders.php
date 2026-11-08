@@ -97,7 +97,7 @@ $successMessage = match ($_GET['saved'] ?? '') {
 
 if ($requestMethod === 'POST') {
     $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
-    $formValues['source'] = 'tailor';
+    $formValues['source'] = is_string($_POST['source'] ?? null) && $_POST['source'] === 'customer' ? 'customer' : 'tailor';
     $formValues['quantity'] = is_string($_POST['quantity'] ?? null) ? trim($_POST['quantity']) : '';
     $formValues['received_at'] = is_string($_POST['received_at'] ?? null) ? trim($_POST['received_at']) : '';
     $targetStatus = is_string($_POST['status'] ?? null) ? $_POST['status'] : '';
@@ -109,7 +109,7 @@ if ($requestMethod === 'POST') {
 
     $receivedAt = null;
     if ($action === 'save_fabric') {
-        if ($formValues['source'] !== 'tailor') {
+        if ($formValues['source'] !== 'tailor' && $formValues['source'] !== 'customer') {
             $errors['source'] = 'Choose who supplied the fabric.';
         }
         if (preg_match('/\A[0-9]{1,3}(?:\.[0-9]{1,2})?\z/', $formValues['quantity']) !== 1
@@ -142,7 +142,7 @@ if ($requestMethod === 'POST') {
             $connection->beginTransaction();
 
             $lockOrder = $connection->prepare(
-                'SELECT o.order_id, o.status FROM orders AS o '
+                'SELECT o.order_id, o.status, r.stitching_details, r.fabric_source FROM orders AS o '
                 . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
                 . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
                 . 'WHERE o.order_id = :order_id AND r.tailor_id = :tailor_id FOR UPDATE'
@@ -158,13 +158,16 @@ if ($requestMethod === 'POST') {
             }
 
             if ($action === 'save_fabric') {
+                if ($lockedOrder['stitching_details'] !== null && $formValues['source'] !== 'tailor') {
+                    $errors['form'] = 'Fabric for new requests must be arranged by the tailor.';
+                }
                 $existingFabric = $connection->prepare(
                     'SELECT fabric_id FROM fabric_records WHERE order_id = :order_id LIMIT 1'
                 );
                 $existingFabric->execute(['order_id' => $selectedOrderId]);
                 if ($existingFabric->fetch() !== false) {
                     $errors['form'] = 'Fabric details have already been recorded for this order.';
-                } else {
+                } elseif ($errors === []) {
                     $fabricInsert = $connection->prepare(
                         'INSERT INTO fabric_records (order_id, source, quantity, received_at) '
                         . 'VALUES (:order_id, :source, :quantity, :received_at)'
@@ -191,7 +194,7 @@ if ($requestMethod === 'POST') {
                 }
                 if (($nextStatus[$lockedOrder['status']] ?? null) !== $targetStatus) {
                     $errors['form'] = 'Move the order forward by one step at a time.';
-                } elseif ($targetStatus === 'cutting') {
+                } elseif ($targetStatus === 'cutting' && $lockedOrder['stitching_details'] !== null) {
                     $fabricCheck = $connection->prepare("SELECT fabric_id FROM fabric_records WHERE order_id = :id AND source='tailor' AND received_at IS NOT NULL");
                     $fabricCheck->execute(['id' => $selectedOrderId]);
                     if ($fabricCheck->fetchColumn() === false) {
@@ -425,7 +428,9 @@ $fabricFormSource = $selectedOrder === null
                                 <input type="hidden" name="csrf_token" value="<?= escape_tailor_order(csrf_token()) ?>">
                                 <input type="hidden" name="order_id" value="<?= (int) $selectedOrder['order_id'] ?>">
                                 <input type="hidden" name="action" value="save_fabric">
-                                <p class="order-detail-hint">For new orders, fabric is supplied by the tailor.</p>
+                                <?php if ($selectedOrder['stitching_details'] === null): ?>
+                                <div class="order-form-field"><label for="source">Fabric source (legacy order)</label><select id="source" name="source"><option value="customer"<?= $fabricFormSource === 'customer' ? ' selected' : '' ?>>Customer</option><option value="tailor"<?= $fabricFormSource === 'tailor' ? ' selected' : '' ?>>Tailor</option></select></div>
+                                <?php else: ?><p class="order-detail-hint">For new orders, fabric is supplied by the tailor.</p><?php endif; ?>
                                 <div class="order-form-field"><label for="quantity">Quantity (metres)</label><input id="quantity" name="quantity" type="number" min="0.01" max="999.99" step="0.01" required value="<?= escape_tailor_order($formValues['quantity']) ?>" placeholder="e.g. 2.5"><?php if (isset($errors['quantity'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['quantity']) ?></p><?php endif; ?></div>
                                 <div class="order-form-field"><label for="received_at">Fabric arranged on (optional; blank means now)</label><input id="received_at" name="received_at" type="datetime-local" value="<?= escape_tailor_order($formValues['received_at']) ?>"><?php if (isset($errors['received_at'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['received_at']) ?></p><?php endif; ?></div>
                                 <button class="button order-action-button" type="submit">Save fabric record</button>
