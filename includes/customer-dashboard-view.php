@@ -18,14 +18,19 @@ $customerSection = 'home';
 <?php if ($orders === []): ?>
 <div class="empty-orders"><?= customer_icon('orders') ?><div><h2>Your next garment starts here.</h2><p>No active orders yet. Choose a tailor and request a quote.</p></div><a class="outline-button" href="/customer/tailors.php">Browse tailors →</a></div>
 <?php else: foreach ($orders as $order):
-$stages = ['confirmed'=>'Confirmed','fabric'=>'Fabric received','cutting'=>'Cutting','stitching'=>'Stitching','ready'=>'Ready'];
+$stages = ['confirmed'=>'Confirmed','fabric'=>'Fabric arranged','cutting'=>'Cutting','stitching'=>'Stitching','ready'=>'Ready'];
 $currentPosition = ['confirmed'=>0,'cutting'=>2,'stitching'=>3,'ready'=>4][$order['status']] ?? 0;
+if ($order['status'] === 'confirmed' && $order['received_at'] !== null) {
+    $currentPosition = 1;
+}
 ?>
 <article class="active-order"><div class="order-heading"><?= customer_icon('orders') ?><div><h2>Active order<br><strong>ORD-<?= str_pad((string) $order['order_id'],4,'0',STR_PAD_LEFT) ?></strong></h2><p><?= dashboard_escape($order['garment_type']) ?> · <?= dashboard_escape($order['shop_name']) ?></p></div></div>
 <ol class="order-tracker" aria-label="Order progress">
 <?php $i=0; foreach ($stages as $stage=>$label):
-$done = $stage === 'fabric' ? $order['received_at'] !== null : $i < $currentPosition;
-$current = $stage !== 'fabric' && $i === $currentPosition;
+$done = $stage === 'fabric'
+    ? ($order['received_at'] !== null && $i < $currentPosition)
+    : $i < $currentPosition;
+$current = $i === $currentPosition;
 ?>
 <li class="<?= $done ? 'is-done' : ($current ? 'is-current' : '') ?>" <?= $current ? 'aria-current="step"' : '' ?>><span class="tracker-dot" aria-hidden="true"><?= $done ? '✓' : '' ?></span><span><?= $label ?></span><span class="visually-hidden"> — <?= $done ? 'complete' : ($current ? 'current stage' : 'not recorded yet') ?></span></li>
 <?php $i++; endforeach; ?>
