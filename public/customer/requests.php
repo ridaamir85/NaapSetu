@@ -267,56 +267,83 @@ unset($request);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My requests and quotations | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/customer.css">
+    <link rel="stylesheet" href="/assets/css/requests.css">
 </head>
-<body>
-    <main>
-        <a href="/customer/dashboard.php">Back to dashboard</a>
-        <h1>My requests and quotations</h1>
+<body class="customer-page requests-page">
+    <a class="skip-link" href="#main">Skip to requests</a>
+    <div class="customer-shell">
+        <?php $customerSection = 'requests'; require dirname(__DIR__, 2) . '/includes/customer-navigation.php'; ?>
+        <main id="main" class="customer-main">
+            <header class="requests-heading">
+                <div>
+                    <p class="eyebrow">Your tailoring journey</p>
+                    <h1>Requests &amp; quotations</h1>
+                    <p>Follow each stitching request and review the tailor’s quote.</p>
+                </div>
+                <a class="button" href="/customer/tailors.php">Find a tailor <span aria-hidden="true">→</span></a>
+            </header>
 
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_customer_request($successMessage) ?></p>
+            <p class="requests-notice requests-success" role="status"><?= escape_customer_request($successMessage) ?></p>
         <?php endif; ?>
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_customer_request($errors['form']) ?></p>
+            <p class="requests-notice requests-error" role="alert"><?= escape_customer_request($errors['form']) ?></p>
         <?php endif; ?>
 
         <?php if ($requests === []): ?>
-            <p>You have not submitted any stitching requests yet.</p>
-            <p><a href="/customer/tailors.php">Browse tailors</a></p>
+            <section class="requests-empty">
+                <span class="requests-empty-icon" aria-hidden="true">✂</span>
+                <h2>Your first request starts here</h2>
+                <p>You haven’t submitted a stitching request yet. Browse tailors to choose a garment service and ask for a quote.</p>
+                <a class="outline-button" href="/customer/tailors.php">Browse tailors <span aria-hidden="true">→</span></a>
+            </section>
         <?php else: ?>
+            <section class="request-list" aria-label="Your stitching requests">
             <?php foreach ($requests as $request): ?>
-                <section>
-                    <h2><?= escape_customer_request($request['shop_name']) ?> — <?= escape_customer_request($request['garment_type']) ?></h2>
-                    <p>Status: <?= escape_customer_request($request['request_status']) ?></p>
-                    <p>Date: <time datetime="<?= escape_customer_request($request['created_at']) ?>"><?= escape_customer_request($request['created_at']) ?></time></p>
+                <article class="request-card">
+                    <header class="request-card-heading">
+                        <div><p class="eyebrow">Stitching request #<?= (int) $request['request_id'] ?></p>
+                            <h2><?= escape_customer_request($request['garment_type']) ?></h2>
+                            <p class="request-shop"><?= escape_customer_request($request['shop_name']) ?></p>
+                        </div>
+                        <span class="request-status status-<?= escape_customer_request($request['request_status']) ?>"><?= escape_customer_request(ucwords(str_replace('_', ' ', $request['request_status']))) ?></span>
+                    </header>
+                    <p class="request-date">Submitted <time datetime="<?= escape_customer_request($request['created_at']) ?>"><?= escape_customer_request(date('M j, Y', strtotime($request['created_at']))) ?></time></p>
 
                     <?php if ($request['quotations'] === []): ?>
-                        <p>No quotation yet.</p>
+                        <p class="request-pending">Your request is with the tailor. A quotation will appear here when it’s ready.</p>
                     <?php else: ?>
-                        <h3>Quotations</h3>
+                        <h3 class="quotation-section-title">Quotations</h3>
+                        <div class="quotation-list">
                         <?php foreach ($request['quotations'] as $quotation): ?>
-                            <article>
-                                <h4>Quotation #<?= (int) $quotation['quotation_id'] ?></h4>
-                                <p>Price: PKR <?= escape_customer_request(number_format((float) $quotation['amount'], 2)) ?></p>
-                                <p>Completion deadline: <time datetime="<?= escape_customer_request($quotation['deadline']) ?>"><?= escape_customer_request($quotation['deadline']) ?></time></p>
-                                <p>Status: <?= escape_customer_request($quotation['status']) ?></p>
+                            <article class="quotation-card">
+                                <div class="quotation-details"><h4>Quotation #<?= (int) $quotation['quotation_id'] ?></h4>
+                                    <p class="quotation-price">PKR <?= escape_customer_request(number_format((float) $quotation['amount'], 2)) ?></p>
+                                    <p class="quotation-deadline">Estimated completion by <time datetime="<?= escape_customer_request($quotation['deadline']) ?>"><?= escape_customer_request(date('M j, Y', strtotime($quotation['deadline']))) ?></time></p>
+                                </div>
+                                <span class="quotation-status status-<?= escape_customer_request($quotation['status']) ?>"><?= escape_customer_request(ucwords(str_replace('_', ' ', $quotation['status']))) ?></span>
 
                                 <?php if ($quotation['status'] === 'sent' && $request['request_status'] === 'quoted'): ?>
-                                    <form method="post" action="/customer/requests.php">
+                                    <form class="quotation-actions" method="post" action="/customer/requests.php">
                                         <input type="hidden" name="csrf_token" value="<?= escape_customer_request(csrf_token()) ?>">
                                         <input type="hidden" name="request_id" value="<?= (int) $request['request_id'] ?>">
                                         <input type="hidden" name="quotation_id" value="<?= (int) $quotation['quotation_id'] ?>">
-                                        <button type="submit" name="action" value="accepted">Accept quotation</button>
-                                        <button type="submit" name="action" value="rejected">Reject quotation</button>
-                                        <button type="submit" name="action" value="revision_requested">Request revision</button>
+                                        <button class="button" type="submit" name="action" value="accepted">Accept quotation</button>
+                                        <button class="action-secondary" type="submit" name="action" value="revision_requested">Request revision</button>
+                                        <button class="action-text" type="submit" name="action" value="rejected">Decline</button>
                                     </form>
                                 <?php endif; ?>
                             </article>
                         <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
-                </section>
+                </article>
             <?php endforeach; ?>
+            </section>
         <?php endif; ?>
-    </main>
+        </main>
+    </div>
 </body>
 </html>
