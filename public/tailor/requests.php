@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 require_once dirname(__DIR__, 2) . '/includes/tailor.php';
 
@@ -306,7 +305,6 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
     <?php $tailorSection = 'requests'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-requests-main">
         <?php if ($selectedRequest !== null && $selectedRequest !== false): ?>
-            <?php naapsetu_render_section_updates($connection, $user, 'requests'); ?>
             <a class="request-back-link tailor-back-link" href="/tailor/requests.php">All incoming requests</a>
             <header class="request-page-heading">
                 <div><p class="requests-eyebrow">Review and respond</p><h1>Request detail &amp; quotation</h1><p>Check the customer’s requirements before preparing a price and completion date.</p></div>
@@ -422,7 +420,6 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
             </header>
             <?php if ($successMessage !== null): ?><p class="request-alert request-success" role="status"><?= escape_request($successMessage) ?></p><?php endif; ?>
             <?php if (isset($errors['form'])): ?><p class="request-alert request-error" role="alert"><?= escape_request($errors['form']) ?></p><?php endif; ?>
-            <?php naapsetu_render_section_updates($connection, $user, 'requests'); ?>
             <?php if ($requests === []): ?>
                 <section class="requests-empty" aria-labelledby="requests-empty-title"><span class="requests-empty-mark" aria-hidden="true">✓</span><h2 id="requests-empty-title">You’re all caught up</h2><p>No requests are currently awaiting a quotation or revision.</p><a class="tailor-return-link ui-secondary-action" href="/tailor/dashboard.php">Return to dashboard</a></section>
             <?php else: ?>

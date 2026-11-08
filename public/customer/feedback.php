@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 
 $user = require_role('customer');
@@ -200,7 +199,6 @@ if ($selectedOrderId === null) {
     $orders = [];
 }
 
-$feedbackUnread = naapsetu_section_unread($connection, $user, 'feedback');
 $alterationsByOrder = [];
 if ($orders !== []) {
     $alterationStatement = $connection->prepare(
@@ -239,7 +237,6 @@ if ($orders !== []) {
             <p class="feedback-alert feedback-error" role="alert"><?= escape_customer_feedback($errors['form']) ?></p>
         <?php endif; ?>
 
-<?php naapsetu_render_section_updates($connection, $user, 'feedback'); ?>
         <?php if ($orders === []): ?>
             <section class="feedback-empty" aria-labelledby="feedback-empty-title">
                 <span class="feedback-empty-icon" aria-hidden="true">✦</span>
@@ -292,11 +289,7 @@ if ($orders !== []) {
                                 <div class="alteration-list">
                                     <?php foreach ($alterationsByOrder[$order['order_id']] as $alteration): ?>
                                         <article class="alteration-item"><span class="alteration-status status-<?= escape_customer_feedback($alteration['status']) ?>"><?= escape_customer_feedback(ucwords(str_replace('_', ' ', $alteration['status']))) ?></span>
-<?php $newAlteration = naapsetu_find_notice($feedbackUnread,
-    'alteration-status:' . (int) $alteration['alteration_id'] . ':' . $alteration['status']); ?>
-<?php if ($newAlteration !== null): ?><span class="item-unread-pill">New update</span><?php endif; ?>
 <p><?= nl2br(escape_customer_feedback($alteration['issue']), false) ?></p>
-<?php if ($newAlteration !== null): ?><?php naapsetu_notice_form($newAlteration); ?><?php endif; ?>
 </article>
                                     <?php endforeach; ?>
                                 </div>

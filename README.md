@@ -71,24 +71,19 @@ Tailors select one or both men’s and women’s specializations to be discovera
 
 The seed script never marks the demo quotation as accepted or creates an order. After the customer accepts the quote, later runs preserve the resulting order and workflow status.
 
-## Account settings and notifications
+## Account settings and sidebar activity indicators
 
-Customers, tailors and administrators can change their own password in **Change password** after signing in. The current password is required; new passwords are stored as hashes. Account recovery is not included in this version and is listed under **Future enhancements**.
+Customers, tailors and administrators can change their password after signing in. Account recovery is deferred to future scope.
 
-For databases created before this version, apply migration 003 if the `users.must_change_password` field does not exist. Fresh installs from `schema.sql` already include that field. It remains supported so existing accounts that have a pending required password change can finish changing their password normally.
+Sidebar badges show **pending workflow actions** using existing database tables, with no separate notification system or read-status table. Examples: customer quotations awaiting a decision, tailoring requests awaiting a quote, confirmed orders awaiting fabric/cutting, and new alterations awaiting tailor action. These badges update as workflow statuses change; they are **not unread message counts**, and simply opening a page does not clear them.
 
-In-app activity notifications use migration `005_add_notification_reads.sql`. If this database already has the table, do not rerun that migration. Per-user read receipts track new requests, quotations, orders, feedback and alterations. Opening one update marks only that update as read. A removed password-recovery notification is no longer generated.
-
-Existing installations that previously enabled password recovery can remove its obsolete table using:
+Existing installations can remove the obsolete notification read-status table once using:
 
 ```bash
-sudo mysql naapsetu < database/migrations/007_remove_password_recovery.sql
+sudo mysql naapsetu < database/migrations/008_remove_notification_reads.sql
 ```
 
-That cleanup deletes only password-recovery requests and their read receipts. It does **not** delete users, passwords, orders, service data or other notification records. Make a database backup before any migration. No recovery table is created for new installations.
-
-## Per-item unread markers in work pages
-Each relevant customer, tailor, or admin work page displays **Unread updates** above its cards. Every item has its own View update action, using a CSRF-checked POST and a per-user row in notification_reads. The sidebar count drops one at a time; opening a page by itself does not clear notifications. Quotation and alteration cards also show individual New markers and Mark as read buttons. No additional migration is needed beyond 005. Updates appear on page reload (not via web push).
+Migration `005` is no longer needed for a fresh installation. No original customer, tailor, measurement, quotation, order, feedback or alteration data is removed. Previous password-recovery cleanup remains available in migration `007` for existing databases.
 
 ## Tailoring specializations and reference images (migration 006)
 Existing Ubuntu installations: apply once after migration 005.

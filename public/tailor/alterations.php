@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 require_once dirname(__DIR__, 2) . '/includes/tailor.php';
 
@@ -65,7 +64,6 @@ if ($selectedAlterationId !== null) {
     }
 }
 
-$tailorUnread = naapsetu_section_unread($connection, $user, 'alterations');
 $errors = [];
 $successMessage = match ($_GET['saved'] ?? '') {
     'status' => 'Alteration status updated.',
@@ -209,7 +207,6 @@ if ($selectedAlterationId === null) {
             <p class="alterations-alert alterations-error" role="alert"><?= escape_tailor_alteration($errors['form']) ?></p>
         <?php endif; ?>
 
-<?php naapsetu_render_section_updates($connection, $user, 'alterations'); ?>
         <?php if ($alterations === []): ?>
             <section class="alterations-empty"><span aria-hidden="true">✓</span><h2>No alteration requests yet</h2><p>When a customer requests an adjustment for a delivered order, it will appear here.</p><a class="alterations-secondary-link" href="/tailor/orders.php">View orders <span aria-hidden="true">→</span></a></section>
         <?php else: ?>
@@ -223,7 +220,6 @@ if ($selectedAlterationId === null) {
 <?php $newTailorAlteration = naapsetu_find_notice($tailorUnread, 'alteration:' . (int) $alteration['alteration_id']); ?>
 <?php if ($newTailorAlteration !== null): ?><span class="item-unread-pill">New request</span><?php endif; ?>
                     </header>
-                    <?php if ($newTailorAlteration !== null): ?><?php naapsetu_notice_form($newTailorAlteration); ?><?php endif; ?>
 <div class="alteration-card-body"><h3>Requested adjustment</h3><p><?= nl2br(escape_tailor_alteration($alteration['issue']), false) ?></p></div>
 
                     <?php if ($alteration['status'] !== 'done'): ?>

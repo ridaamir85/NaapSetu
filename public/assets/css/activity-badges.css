@@ -1,0 +1,15 @@
+/* Existing NaapSetu Midnight & Brass palette: small actionable sidebar counts only. */
+.customer-sidebar nav a .nav-unread,
+.tailor-sidebar nav a .nav-unread {
+  display:inline-grid;
+  place-items:center;
+  min-width:20px;
+  height:20px;
+  padding:0 5px;
+  margin-left:auto;
+  border:1px solid #e0bf7a;
+  border-radius:999px;
+  background:#d4aa5c;
+  color:#142536;
+  font:700 .7rem/1 system-ui,sans-serif;
+}

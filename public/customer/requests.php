@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 
 $user = require_role('customer');
@@ -240,7 +239,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 
-$customerUnread = naapsetu_section_unread($connection, $user, 'requests');
 $requestsStatement = $connection->prepare(
     'SELECT r.request_id, r.status AS request_status, r.created_at, '
     . 'p.shop_name, s.garment_type '
@@ -295,7 +293,6 @@ unset($request);
             <p class="requests-notice requests-error" role="alert"><?= escape_customer_request($errors['form']) ?></p>
         <?php endif; ?>
 
-<?php naapsetu_render_section_updates($connection, $user, 'requests'); ?>
         <?php if ($requests === []): ?>
             <section class="requests-empty">
                 <span class="requests-empty-icon" aria-hidden="true">✂</span>
@@ -330,7 +327,6 @@ unset($request);
                                     <p class="quotation-deadline">Estimated completion by <time datetime="<?= escape_customer_request($quotation['deadline']) ?>"><?= escape_customer_request(date('M j, Y', strtotime($quotation['deadline']))) ?></time></p>
                                 </div>
                                 <span class="quotation-status status-<?= escape_customer_request($quotation['status']) ?>"><?= escape_customer_request(ucwords(str_replace('_', ' ', $quotation['status']))) ?></span>
-<?php if ($newQuote !== null): ?><?php naapsetu_notice_form($newQuote); ?><?php endif; ?>
 
                                 <?php if ($quotation['status'] === 'sent' && $request['request_status'] === 'quoted'): ?>
                                     <form class="quotation-actions" method="post" action="/customer/requests.php">

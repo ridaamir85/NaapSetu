@@ -236,13 +236,3 @@ CREATE TABLE alteration_requests (
     CONSTRAINT fk_alteration_requests_order
         FOREIGN KEY (order_id) REFERENCES orders(order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 16. Per-user notification read receipts
-CREATE TABLE notification_reads (
-    user_id INT NOT NULL,
-    event_key VARCHAR(100) NOT NULL,
-    seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, event_key),
-    CONSTRAINT fk_notification_reads_user FOREIGN KEY (user_id) REFERENCES users(user_id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

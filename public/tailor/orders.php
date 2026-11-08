@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 require_once dirname(__DIR__, 2) . '/includes/database.php';
 require_once dirname(__DIR__, 2) . '/includes/tailor.php';
 
@@ -357,7 +356,6 @@ $fabricFormSource = $selectedOrder === null
     <div class="tailor-dashboard-shell">
     <?php $tailorSection = 'orders'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-orders-main">
-<?php naapsetu_render_section_updates($connection, $user, 'orders'); ?>
         <header class="orders-page-heading">
             <div><p class="orders-eyebrow">Tailor workspace</p><h1>Orders &amp; Fabric</h1><p>Track stitching progress and keep each order’s fabric record in one place.</p></div>
         </header>
