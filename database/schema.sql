@@ -124,6 +124,8 @@ CREATE TABLE order_requests (
     service_id INT NOT NULL,
     profile_id INT NOT NULL,
     style_id INT NULL,
+    fabric_source ENUM('customer', 'tailor') NOT NULL DEFAULT 'customer',
+    customer_notes TEXT NULL,
     status ENUM('pending', 'quoted', 'declined', 'cancelled')
         NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

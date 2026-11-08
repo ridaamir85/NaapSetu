@@ -45,6 +45,7 @@ function owned_request(PDO $connection, int $requestId, int $tailorId): array|fa
 {
     $statement = $connection->prepare(
         'SELECT r.request_id, r.profile_id, r.style_id, r.status, r.created_at, '
+        . 'r.fabric_source, r.customer_notes, '
         . 'sp.name AS style_name, sp.preferences AS style_preferences, u.name AS customer_name, '
         . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
         . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
@@ -219,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($selectedRequestId === null) {
     $statement = $connection->prepare(
         'SELECT r.request_id, r.profile_id, r.style_id, r.status, r.created_at, '
+        . 'r.fabric_source, r.customer_notes, '
         . 'sp.name AS style_name, sp.preferences AS style_preferences, '
         . 'u.name AS customer_name, s.garment_type, '
         . '(SELECT mp.permission_id FROM measurement_permissions AS mp '
@@ -278,6 +280,11 @@ if ($selectedRequestId === null) {
                     <p>Garment: <?= escape_request($request['garment_type']) ?></p>
                     <p>Status: <?= escape_request($request['status']) ?></p>
                     <p>Date: <time datetime="<?= escape_request($request['created_at']) ?>"><?= escape_request($request['created_at']) ?></time></p>
+                    <p>Fabric supply: <?= $request['fabric_source'] === 'tailor' ? 'Tailor to arrange fabric' : 'Customer will provide fabric' ?></p>
+                    <?php if (is_string($request['customer_notes']) && trim($request['customer_notes']) !== ''): ?>
+                        <h3>Customer notes</h3>
+                        <p><?= nl2br(escape_request($request['customer_notes'])) ?></p>
+                    <?php endif; ?>
                     <?php if ($request['active_permission_id'] !== null): ?>
                         <p><a href="/tailor/measurements.php?profile_id=<?= (int) $request['profile_id'] ?>">View shared measurements</a></p>
                     <?php else: ?>

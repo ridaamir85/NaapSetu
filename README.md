@@ -25,6 +25,12 @@ Requirements: PHP 8.1 or newer with PDO MySQL enabled, and MySQL 8.0 or newer.
    sudo mysql naapsetu < database/migrations/001_add_user_active_status.sql
    ```
 
+   For a database that already has the account activation migration, apply the new request details migration once so customer fabric choices and notes can be saved:
+
+   ```bash
+   sudo mysql naapsetu < database/migrations/002_add_request_fabric_and_notes.sql
+   ```
+
 3. Seed or refresh the local demo records. This command is safe to rerun: it updates the fixed demo accounts and base profiles, creates missing related rows, and keeps existing quotation/order progress without duplicating requests or quotations. It resets the three demo passwords and reactivates those demo accounts.
 
    ```bash
