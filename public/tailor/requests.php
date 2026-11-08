@@ -402,7 +402,6 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
                 </aside>
             </div>
         <?php else: ?>
-            <a class="request-back-link tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
             <header class="request-page-heading">
                 <div><p class="requests-eyebrow">Tailor workspace</p><h1>Incoming requests</h1><p>Review customer requirements and prepare your quotations.</p></div>
                 <span class="incoming-count"><?= count($requests) ?> awaiting response</span>

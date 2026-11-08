@@ -126,7 +126,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="tailor-dashboard-shell">
     <?php $tailorSection = 'profile'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="profile-main">
-        <a class="profile-back tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
         <header class="profile-heading">
             <p class="profile-eyebrow">Your shop on NaapSetu</p>
             <h1><?= $profile === null ? 'Create your shop profile' : 'Shop profile' ?></h1>

@@ -344,7 +344,6 @@ $fabricFormSource = $selectedOrder === null
     <main id="main" class="tailor-orders-main">
         <header class="orders-page-heading">
             <div><p class="orders-eyebrow">Tailor workspace</p><h1>Orders &amp; Fabric</h1><p>Track stitching progress and keep each order’s fabric record in one place.</p></div>
-            <a class="orders-heading-link tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
         </header>
 
         <?php if ($successMessage !== null): ?>

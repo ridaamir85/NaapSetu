@@ -171,7 +171,6 @@ $services = $servicesStatement->fetchAll();
     <div class="tailor-dashboard-shell">
     <?php $tailorSection = 'services'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-services-main">
-        <a class="tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
         <h1>Tailor services</h1>
         <p>Add the garment services customers can select.</p>
 
