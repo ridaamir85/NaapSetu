@@ -118,20 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $profile === null ? 'Create shop profile' : 'Edit shop profile' ?> | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-profile.css">
 </head>
 <body class="tailor-profile-page">
     <a class="skip-link" href="#main">Skip to shop profile</a>
-    <header class="profile-topbar">
-        <a class="profile-wordmark" href="/tailor/dashboard.php">NaapSetu</a>
-        <nav aria-label="Tailor navigation">
-            <a href="/tailor/dashboard.php">Dashboard</a>
-            <a href="/tailor/requests.php">Requests</a>
-            <a href="/tailor/orders.php">Orders</a>
-            <a href="/tailor/services.php">Services</a>
-            <a href="/tailor/profile.php" aria-current="page">Profile</a>
-        </nav>
-    </header>
+    <div class="tailor-dashboard-shell">
+    <?php $tailorSection = 'profile'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="profile-main">
         <a class="profile-back" href="/tailor/dashboard.php"><span aria-hidden="true">←</span> Back to dashboard</a>
         <header class="profile-heading">
@@ -205,5 +198,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </aside>
         </div>
     </main>
+    </div>
 </body>
 </html>

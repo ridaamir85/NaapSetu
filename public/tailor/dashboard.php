@@ -88,25 +88,13 @@ $customerSection = 'home';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tailor Dashboard | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-dashboard.css">
 </head>
 <body class="tailor-dashboard-page">
     <a class="skip-link" href="#main">Skip to dashboard</a>
     <div class="tailor-dashboard-shell">
-        <aside class="tailor-sidebar">
-            <a class="tailor-wordmark" href="/tailor/dashboard.php">NaapSetu</a>
-            <nav aria-label="Tailor navigation">
-                <a href="/tailor/dashboard.php" aria-current="page"><span aria-hidden="true">⌂</span>Dashboard</a>
-                <a href="/tailor/requests.php"><span aria-hidden="true">▤</span>Requests<?php if ($newRequestCount > 0): ?><span class="nav-count"><?= $newRequestCount ?></span><?php endif; ?></a>
-                <a href="/tailor/orders.php"><span aria-hidden="true">□</span>Orders</a>
-                <a href="/tailor/services.php"><span aria-hidden="true">✂</span>Services</a>
-                <a href="/tailor/profile.php"><span aria-hidden="true">◉</span>Profile &amp; services</a>
-            </nav>
-            <form method="post" action="/logout.php" class="tailor-signout">
-                <input type="hidden" name="csrf_token" value="<?= escape_tailor_dashboard(csrf_token()) ?>">
-                <button type="submit"><span aria-hidden="true">↪</span>Sign out</button>
-            </form>
-        </aside>
+        <?php $tailorSection = 'dashboard'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
 
         <main id="main" class="tailor-dashboard-main">
             <header class="tailor-dashboard-header">

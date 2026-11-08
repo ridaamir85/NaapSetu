@@ -334,20 +334,13 @@ $fabricFormSource = $selectedOrder === null
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Orders &amp; Fabric | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-orders.css">
 </head>
 <body class="tailor-orders-page">
     <a class="skip-link" href="#main">Skip to orders</a>
-    <header class="orders-topbar">
-        <a class="orders-wordmark" href="/tailor/dashboard.php">NaapSetu</a>
-        <nav aria-label="Tailor navigation">
-            <a href="/tailor/dashboard.php">Dashboard</a>
-            <a href="/tailor/requests.php">Requests</a>
-            <a href="/tailor/orders.php" aria-current="page">Orders</a>
-            <a href="/tailor/services.php">Services</a>
-            <a href="/tailor/profile.php">Profile</a>
-        </nav>
-    </header>
+    <div class="tailor-dashboard-shell">
+    <?php $tailorSection = 'orders'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-orders-main">
         <header class="orders-page-heading">
             <div><p class="orders-eyebrow">Tailor workspace</p><h1>Orders &amp; Fabric</h1><p>Track stitching progress and keep each order’s fabric record in one place.</p></div>
@@ -469,5 +462,6 @@ $fabricFormSource = $selectedOrder === null
             </article>
         <?php endif; ?>
     </main>
+    </div>
 </body>
 </html>

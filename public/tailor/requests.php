@@ -285,7 +285,6 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
     );
 }
 
-$customerSection = 'requests';
 ?>
 <!doctype html>
 <html lang="en">
@@ -294,20 +293,13 @@ $customerSection = 'requests';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $selectedRequest !== null && $selectedRequest !== false ? 'Request details' : 'Incoming requests' ?> | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-requests.css">
 </head>
 <body class="tailor-requests-page">
     <a class="skip-link" href="#main">Skip to requests</a>
-    <header class="requests-topbar">
-        <a class="requests-wordmark" href="/tailor/dashboard.php">NaapSetu</a>
-        <nav aria-label="Tailor navigation">
-            <a href="/tailor/dashboard.php">Dashboard</a>
-            <a href="/tailor/requests.php" aria-current="page">Requests</a>
-            <a href="/tailor/orders.php">Orders</a>
-            <a href="/tailor/services.php">Services</a>
-            <a href="/tailor/profile.php">Profile</a>
-        </nav>
-    </header>
+    <div class="tailor-dashboard-shell">
+    <?php $tailorSection = 'requests'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-requests-main">
         <?php if ($selectedRequest !== null && $selectedRequest !== false): ?>
             <a class="request-back-link" href="/tailor/requests.php"><span aria-hidden="true">←</span> All incoming requests</a>
@@ -436,5 +428,6 @@ $customerSection = 'requests';
             <?php endif; ?>
         <?php endif; ?>
     </main>
+    </div>
 </body>
 </html>

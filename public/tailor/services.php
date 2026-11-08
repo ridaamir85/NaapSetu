@@ -162,9 +162,15 @@ $services = $servicesStatement->fetchAll();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Services | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
+    <link rel="stylesheet" href="/assets/css/tailor-services.css">
 </head>
-<body>
-    <main>
+<body class="tailor-services-page">
+    <a class="skip-link" href="#main">Skip to services</a>
+    <div class="tailor-dashboard-shell">
+    <?php $tailorSection = 'services'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
+    <main id="main" class="tailor-services-main">
         <a href="dashboard.php">Back to dashboard</a>
         <h1>Tailor services</h1>
         <p>Add the garment services customers can select.</p>
@@ -292,6 +298,7 @@ $services = $servicesStatement->fetchAll();
             </table>
         <?php endif; ?>
     </main>
+    </div>
     <script src="/assets/js/service-garments.js" defer></script>
 </body>
 </html>
