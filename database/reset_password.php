@@ -1,31 +1,50 @@
 <?php
 declare(strict_types=1);
-// Owner-only local maintenance tool. Never expose password reset through a public form.
+
+// Owner-only CLI recovery: verify account ownership OUTSIDE this script first.
+// The generated password is shown only once and the user must change it after login.
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
-require_once dirname(__DIR__).'/includes/database.php';
-if (!function_exists('stream_isatty') || !stream_isatty(STDIN) || PHP_OS_FAMILY !== 'Linux' || !function_exists('shell_exec')) {
-    fwrite(STDERR,"Run this interactively in your Ubuntu terminal.\n"); exit(1);
-}
-function private_password(string $prompt): string {
-    $state=trim((string)shell_exec('stty -g'));
-    if($state==='') throw new RuntimeException('Cannot hide terminal input.');
-    fwrite(STDOUT,$prompt);
-    shell_exec('stty -echo');
-    try { $line=fgets(STDIN); if($line===false) throw new RuntimeException('Input cancelled.'); return rtrim($line,"\r\n"); }
-    finally { shell_exec('stty '.escapeshellarg($state)); fwrite(STDOUT,PHP_EOL); }
+require_once dirname(__DIR__) . '/includes/database.php';
+if (!function_exists('stream_isatty') || !stream_isatty(STDIN)) {
+    fwrite(STDERR, "Run this interactively in your Ubuntu terminal.\n");
+    exit(1);
 }
 try {
-    fwrite(STDOUT,"Registered account email: "); $line=fgets(STDIN);
-    $email=$line===false ? '' : trim($line);
-    if(filter_var($email,FILTER_VALIDATE_EMAIL)===false) throw new RuntimeException('Enter a valid registered email.');
-    $db=database(); $find=$db->prepare('SELECT user_id, name, role FROM users WHERE email=?'); $find->execute([$email]); $account=$find->fetch();
-    if($account===false) throw new RuntimeException('Account not found. No changes made.');
-    fwrite(STDOUT,'Account: '.$account['name'].' ('.$account['role'].')'.PHP_EOL);
-    $password=private_password('New password (8–72 characters): ');
-    if(strlen($password)<8 || strlen($password)>72) throw new RuntimeException('Use 8–72 bytes for the password. No changes made.');
-    $confirmation=private_password('Confirm new password: ');
-    if(!hash_equals($password,$confirmation)) throw new RuntimeException('Passwords do not match. No changes made.');
-    $hash=password_hash($password,PASSWORD_DEFAULT); unset($password,$confirmation);
-    $update=$db->prepare('UPDATE users SET password_hash=? WHERE user_id=?'); $update->execute([$hash,$account['user_id']]);
-    fwrite(STDOUT,"Password updated. Log in with the same email and the new password.\n");
-} catch(Throwable $error) { fwrite(STDERR,$error->getMessage().PHP_EOL); exit(1); }
+    fwrite(STDOUT, "Only proceed after independently verifying account ownership.\n");
+    fwrite(STDOUT, "Registered account email: ");
+    $emailInput = fgets(STDIN);
+    $email = $emailInput === false ? '' : strtolower(trim($emailInput));
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        throw new RuntimeException('Enter a valid account email.');
+    }
+
+    $db = database();
+    $find = $db->prepare('SELECT user_id, name, role, is_active FROM users WHERE email = ?');
+    $find->execute([$email]);
+    $account = $find->fetch();
+    if ($account === false) {
+        throw new RuntimeException('Account not found. No changes made.');
+    }
+    if ((int) $account['is_active'] !== 1) {
+        throw new RuntimeException('Account is inactive. Ask an administrator to review access first.');
+    }
+    fwrite(STDOUT, "Account: " . $account['name'] . " (" . $account['role'] . ")\n");
+    fwrite(STDOUT, "Ownership verified independently? Type YES to reset: ");
+    if (trim((string) fgets(STDIN)) !== 'YES') {
+        throw new RuntimeException('Cancelled. No changes made.');
+    }
+
+    // Random 24-character secret; never store or log the plaintext.
+    $temporaryPassword = rtrim(strtr(base64_encode(random_bytes(18)), '+/', '-_'), '=');
+    $hash = password_hash($temporaryPassword, PASSWORD_DEFAULT);
+    $update = $db->prepare(
+        'UPDATE users SET password_hash = :hash, must_change_password = 1 WHERE user_id = :id'
+    );
+    $update->execute(['hash' => $hash, 'id' => (int) $account['user_id']]);
+    fwrite(STDOUT, "Temporary password (give privately to verified user): " . $temporaryPassword . "\n");
+    fwrite(STDOUT, "The user must set a private password at their next sign-in.\n");
+    unset($temporaryPassword, $hash);
+} catch (Throwable $exception) {
+    fwrite(STDERR, $exception->getMessage() . "\n");
+    exit(1);
+}

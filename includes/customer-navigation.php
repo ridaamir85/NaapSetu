@@ -11,18 +11,19 @@ function customer_icon(string $name): string {
         'tailors'=>'<path d="M3 10h18L19 4H5zM5 10v11h14V10M9 21v-7h6v7"/>',
         'feedback'=>'<path d="M4 4h16v13H9l-5 4zM8 8h8M8 12h5"/>',
         'logout'=>'<path d="M9 3H4v18h5M8 12h13m-5-5 5 5-5 5"/>',
+        'security'=>'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
         'check'=>'<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
     ];
     return '<svg viewBox="0 0 24 24" aria-hidden="true">'.($paths[$name] ?? $paths['home']).'</svg>';
 }
 $customerSection = $customerSection ?? 'home';
-$links = [['home','Home','dashboard.php'],['measurements','Measurements','measurements.php'],['styles','Styles','styles.php'],['requests','Requests & quotes','requests.php'],['orders','Orders','orders.php'],['permissions','Sharing permissions','permissions.php'],['tailors','Browse tailors','tailors.php'],['feedback','Feedback & alterations','feedback.php']];
+$links = [['home','Home','dashboard.php'],['measurements','Measurements','measurements.php'],['styles','Styles','styles.php'],['requests','Requests & quotes','requests.php'],['orders','Orders','orders.php'],['permissions','Sharing permissions','permissions.php'],['tailors','Browse tailors','tailors.php'],['feedback','Feedback & alterations','feedback.php'],['security','Change password','../change-password.php']];
 ?>
 <aside class="customer-sidebar">
 <a class="wordmark" href="/customer/dashboard.php">NaapSetu</a>
 <nav aria-label="Customer navigation">
 <?php foreach ($links as [$key,$label,$file]): ?>
-<a href="/customer/<?= $file ?>" <?= $customerSection === $key ? 'aria-current="page"' : '' ?>><?= customer_icon($key) ?><span><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span></a>
+<a href="<?= $key === 'security' ? '/change-password.php' : '/customer/' . $file ?>" <?= $customerSection === $key ? 'aria-current="page"' : '' ?>><?= customer_icon($key) ?><span><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span></a>
 <?php endforeach; ?>
 </nav>
 <form method="post" action="/logout.php" class="customer-signout"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>"><button type="submit"><?= customer_icon('logout') ?>Sign out</button></form>

@@ -7,6 +7,7 @@ $tailorNavigation = [
     'alterations' => ['Alterations', '/tailor/alterations.php', '↻'],
     'services' => ['Services', '/tailor/services.php', '✂'],
     'profile' => ['Profile & services', '/tailor/profile.php', '◉'],
+    'security' => ['Change password', '/change-password.php', '♙'],
 ];
 ?>
 <aside class="tailor-sidebar">

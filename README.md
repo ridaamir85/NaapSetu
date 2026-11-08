@@ -83,3 +83,23 @@ php database/reset_password.php
 ```
 
 Enter the registered email, then enter and confirm a new password. Password input is hidden. The command updates only that account's password hash; it preserves the role, activation status, profiles and orders. It does not create accounts, send email or terminate existing sessions. The tool requires an interactive Linux terminal and the local database configuration. Never place credentials or reset passwords in Git commits.
+
+## Account security and administrator-assisted recovery
+
+For existing Ubuntu installations, apply the password change migration **once** before pulling this feature into service:
+
+```bash
+sudo mysql naapsetu < database/migrations/003_add_password_change_requirement.sql
+```
+
+The initial schema already includes `users.must_change_password`; do not apply the migration to a fresh database created with the updated `schema.sql`.
+
+Customer, tailor, and administrator accounts have a **Change password** navigation link. To recover a forgotten password, the project owner must verify the account owner **outside the website** before running:
+
+```bash
+php database/reset_password.php
+```
+
+The CLI tool generates a random temporary password, displays it once, and sets `must_change_password=1`. Share the temporary password privately with the verified user. After login the user must enter the temporary password and choose a different private password (12–72 characters) before accessing their dashboard. Never send passwords through a public channel or commit real credentials.
+
+Automated reset emails are not implemented. Test the forced-change flow with a **non-demo test account**; `database/seed_demo.php` may overwrite the fixed demo accounts' passwords when rerun.

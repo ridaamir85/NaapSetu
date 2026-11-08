@@ -15,7 +15,15 @@ function escape_login(string $value): string
 $existingUser = signed_in_user();
 
 if ($existingUser !== null) {
-    redirect_to(dashboard_path_for_role($existingUser['role']));
+    $check = database()->prepare('SELECT must_change_password, is_active FROM users WHERE user_id = ?');
+    $check->execute([$existingUser['user_id']]);
+    $account = $check->fetch();
+    if ($account === false || (int) $account['is_active'] !== 1) {
+        sign_out_user();
+        redirect_to('/login.php?account=deactivated');
+    }
+    redirect_to((int) $account['must_change_password'] === 1
+        ? '/change-password.php' : dashboard_path_for_role($existingUser['role']));
 }
 
 $email = '';
@@ -34,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $statement = database()->prepare(
-                'SELECT user_id, name, email, password_hash, role, is_active '
+                'SELECT user_id, name, email, password_hash, role, is_active, must_change_password '
                 . 'FROM users WHERE email = :email LIMIT 1'
             );
             $statement->execute(['email' => $email]);
@@ -47,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 sign_in_user($user);
                 unset($_SESSION['csrf_token']);
-                redirect_to(dashboard_path_for_role($user['role']));
+                redirect_to((int) $user['must_change_password'] === 1
+                    ? '/change-password.php' : dashboard_path_for_role($user['role']));
             }
         } catch (PDOException $exception) {
             error_log($exception->getMessage());

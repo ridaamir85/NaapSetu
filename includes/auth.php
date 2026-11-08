@@ -70,7 +70,7 @@ function require_role(string $role): array
     }
 
     $activeCheck = database()->prepare(
-        'SELECT role, is_active FROM users WHERE user_id = :user_id LIMIT 1'
+        'SELECT role, is_active, must_change_password FROM users WHERE user_id = :user_id LIMIT 1'
     );
     $activeCheck->execute(['user_id' => $user['user_id']]);
     $currentUser = $activeCheck->fetch();
@@ -82,6 +82,10 @@ function require_role(string $role): array
     if ($currentUser['role'] !== $user['role']) {
         $user['role'] = (string) $currentUser['role'];
         $_SESSION['user']['role'] = $user['role'];
+    }
+
+    if ((int) $currentUser['must_change_password'] === 1) {
+        redirect_to('/change-password.php');
     }
 
     if ($user['role'] !== $role) {
