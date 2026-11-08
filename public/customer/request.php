@@ -22,6 +22,7 @@ function available_stitching_services(PDO $connection): array
         . 'FROM tailor_services AS s '
         . 'INNER JOIN tailor_profiles AS p ON p.tailor_id = s.tailor_id '
         . 'INNER JOIN users AS u ON u.user_id = p.user_id AND u.is_active = 1 '
+        . 'WHERE s.is_enabled=1 AND s.specialization IS NOT NULL '
         . 'ORDER BY p.shop_name, s.garment_type, s.service_id'
     );
 
@@ -62,7 +63,11 @@ $service = null;
 $formValues = [
     'profile_id' => '',
     'style_id' => '',
-    'fabric_source' => 'customer',
+    'fabric_source' => 'tailor',
+    'stitching_details' => '',
+    'fabric_type' => '',
+    'fabric_color' => '',
+    'fabric_preferences' => '',
     'customer_notes' => '',
 ];
 $shareMeasurements = false;
@@ -73,9 +78,10 @@ $successMessage = ($_GET['created'] ?? '') === '1'
 if ($requestMethod === 'POST') {
     $formValues['profile_id'] = is_string($_POST['profile_id'] ?? null) ? $_POST['profile_id'] : '';
     $formValues['style_id'] = is_string($_POST['style_id'] ?? null) ? $_POST['style_id'] : '';
-    $formValues['fabric_source'] = is_string($_POST['fabric_source'] ?? null)
-        ? $_POST['fabric_source']
-        : '';
+    $formValues['fabric_source'] = 'tailor';
+    foreach (['stitching_details', 'fabric_type', 'fabric_color', 'fabric_preferences'] as $field) {
+        $formValues[$field] = is_string($_POST[$field] ?? null) ? trim($_POST[$field]) : '';
+    }
     $formValues['customer_notes'] = is_string($_POST['customer_notes'] ?? null)
         ? trim($_POST['customer_notes'])
         : '';
@@ -137,14 +143,44 @@ if ($requestMethod === 'POST') {
         }
     }
 
-    if (!in_array($formValues['fabric_source'], ['customer', 'tailor'], true)) {
-        $errors['fabric_source'] = 'Choose who will provide the fabric.';
+    if (($length = mb_strlen($formValues['stitching_details'], 'UTF-8')) < 10 || $length > 4000) {
+        $errors['stitching_details'] = 'Describe your requested garment(s) in 10 to 4,000 characters.';
+    }
+    if (mb_strlen($formValues['fabric_type'], 'UTF-8') > 80
+        || mb_strlen($formValues['fabric_color'], 'UTF-8') > 80
+        || mb_strlen($formValues['fabric_preferences'], 'UTF-8') > 2000) {
+        $errors['fabric_preferences'] = 'Fabric preferences are too long.';
+    }
+    $imageUpload = $_FILES['reference_image'] ?? null;
+    $imageBytes = null;
+    $imageExtension = null;
+    if (is_array($imageUpload) && ($imageUpload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        if (($imageUpload['error'] ?? null) !== UPLOAD_ERR_OK
+            || !is_uploaded_file((string)($imageUpload['tmp_name'] ?? ''))
+            || (int)($imageUpload['size'] ?? 0) < 1
+            || (int)($imageUpload['size'] ?? 0) > 5 * 1024 * 1024) {
+            $errors['reference_image'] = 'Choose a valid JPG, PNG or WebP image up to 5 MB.';
+        } else {
+            $temp = (string)$imageUpload['tmp_name'];
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($temp);
+            $allowed = ['image/jpeg'=>'jpg', 'image/png'=>'png', 'image/webp'=>'webp'];
+            $dimensions = @getimagesize($temp);
+            if (!isset($allowed[$mime]) || $dimensions === false
+                || $dimensions[0] > 5000 || $dimensions[1] > 5000
+                || $dimensions[0] < 1 || $dimensions[1] < 1
+                || $dimensions['mime'] !== $mime) {
+                $errors['reference_image'] = 'The uploaded file must be a valid JPG, PNG or WebP image (max 5,000 × 5,000 pixels).';
+            } else {
+                $imageExtension = $allowed[$mime];
+            }
+        }
     }
     if (mb_strlen($formValues['customer_notes'], 'UTF-8') > 1000) {
         $errors['customer_notes'] = 'Notes must be 1,000 characters or fewer.';
     }
 
     if ($errors === []) {
+        $savedImagePath = null;
         try {
             $connection->beginTransaction();
 
@@ -182,11 +218,25 @@ if ($requestMethod === 'POST') {
                 }
             }
 
+            if ($imageExtension !== null) {
+                $imageFolder = dirname(__DIR__, 2) . '/storage/request-images';
+                if (!is_dir($imageFolder) || !is_writable($imageFolder)) {
+                    throw new RuntimeException('Private image storage is not configured.');
+                }
+                $imageName = bin2hex(random_bytes(20)) . '.' . $imageExtension;
+                $savedImagePath = 'request-images/' . $imageName;
+                if (!move_uploaded_file((string)$imageUpload['tmp_name'], $imageFolder . '/' . $imageName)) {
+                    throw new RuntimeException('Unable to save the reference image.');
+                }
+                chmod($imageFolder . '/' . $imageName, 0640);
+            }
             $insert = $connection->prepare(
                 'INSERT INTO order_requests '
-                . '(customer_id, tailor_id, service_id, profile_id, style_id, fabric_source, customer_notes, status) '
+                . '(customer_id, tailor_id, service_id, profile_id, style_id, fabric_source, customer_notes, status, '
+                . 'stitching_details, fabric_type, fabric_color, fabric_preferences, reference_image_path) '
                 . 'VALUES (:customer_id, :tailor_id, :service_id, :profile_id, :style_id, '
-                . ':fabric_source, :customer_notes, :status)'
+                . ':fabric_source, :customer_notes, :status, :stitching_details, :fabric_type, '
+                . ':fabric_color, :fabric_preferences, :reference_image_path)'
             );
             $insert->execute([
                 'customer_id' => $user['user_id'],
@@ -197,6 +247,11 @@ if ($requestMethod === 'POST') {
                 'fabric_source' => $formValues['fabric_source'],
                 'customer_notes' => $formValues['customer_notes'] === '' ? null : $formValues['customer_notes'],
                 'status' => 'pending',
+                'stitching_details' => $formValues['stitching_details'],
+                'fabric_type' => $formValues['fabric_type'] === '' ? null : $formValues['fabric_type'],
+                'fabric_color' => $formValues['fabric_color'] === '' ? null : $formValues['fabric_color'],
+                'fabric_preferences' => $formValues['fabric_preferences'] === '' ? null : $formValues['fabric_preferences'],
+                'reference_image_path' => $savedImagePath,
             ]);
             $connection->commit();
 
@@ -211,6 +266,7 @@ if ($requestMethod === 'POST') {
             if ($connection->inTransaction()) {
                 $connection->rollBack();
             }
+            if ($savedImagePath !== null) @unlink(dirname(__DIR__, 2) . '/storage/' . $savedImagePath);
             error_log($exception->getMessage());
             $errors['form'] = 'The stitching request could not be submitted. Please try again.';
         }
@@ -318,7 +374,7 @@ $pageTitle = 'New stitching request';
                             <p class="request-inline-error" role="alert"><?= escape_stitching_request($errors['service_id']) ?></p>
                         <?php endif; ?>
 
-                        <form method="post" action="/customer/request.php" class="request-form" novalidate>
+                        <form method="post" action="/customer/request.php" class="request-form" enctype="multipart/form-data" novalidate>
                             <input type="hidden" name="csrf_token" value="<?= escape_stitching_request(csrf_token()) ?>">
                             <div class="request-field">
                                 <label for="tailor_id">Choose tailor</label>
@@ -337,9 +393,9 @@ $pageTitle = 'New stitching request';
                             </div>
 
                             <div class="request-field">
-                                <label for="service_id">Service</label>
+                                <label for="service_id">Tailoring specialization</label>
                                 <select id="service_id" name="service_id" required>
-                                    <option value="">Choose a garment service</option>
+                                    <option value="">Choose tailoring specialization</option>
                                     <?php foreach ($shops as $shop): ?>
                                         <optgroup label="<?= escape_stitching_request($shop['shop_name']) ?> · <?= escape_stitching_request($shop['city']) ?>" data-tailor-id="<?= (int) $shop['tailor_id'] ?>">
                                             <?php foreach ($services as $serviceOption): ?>
@@ -395,21 +451,35 @@ $pageTitle = 'New stitching request';
                                 <?php endif; ?>
                             </div>
 
-                            <fieldset class="request-field request-fabric-field">
-                                <legend>Fabric supply</legend>
-                                <label class="request-choice">
-                                    <input type="radio" name="fabric_source" value="customer" required<?= $formValues['fabric_source'] === 'customer' ? ' checked' : '' ?>>
-                                    <span><strong>I’ll provide the fabric</strong><small>Bring or send your fabric to the shop.</small></span>
-                                </label>
-                                <label class="request-choice">
-                                    <input type="radio" name="fabric_source" value="tailor" required<?= $formValues['fabric_source'] === 'tailor' ? ' checked' : '' ?>>
-                                    <span><strong>Tailor to arrange fabric</strong><small>Discuss fabric options with the tailor.</small></span>
-                                </label>
-                                <?php if (isset($errors['fabric_source'])): ?>
-                                    <p class="request-inline-error" role="alert"><?= escape_stitching_request($errors['fabric_source']) ?></p>
-                                <?php endif; ?>
-                            </fieldset>
-
+                            <div class="request-field request-field-wide">
+                                <label for="stitching_details">What would you like stitched?</label>
+                                <textarea name="stitching_details" id="stitching_details" minlength="10" maxlength="4000" rows="4" required placeholder="Describe the outfit, number of pieces, stitching details, sleeve and neckline choices..."><?= escape_stitching_request($formValues['stitching_details']) ?></textarea>
+                                <p class="request-field-hint">You can request a complete suit, one garment, or several pieces. No fixed garment list.</p>
+                                <?php if (isset($errors['stitching_details'])): ?><p role="alert" class="request-inline-error"><?= escape_stitching_request($errors['stitching_details']) ?></p><?php endif; ?>
+                            </div>
+                            <div class="request-field request-field-wide request-fabric-note">
+                                <strong>Fabric will be arranged by the tailor.</strong>
+                                <p class="request-field-hint">Describe your preferences. The tailor will check availability and include material cost in the quotation.</p>
+                            </div>
+                            <div class="request-field">
+                                <label for="fabric_type">Preferred fabric type (optional)</label>
+                                <input type="text" id="fabric_type" name="fabric_type" maxlength="80" value="<?= escape_stitching_request($formValues['fabric_type']) ?>" placeholder="e.g. Lawn, cotton, silk">
+                            </div>
+                            <div class="request-field">
+                                <label for="fabric_color">Preferred colour (optional)</label>
+                                <input type="text" id="fabric_color" name="fabric_color" maxlength="80" value="<?= escape_stitching_request($formValues['fabric_color']) ?>" placeholder="e.g. Navy blue">
+                            </div>
+                            <div class="request-field request-field-wide">
+                                <label for="fabric_preferences">Additional fabric preferences (optional)</label>
+                                <textarea id="fabric_preferences" name="fabric_preferences" maxlength="2000" rows="2" placeholder="e.g. Lightweight fabric suitable for summer"><?= escape_stitching_request($formValues['fabric_preferences']) ?></textarea>
+                                <?php if (isset($errors['fabric_preferences'])): ?><p role="alert" class="request-inline-error"><?= escape_stitching_request($errors['fabric_preferences']) ?></p><?php endif; ?>
+                            </div>
+                            <div class="request-field request-field-wide">
+                                <label for="reference_image">Upload a styling reference (optional)</label>
+                                <input type="file" id="reference_image" name="reference_image" accept="image/jpeg,image/png,image/webp">
+                                <p class="request-field-hint">JPG, PNG, or WebP, up to 5 MB. Shared privately with the selected tailor.</p>
+                                <?php if (isset($errors['reference_image'])): ?><p role="alert" class="request-inline-error"><?= escape_stitching_request($errors['reference_image']) ?></p><?php endif; ?>
+                            </div>
                             <div class="request-field request-field-wide">
                                 <label for="customer_notes">Notes <span>(optional)</span></label>
                                 <textarea id="customer_notes" name="customer_notes" maxlength="1000" rows="3" placeholder="For example: add side pockets, keep a 1-inch margin…"><?= escape_stitching_request($formValues['customer_notes']) ?></textarea>
@@ -441,8 +511,8 @@ $pageTitle = 'New stitching request';
                                 <div><dt>Location</dt><dd id="summary-shop-location"><?= $service !== null ? escape_stitching_request($service['city']) : '—' ?></dd></div>
                                 <div><dt>Address</dt><dd id="summary-shop-address"><?= $service !== null ? escape_stitching_request($service['address']) : '—' ?></dd></div>
                                 <div><dt>Service</dt><dd id="summary-garment"><?= $service !== null ? escape_stitching_request($service['garment_type']) : 'Choose a service' ?></dd></div>
-                                <div><dt>Starting price</dt><dd id="summary-price"><?php if ($service === null): ?>—<?php elseif ((float) $service['base_price'] <= 0): ?>Request a quote<?php else: ?>From PKR <?= number_format((float) $service['base_price'], 2) ?><?php endif; ?></dd></div>
-                                <div><dt>Estimated time</dt><dd id="summary-days"><?= $service !== null ? (int) $service['avg_days'] . ((int) $service['avg_days'] === 1 ? ' day' : ' days') : '—' ?></dd></div>
+                                <div><dt>Pricing</dt><dd id="summary-price">Custom quotation</dd></div>
+                                <div><dt>Completion</dt><dd id="summary-days">Specified in quotation</dd></div>
                             </dl>
                             <p class="request-summary-note"><span aria-hidden="true">ⓘ</span> Sending a request does not create an order. You can review the tailor’s quotation before accepting it.</p>
                         </div>

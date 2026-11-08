@@ -26,17 +26,15 @@
         garment.textContent = activeItem?.dataset.garment || 'Choose a service';
 
         if (!activeItem) {
-            price.textContent = '—';
-            days.textContent = '—';
+            price.textContent = 'Custom quotation';
+            days.textContent = 'Specified in quotation';
             return;
         }
 
         const amount = Number(activeItem.dataset.price);
-        price.textContent = amount <= 0
-            ? 'Request a quote'
-            : `From PKR ${new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)}`;
+        price.textContent = 'Custom quotation';
         const completionDays = Number(activeItem.dataset.days);
-        days.textContent = `${completionDays} ${completionDays === 1 ? 'day' : 'days'}`;
+        days.textContent = 'Specified in quotation';
     }
 
     function updateServiceChoices() {

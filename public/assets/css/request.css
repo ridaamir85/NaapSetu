@@ -73,3 +73,6 @@
     .request-fabric-field legend { grid-column: auto; }
     .request-submit { justify-self: stretch; }
 }
+
+.request-fabric-note {padding:1rem;border-left:4px solid #b18a4a;border-radius:8px;background:#f8f0de;color:#183344;}
+.request-form input[type="file"]{padding:.75rem;border:1px dashed #b18a4a;border-radius:8px;background:#fffdfa;max-width:100%;}
