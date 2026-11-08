@@ -80,13 +80,8 @@ function naapsetu_notifications(PDO $db, array $viewer): array
                 JOIN tailor_profiles p ON p.tailor_id=r.tailor_id WHERE p.user_id=?"]
         ];
     } elseif ($role === 'admin') {
-        $queries = [
-            ["SELECT CONCAT('recovery:', r.recovery_id), 'recovery',
-                CONCAT('Recovery request #', r.recovery_id),
-                'A registered user requested help accessing their account.',
-                '/admin/password-recovery.php', r.requested_at
-                FROM password_recovery_requests r WHERE r.status='pending'"]
-        ];
+        // No account-recovery inbox in this release.
+        $queries = [];
     }
     $items = [];
     foreach ($queries as $sql) {

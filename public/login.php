@@ -122,7 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <p class="auth-help"><a href="/password-recovery.php">Forgot password?</a></p>
             <button type="submit">Log in</button>
         </form>
 

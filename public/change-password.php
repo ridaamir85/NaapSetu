@@ -37,7 +37,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $errors[] = 'Your session expired. Refresh the page and try again.';
     }
     if (!password_verify($current, (string) $account['password_hash'])) {
-        $errors[] = 'The current or temporary password is incorrect.';
+        $errors[] = 'The current password is incorrect.';
     }
     if (strlen($new) < 12 || strlen($new) > 72) {
         $errors[] = 'Choose a new password of 12 to 72 characters.';
@@ -91,7 +91,7 @@ $dashboard = dashboard_path_for_role((string) $user['role']);
             <p class="password-eyebrow">Account security</p>
             <h1><?= $required ? 'Set your private password' : 'Change your password' ?></h1>
             <p><?= $required
-                ? 'Your account was recovered with a temporary password. Set a new private password before continuing.'
+                ? 'You need to update your password before continuing to your dashboard.'
                 : 'Keep your NaapSetu account secure. You can update your password at any time.' ?></p>
         </header>
         <?php if ($success): ?>
@@ -111,7 +111,7 @@ $dashboard = dashboard_path_for_role((string) $user['role']);
             <form method="post" action="/change-password.php" novalidate>
                 <input type="hidden" name="csrf_token" value="<?= escape_password_page(csrf_token()) ?>">
                 <div>
-                    <label for="current_password"><?= $required ? 'Temporary password' : 'Current password' ?></label>
+                    <label for="current_password">Current password</label>
                     <input id="current_password" type="password" name="current_password" autocomplete="current-password" required autofocus>
                 </div>
                 <div>

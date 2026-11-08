@@ -59,7 +59,7 @@ These fixed credentials are for local demonstration only. Do not reuse them in a
 
 The seed creates a Lahore tailor shop and a customer measurement and style profile with an initial `sent` quotation. It intentionally does **not** create an order: the customer must accept the quote first.
 
-The current schema has no separate service publication flag. Services in `tailor_services` are listed to customers, so the seeded service is immediately visible in **Browse tailors**.
+Tailors select one or both men’s and women’s specializations to be discoverable in **Browse tailors**.
 
 ## Repeatable end-to-end demo
 
@@ -71,70 +71,21 @@ The current schema has no separate service publication flag. Services in `tailor
 
 The seed script never marks the demo quotation as accepted or creates an order. After the customer accepts the quote, later runs preserve the resulting order and workflow status.
 
-## Password recovery in the local project
+## Account settings and notifications
 
-The login page links to administrator-assisted recovery guidance. Email reset links are not implemented in this version. The project owner must verify the requester before resetting an account.
+Customers, tailors and administrators can change their own password in **Change password** after signing in. The current password is required; new passwords are stored as hashes. Account recovery is not included in this version and is listed under **Future enhancements**.
 
-In the Ubuntu project terminal, run:
+For databases created before this version, apply migration 003 if the `users.must_change_password` field does not exist. Fresh installs from `schema.sql` already include that field. It remains supported so existing accounts that have a pending required password change can finish changing their password normally.
 
-```bash
-cd /var/www/naapsetu
-php database/reset_password.php
-```
+In-app activity notifications use migration `005_add_notification_reads.sql`. If this database already has the table, do not rerun that migration. Per-user read receipts track new requests, quotations, orders, feedback and alterations. Opening one update marks only that update as read. A removed password-recovery notification is no longer generated.
 
-Enter the registered email, then enter and confirm a new password. Password input is hidden. The command updates only that account's password hash; it preserves the role, activation status, profiles and orders. It does not create accounts, send email or terminate existing sessions. The tool requires an interactive Linux terminal and the local database configuration. Never place credentials or reset passwords in Git commits.
-
-## Account security and administrator-assisted recovery
-
-For existing Ubuntu installations, apply the password change migration **once** before pulling this feature into service:
+Existing installations that previously enabled password recovery can remove its obsolete table using:
 
 ```bash
-sudo mysql naapsetu < database/migrations/003_add_password_change_requirement.sql
+sudo mysql naapsetu < database/migrations/007_remove_password_recovery.sql
 ```
 
-The initial schema already includes `users.must_change_password`; do not apply the migration to a fresh database created with the updated `schema.sql`.
-
-Customer, tailor, and administrator accounts have a **Change password** navigation link. To recover a forgotten password, the project owner must verify the account owner **outside the website** before running:
-
-```bash
-php database/reset_password.php
-```
-
-The CLI tool generates a random temporary password, displays it once, and sets `must_change_password=1`. Share the temporary password privately with the verified user. After login the user must enter the temporary password and choose a different private password (12–72 characters) before accessing their dashboard. Never send passwords through a public channel or commit real credentials.
-
-Automated reset emails are not implemented. Test the forced-change flow with a **non-demo test account**; `database/seed_demo.php` may overwrite the fixed demo accounts' passwords when rerun.
-
-## Password recovery request form (migration 004)
-
-For an existing Ubuntu database apply this migration **once** (after migration 003):
-
-```bash
-sudo mysql naapsetu < database/migrations/004_add_password_recovery_requests.sql
-```
-
-The public `/password-recovery.php` form accepts an email and displays a generic confirmation whether or not that email is registered. A registered active user gets at most one pending recovery request. Administrators see pending requests at `/admin/password-recovery.php`.
-
-Before using `php database/reset_password.php`, an administrator must independently verify the requester's identity. The CLI tool creates a temporary password and forces a private change at login. The admin marks the request resolved only after completing the offline steps. The public form neither sends email nor automatically changes passwords. For a public deployment, add request-rate limits and abuse monitoring in front of this endpoint.
-
-## In-app activity notifications (migration 005)
-
-For an existing Ubuntu database, apply the next migration once after 004:
-
-```bash
-sudo mysql naapsetu < database/migrations/005_add_notification_reads.sql
-```
-
-The customer, tailor and admin sidebars show unread counts on **relevant** sections and an overall Notifications inbox. Events are derived from the existing owned business records (stitching requests, quotations, order history, feedback, alterations and admin recovery requests), and a per-user read receipt is recorded only when **View update** is clicked. This is an in-app activity system, not browser push notifications or email. No external service is required. For a production-scale site, add pagination and improve event timestamps for alterations.
-
-## Admin dashboard password resets (no terminal required)
-
-The administrator can open **Password recovery** on the admin sidebar and review a pending customer/tailor request. After independently verifying the account owner, they must enter **their own admin password** and select **Generate temporary password**. The system immediately replaces the target's password hash, sets `must_change_password=1`, and marks the recovery request resolved within one transaction.
-
-The generated temporary password is **displayed once** on the admin page and never stored in plaintext in MySQL, a session, a URL, or the repository. The administrator must share it privately with the verified user. Refreshing or leaving the result page permanently hides it. On their next login the user must enter the temporary password and set their own private replacement before proceeding.
-
-Inactive users and admin accounts are not eligible for a dashboard-initiated reset. The existing owner-only CLI script is retained as an emergency maintenance tool, not required for the normal customer/tailor recovery flow.
-
-For local HTTP development, treat temporary passwords as test secrets only. Before exposing the site publicly, add HTTPS, authentication rate limiting, and verified delivery or self-service email reset.
+That cleanup deletes only password-recovery requests and their read receipts. It does **not** delete users, passwords, orders, service data or other notification records. Make a database backup before any migration. No recovery table is created for new installations.
 
 ## Per-item unread markers in work pages
 Each relevant customer, tailor, or admin work page displays **Unread updates** above its cards. Every item has its own View update action, using a CSRF-checked POST and a per-user row in notification_reads. The sidebar count drops one at a time; opening a page by itself does not clear notifications. Quotation and alteration cards also show individual New markers and Mark as read buttons. No additional migration is needed beyond 005. Updates appear on page reload (not via web push).
@@ -148,3 +99,7 @@ sudo install -d -o www-data -g www-data -m 0750 /var/www/naapsetu/storage/reques
 ```
 
 Private styling photos are stored in `storage/request-images/` **outside** the Apache `public/` document root and accessed through an ownership-checked PHP image endpoint. Do not expose the storage directory using an Apache alias. Ensure PHP's upload limits allow 5 MB files. New customers specify men/women specialization, freely describe garments, choose preferred fabric type/colour/notes and optionally upload JPG/PNG/WebP reference photos. Tailor supplies fabric by default and records fabric quantity/date before moving a new confirmed order to cutting. Existing services/orders are retained. Tailors must save their specializations before appearing in new searches.
+
+## Future enhancements
+
+Self-service forgot-password functionality (for example, a verified email reset link), improved delivery logistics, and further user-experience improvements can be planned after the required tailoring workflow is completed and tested.

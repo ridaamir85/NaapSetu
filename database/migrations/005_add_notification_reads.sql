@@ -1,4 +1,4 @@
--- Apply once to existing NaapSetu databases after migration 004.
+-- Apply once to existing NaapSetu databases after migration 003.
 -- Read receipts are per-user; original business records remain the source of truth.
 CREATE TABLE notification_reads (
     user_id INT NOT NULL,
