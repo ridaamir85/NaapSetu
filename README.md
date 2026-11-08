@@ -115,3 +115,13 @@ sudo mysql naapsetu < database/migrations/004_add_password_recovery_requests.sql
 The public `/password-recovery.php` form accepts an email and displays a generic confirmation whether or not that email is registered. A registered active user gets at most one pending recovery request. Administrators see pending requests at `/admin/password-recovery.php`.
 
 Before using `php database/reset_password.php`, an administrator must independently verify the requester's identity. The CLI tool creates a temporary password and forces a private change at login. The admin marks the request resolved only after completing the offline steps. The public form neither sends email nor automatically changes passwords. For a public deployment, add request-rate limits and abuse monitoring in front of this endpoint.
+
+## In-app activity notifications (migration 005)
+
+For an existing Ubuntu database, apply the next migration once after 004:
+
+```bash
+sudo mysql naapsetu < database/migrations/005_add_notification_reads.sql
+```
+
+The customer, tailor and admin sidebars show unread counts on **relevant** sections and an overall Notifications inbox. Events are derived from the existing owned business records (stitching requests, quotations, order history, feedback, alterations and admin recovery requests), and a per-user read receipt is recorded only when **View update** is clicked. This is an in-app activity system, not browser push notifications or email. No external service is required. For a production-scale site, add pagination and improve event timestamps for alterations.
