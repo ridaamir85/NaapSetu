@@ -282,7 +282,7 @@ unset($request);
                     <h1>Requests &amp; quotations</h1>
                     <p>Follow each stitching request and review the tailor’s quote.</p>
                 </div>
-                <a class="button" href="/customer/tailors.php">Find a tailor <span aria-hidden="true">→</span></a>
+                <a class="button" href="/customer/request.php">New stitching request <span aria-hidden="true">→</span></a>
             </header>
 
         <?php if ($successMessage !== null): ?>
@@ -296,8 +296,8 @@ unset($request);
             <section class="requests-empty">
                 <span class="requests-empty-icon" aria-hidden="true">✂</span>
                 <h2>Your first request starts here</h2>
-                <p>You haven’t submitted a stitching request yet. Browse tailors to choose a garment service and ask for a quote.</p>
-                <a class="outline-button" href="/customer/tailors.php">Browse tailors <span aria-hidden="true">→</span></a>
+                <p>You haven’t submitted a stitching request yet. Start a request by choosing a tailor, garment service, and your preferences.</p>
+                <a class="outline-button" href="/customer/request.php">Create a stitching request <span aria-hidden="true">→</span></a>
             </section>
         <?php else: ?>
             <section class="request-list" aria-label="Your stitching requests">

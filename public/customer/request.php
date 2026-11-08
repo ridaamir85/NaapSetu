@@ -280,7 +280,7 @@ $pageTitle = 'New stitching request';
                     <h1>New stitching request</h1>
                     <p>Share your requirements with a tailor and receive a quotation.</p>
                 </div>
-                <a class="request-back" href="/customer/tailors.php">← Browse tailors</a>
+                <a class="request-back" href="/customer/requests.php">← Requests &amp; quotes</a>
             </header>
 
             <?php if ($successMessage !== null): ?>
