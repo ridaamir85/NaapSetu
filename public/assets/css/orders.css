@@ -81,3 +81,14 @@
 @media (prefers-reduced-motion:no-preference) {
   .order-progress .progress-marker { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease; }
 }
+/* Consistent, crisp completion icon at all sizes. */
+.order-progress li.is-done .progress-marker { font-size:0; }
+.order-progress li.is-done .progress-marker::after {
+  content:'';
+  display:block;
+  width:11px;
+  height:6px;
+  border-left:3px solid #fff;
+  border-bottom:3px solid #fff;
+  transform:translateY(-2px) rotate(-45deg);
+}

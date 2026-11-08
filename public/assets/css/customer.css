@@ -53,3 +53,15 @@
 @media (prefers-reduced-motion:no-preference) {
   .order-tracker .tracker-dot { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease; }
 }
+/* Keep the connector behind each circle and draw an unambiguous white checkmark. */
+.order-tracker .tracker-dot { z-index:2; }
+.order-tracker li.is-done .tracker-dot { font-size:0; }
+.order-tracker li.is-done .tracker-dot::after {
+  content:'';
+  display:block;
+  width:11px;
+  height:6px;
+  border-left:3px solid #fff;
+  border-bottom:3px solid #fff;
+  transform:translateY(-2px) rotate(-45deg);
+}

@@ -104,3 +104,14 @@
 @media (prefers-reduced-motion:no-preference) {
   .order-progress-track .progress-dot { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease; }
 }
+/* Consistent, crisp completion icon at all sizes. */
+.order-progress-track li.is-done .progress-dot { font-size:0; }
+.order-progress-track li.is-done .progress-dot::after {
+  content:'';
+  display:block;
+  width:10px;
+  height:6px;
+  border-left:3px solid #fff;
+  border-bottom:3px solid #fff;
+  transform:translateY(-2px) rotate(-45deg);
+}
