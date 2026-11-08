@@ -1,5 +1,5 @@
 <div align="center">
-  <h1><img src="public/assets/images/naapsetu-emblem.svg" alt="NaapSetu scissors emblem" width="56" height="56"> NaapSetu</h1>
+  <img src="public/assets/images/naapsetu-readme-lockup.svg" alt="NaapSetu — scissors emblem and title" width="360">
   <p><strong>Custom stitching. Made simple.</strong></p>
   <p>A web-based platform for custom tailoring requests, digital measurements, quotations, and order tracking.</p>
   <p><strong>PHP · MySQL · HTML · CSS · JavaScript · Apache / LAMP</strong></p>
@@ -29,12 +29,14 @@ NaapSetu is **not a ready-made clothing store**. It focuses on made-to-measure o
 
 ## How it works
 
-1. **Choose a tailor** — Browse shops offering men's or women's tailoring.
-2. **Share your requirements** — Describe the garment, choose measurements and add styling or fabric preferences.
-3. **Review a quotation** — The tailor proposes a price and expected completion date; the customer decides whether to accept.
-4. **Arrange fabric and stitch** — The tailor arranges fabric and records its details before cutting.
-5. **Track the order** — Follow progress through to delivery.
-6. **Give feedback** — Share fit feedback or request an alteration after delivery.
+|  | Step | What happens |
+| :---: | --- | --- |
+| <img src="docs/icons/store.svg" width="36" alt=""> | **Choose a Tailor** | Browse men's and women's tailoring services. |
+| <img src="docs/icons/ruler.svg" width="36" alt=""> | **Share Your Requirements** | Provide measurements, garment details and fabric preferences. |
+| <img src="docs/icons/quotation.svg" width="36" alt=""> | **Receive & Accept Quotation** | Review the price and estimated completion date. |
+| <img src="docs/icons/scissors.svg" width="36" alt=""> | **Fabric Arrangement & Stitching** | The tailor arranges fabric and starts the stitching workflow. |
+| <img src="docs/icons/package.svg" width="36" alt=""> | **Track Your Order** | Follow progress through to delivery. |
+| <img src="docs/icons/feedback.svg" width="36" alt=""> | **Feedback & Alterations** | Share fit feedback or request an alteration. |
 
 **Order milestones:** Confirmed → Fabric Arranged → Cutting → Stitching → Ready → Delivered
 
