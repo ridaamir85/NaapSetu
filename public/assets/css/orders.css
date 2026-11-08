@@ -67,3 +67,17 @@
 @media(max-width:1050px) { .orders-layout { grid-template-columns:minmax(195px,.32fr) minmax(0,1fr); gap:.7rem; } .order-detail { padding:.9rem; } .order-progress { grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:.8rem; } .order-progress li:nth-child(4)::before { display:none; } }
 @media(max-width:760px) { .orders-layout { grid-template-columns:1fr; } .orders-list { grid-template-columns:repeat(2,minmax(0,1fr)); } .order-list-item:nth-child(odd) { border-right:1px solid #eee9e0; } .order-list-item:nth-last-child(-n+2) { border-bottom:0; } .order-list-item.is-selected { box-shadow:inset 3px 0 #b18a4a; } }
 @media(max-width:480px) { .orders-main { padding-inline:.8rem; } .orders-list { grid-template-columns:1fr; } .order-list-item:nth-child(odd) { border-right:0; } .order-list-item:nth-last-child(2) { border-bottom:1px solid #eee9e0; } .order-detail-heading { flex-direction:column; gap:.55rem; } .order-progress { grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:.75rem; } .order-progress li::before { display:none; } .order-information-grid { grid-template-columns:1fr; } .order-facts > div { gap:.4rem; } }
+
+/* High-contrast milestones with visible brass progress connectors. */
+.order-progress li::before { height:4px; top:14px; background:#d7d1c6; }
+.order-progress li.is-current::before,
+.order-progress li.is-done::before { background:#b18a4a; }
+.order-progress .progress-marker { width:30px; height:30px; border-width:2px; font-size:.8rem; }
+.order-progress .is-done .progress-marker { border-color:#967035; background:#b18a4a; }
+.order-progress .is-current .progress-marker { border-color:#b18a4a; background:#182c42; box-shadow:inset 0 0 0 7px #182c42,0 0 0 4px #e5cb94; }
+.order-progress .progress-label { font-size:.75rem; color:#566471; }
+.order-progress .is-current .progress-label { color:#142536; font-weight:750; }
+.order-progress .progress-date { font-size:.7rem; color:#58636a; }
+@media (prefers-reduced-motion:no-preference) {
+  .order-progress .progress-marker { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease; }
+}

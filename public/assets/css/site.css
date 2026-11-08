@@ -119,3 +119,11 @@ button, .button { cursor: pointer; }
     *, *::before, *::after { transition: none !important; }
 }
 .password-toggle[hidden] { display: none; }
+
+/* Shared HCI controls: focus and mandatory-label markers. */
+:focus-visible { outline-color:var(--brass); }
+.field-required { margin-left:.2em; font-weight:800; color:#8d6426; }
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  .button,button[type="submit"] { transition:none; transform:none !important; }
+}

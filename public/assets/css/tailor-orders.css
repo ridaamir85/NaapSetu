@@ -87,3 +87,20 @@
 @media(max-width:900px) { .tailor-orders-main { width:calc(100% - 2rem); } .tailor-orders-table th,.tailor-orders-table td { padding:.55rem .6rem; } }
 @media(max-width:700px) { .orders-topbar { align-items:flex-start; flex-direction:column; gap:.65rem; } .orders-topbar nav { width:100%; gap:.15rem; } .orders-topbar nav a { padding:.4rem .45rem; font-size:.68rem; } .orders-page-heading { align-items:flex-start; flex-direction:column; gap:.6rem; } .orders-table-wrap { overflow:visible; } .tailor-orders-table,.tailor-orders-table tbody { display:block; } .tailor-orders-table thead { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; } .tailor-orders-table tbody { display:grid; gap:.5rem; padding:.55rem; } .tailor-orders-table tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.4rem .6rem; padding:.65rem; border:1px solid #ebe6dd; border-radius:7px; } .tailor-orders-table td { display:grid; gap:.15rem; padding:0; border:0; } .tailor-orders-table td::before { content:attr(data-label); color:#7a8282; font-size:.6rem; font-weight:650; } .selected-order-grid { grid-template-columns:1fr; } }
 @media(max-width:480px) { .tailor-orders-main { width:calc(100% - 1.2rem); padding-top:.8rem; } .orders-view-tabs { gap:0; padding-inline:.25rem; } .orders-view-tabs a { gap:.25rem; padding:.6rem .4rem; font-size:.67rem; } .orders-filter { justify-content:flex-start; } .orders-filter select { flex:1; } .selected-order-detail { padding:.75rem; } .selected-order-heading { align-items:flex-start; flex-direction:column; gap:.55rem; } .fabric-form { grid-template-columns:1fr; } .fabric-form .order-action-button { grid-column:1; } .order-progress-track li > span:last-child { font-size:.57rem; } }
+
+/* Stronger progress visibility, matching customer tracking. */
+.order-progress-track li::before { height:4px; top:13px; background:#d7d1c6; }
+.order-progress-track li.is-current::before,
+.order-progress-track li.is-done::before { background:#b18a4a; }
+.order-progress-track .progress-dot { width:28px; height:28px; border-width:2px; font-size:.78rem; }
+.order-progress-track .is-done .progress-dot { border-color:#967035; background:#b18a4a; }
+.order-progress-track .is-current .progress-dot { border-color:#b18a4a; background:#182c42; box-shadow:0 0 0 4px #e5cb94; }
+.order-progress-track li > span:last-child { font-size:.72rem; color:#59666c; }
+.order-progress-track .is-current > span:last-child { color:#142536; font-weight:750; }
+@media (max-width:640px) {
+  .order-progress-track { grid-template-columns:repeat(3,minmax(0,1fr)); row-gap:1rem; }
+  .order-progress-track li:nth-child(4)::before { display:none; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .order-progress-track .progress-dot { transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease; }
+}

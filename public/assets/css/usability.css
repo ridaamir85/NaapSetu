@@ -29,3 +29,16 @@ body a.ui-secondary-action { display:inline-flex; align-items:center; justify-co
 .recovery-steps li { margin-bottom:.7rem; }
 @media(max-width:760px) { .auth-shell,.register-page .auth-shell { grid-template-columns:minmax(0,1fr); } body .ui-next-step a { max-width:100%; } }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } body *,body *::before,body *::after { animation:none !important; transition:none !important; } }
+
+/* Accessible focus and clear required fields in the existing Midnight & Brass palette. */
+body :is(a,button,input,select,textarea,summary):focus-visible {
+  outline:3px solid #b18a4a;
+  outline-offset:3px;
+}
+body .field-required { margin-inline-start:.2em; color:#8d6426; font-weight:800; }
+body :is(.button,button[type="submit"],.outline-button,a[class*="action"]):not(:disabled) {
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,color .18s ease;
+}
+@media (prefers-reduced-motion:reduce) {
+  body :is(.button,button,input,a,select,textarea) { transition:none !important; }
+}

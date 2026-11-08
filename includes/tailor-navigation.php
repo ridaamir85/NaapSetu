@@ -18,7 +18,7 @@ $tailorNavigation = [
         <?php foreach ($tailorNavigation as $key => [$label, $url, $icon]): ?>
             <a href="<?= htmlspecialchars($url, ENT_QUOTES, 'UTF-8') ?>"<?= $tailorSection === $key ? ' aria-current="page"' : '' ?>>
                 <span aria-hidden="true"><?= htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?></span><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
-                <?php if (($tailorActivityCounts[$key] ?? 0) > 0): ?><span class="nav-unread" aria-label="<?= (int) $tailorActivityCounts[$key] ?> unread"><?= (int) min(99, $tailorActivityCounts[$key]) ?></span><?php endif; ?>
+                <?php if (($tailorActivityCounts[$key] ?? 0) > 0): ?><span class="nav-unread" aria-label="<?= (int) $tailorActivityCounts[$key] ?> items requiring attention"><?= (int) min(99, $tailorActivityCounts[$key]) ?></span><?php endif; ?>
             </a>
         <?php endforeach; ?>
     </nav>

@@ -396,12 +396,12 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
                             <input type="hidden" name="csrf_token" value="<?= escape_request(csrf_token()) ?>">
                             <input type="hidden" name="request_id" value="<?= (int) $selectedRequest['request_id'] ?>">
                             <div class="quotation-field">
-                                <label for="amount">Price (PKR)</label>
+                                <label for="amount">Price (PKR) <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <div class="price-input"><span aria-hidden="true">PKR</span><input id="amount" name="amount" type="number" min="0.01" max="99999999.99" step="0.01" inputmode="decimal" required value="<?= escape_request($values['amount']) ?>" placeholder="e.g. 4,500"></div>
                                 <?php if (isset($errors['amount'])): ?><p class="quotation-field-error" role="alert"><?= escape_request($errors['amount']) ?></p><?php endif; ?>
                             </div>
                             <div class="quotation-field">
-                                <label for="deadline">Completion date</label>
+                                <label for="deadline">Completion date <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <input id="deadline" name="deadline" type="date" min="<?= escape_request(date('Y-m-d')) ?>" required value="<?= escape_request($values['deadline']) ?>">
                                 <?php if (isset($errors['deadline'])): ?><p class="quotation-field-error" role="alert"><?= escape_request($errors['deadline']) ?></p><?php endif; ?>
                             </div>

@@ -377,7 +377,7 @@ $pageTitle = 'New stitching request';
                         <form method="post" action="/customer/request.php" class="request-form" enctype="multipart/form-data" novalidate>
                             <input type="hidden" name="csrf_token" value="<?= escape_stitching_request(csrf_token()) ?>">
                             <div class="request-field">
-                                <label for="tailor_id">Choose tailor</label>
+                                <label for="tailor_id">Choose tailor <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <select id="tailor_id" name="tailor_id" required>
                                     <option value="">Choose a shop</option>
                                     <?php foreach ($shops as $shop): ?>
@@ -393,7 +393,7 @@ $pageTitle = 'New stitching request';
                             </div>
 
                             <div class="request-field">
-                                <label for="service_id">Tailoring specialization</label>
+                                <label for="service_id">Tailoring specialization <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <select id="service_id" name="service_id" required>
                                     <option value="">Choose tailoring specialization</option>
                                     <?php foreach ($shops as $shop): ?>
@@ -421,7 +421,7 @@ $pageTitle = 'New stitching request';
                             </div>
 
                             <div class="request-field">
-                                <label for="profile_id">Measurement version</label>
+                                <label for="profile_id">Measurement version <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <select id="profile_id" name="profile_id" required>
                                     <option value="">Choose a profile version</option>
                                     <?php foreach ($profiles as $profile): ?>
@@ -452,7 +452,7 @@ $pageTitle = 'New stitching request';
                             </div>
 
                             <div class="request-field request-field-wide">
-                                <label for="stitching_details">What would you like stitched?</label>
+                                <label for="stitching_details">What would you like stitched? <span class="field-required" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span></label>
                                 <textarea name="stitching_details" id="stitching_details" minlength="10" maxlength="4000" rows="4" required placeholder="Describe the outfit, number of pieces, stitching details, sleeve and neckline choices..."><?= escape_stitching_request($formValues['stitching_details']) ?></textarea>
                                 <p class="request-field-hint">You can request a complete suit, one garment, or several pieces. No fixed garment list.</p>
                                 <?php if (isset($errors['stitching_details'])): ?><p role="alert" class="request-inline-error"><?= escape_stitching_request($errors['stitching_details']) ?></p><?php endif; ?>

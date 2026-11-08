@@ -13,3 +13,25 @@
   color:#142536;
   font:700 .7rem/1 system-ui,sans-serif;
 }
+
+/* Make pending-action counts recognizable on active and inactive navigation. */
+.customer-sidebar nav a .nav-unread,
+.tailor-sidebar nav a .nav-unread {
+  min-width:25px;
+  height:25px;
+  padding:0 6px;
+  flex:0 0 auto;
+  border:2px solid #f1d59c;
+  background:#dbb76f;
+  color:#0c2332;
+  font-size:.82rem;
+  font-weight:800;
+  box-shadow:0 1px 3px #0c233240;
+  font-variant-numeric:tabular-nums;
+}
+.customer-sidebar nav a[aria-current="page"] .nav-unread,
+.tailor-sidebar nav a[aria-current="page"] .nav-unread {
+  border-color:#fff3d8;
+  background:#f0cb81;
+  color:#0c2332;
+}
