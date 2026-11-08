@@ -65,3 +65,7 @@
     .home-page .footer-content { justify-content: center; gap: .65rem; text-align: center; }
     .home-page .site-footer nav { gap: 1rem; }
 }
+
+/* No decorative rule after the finalized scissors emblem and wordmark. */
+.home-page .site-header .brand-lockup::after,
+.home-page .site-footer .brand-lockup::after { content:none; display:none; }

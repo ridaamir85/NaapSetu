@@ -9,11 +9,11 @@ declare(strict_types=1);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Find a tailor, keep your measurements, review quotations and follow your custom stitching journey with NaapSetu.">
-    <title>NaapSetu — Custom stitching. Made simple.</title>
+    <title>NaapSetu</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/assets/css/site.css">
-    <link rel="stylesheet" href="/assets/css/home.css">
+    <link rel="stylesheet" href="/assets/css/home.css?v=branding-final-2">
     <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="home-page">
