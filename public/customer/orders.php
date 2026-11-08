@@ -236,8 +236,7 @@ $customerSection = 'orders';
                                     <div><dt>Service</dt><dd><?= escape_customer_order($selectedOrder['garment_type']) ?></dd></div>
                                     <div><dt>Measurement</dt><dd><?= escape_customer_order($selectedOrder['profile_name']) ?> · v<?= (int) $selectedOrder['version_no'] ?></dd></div>
                                     <div><dt>Quoted price</dt><dd>PKR <?= escape_customer_order(number_format((float) $selectedOrder['quoted_amount'], 2)) ?></dd></div>
-                                    <div><dt>Quotation deadline</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['quotation_deadline'])) ?></dd></div>
-                                    <div><dt>Completion</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['quotation_deadline'])) ?></dd></div>
+                                    <div><dt>Estimated completion date</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['quotation_deadline'])) ?></dd></div>
                                 </dl>
                             </section>
 
