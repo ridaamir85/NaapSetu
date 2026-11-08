@@ -16,3 +16,10 @@
 .tailor-services-main [role="alert"] { padding:.7rem .85rem; border:1px solid #dfb9b1; border-radius:8px; background:#fbefec; color:#7b3027; }
 .tailor-services-main [role="status"] { padding:.7rem .85rem; border:1px solid #b5d2bd; border-radius:8px; background:#edf6ef; color:#28553a; }
 @media(max-width:600px) { .tailor-services-main form { grid-template-columns:1fr; } .tailor-services-main button { grid-column:1; } .tailor-services-main { padding-top:1rem; } }
+
+.specialization-form { grid-template-columns:1fr!important;max-width:740px; }
+.specialization-choice{display:flex!important;align-items:center;gap:1rem;border:1px solid #d8c7a7;border-radius:10px;padding:1rem;background:#fcf9f3;cursor:pointer;}
+.specialization-choice input{width:20px;height:20px;accent-color:#b18a4a;}
+.specialization-choice span{display:grid;gap:.3rem;}
+.specialization-choice small,.specialization-hint,.specialization-history p{color:#59666b;font-size:.85rem;line-height:1.5;}
+.specialization-history{margin-top:1.4rem;max-width:740px;}

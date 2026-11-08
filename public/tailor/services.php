@@ -1,305 +1,82 @@
 <?php
-
 declare(strict_types=1);
-
 require_once dirname(__DIR__, 2) . '/includes/auth.php';
-require_once dirname(__DIR__, 2) . '/includes/database.php';
 require_once dirname(__DIR__, 2) . '/includes/tailor.php';
-
 $user = require_role('tailor');
-$connection = database();
-$profile = tailor_profile_for_user($connection, $user['user_id']);
-
-if ($profile === null) {
-    redirect_to('/tailor/profile.php');
-}
-
-function escape_service(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-}
-
-$categories = [
-    'women' => ['label' => 'Women’s', 'garments' => ['Kameez', 'Shalwar Kameez', 'Kurti', 'Abaya', 'Other']],
-    'men' => ['label' => 'Men’s', 'garments' => ['Kurta', 'Shalwar Kameez', 'Waistcoat', 'Trousers', 'Other']],
-];
-$values = ['category' => '', 'garment_type' => '', 'custom_garment' => '', 'pricing' => 'starting', 'base_price' => '', 'avg_days' => ''];
-$errors = [];
-$successMessage = $_SESSION['service_success'] ?? null;
-unset($_SESSION['service_success']);
-
-$editingId = null;
-if (isset($_GET['edit'])) {
-    $editingId = filter_var($_GET['edit'], FILTER_VALIDATE_INT, [
-        'options' => ['min_range' => 1, 'max_range' => 2147483647],
-    ]);
-    if ($editingId === false) {
-        http_response_code(404);
-        exit('Service not found.');
-    }
-
-    $statement = $connection->prepare(
-        'SELECT garment_type, base_price, avg_days FROM tailor_services '
-        . 'WHERE service_id = :service_id AND tailor_id = :tailor_id'
-    );
-    $statement->execute(['service_id' => $editingId, 'tailor_id' => $profile['tailor_id']]);
-    $serviceToEdit = $statement->fetch();
-    if ($serviceToEdit === false) {
-        http_response_code(404);
-        exit('Service not found.');
-    }
-
-    $savedGarment = $serviceToEdit['garment_type'];
-    $values['garment_type'] = 'Other';
-    $values['custom_garment'] = $savedGarment;
-
-    foreach ($categories as $key => $category) {
-        $prefix = $category['label'] . ' ';
-        if (!str_starts_with($savedGarment, $prefix)) {
-            continue;
-        }
-
-        $values['category'] = $key;
-        $garment = substr($savedGarment, strlen($prefix));
-        $isStandardGarment = $garment !== 'Other' && in_array($garment, $category['garments'], true);
-        $values['garment_type'] = $isStandardGarment ? $garment : 'Other';
-        $values['custom_garment'] = $isStandardGarment ? '' : $garment;
-        break;
-    }
-
-    $quoteRequired = (float) $serviceToEdit['base_price'] === 0.0;
-    $values['pricing'] = $quoteRequired ? 'quote' : 'starting';
-    $values['base_price'] = $quoteRequired ? '' : (string) $serviceToEdit['base_price'];
-    $values['avg_days'] = (string) $serviceToEdit['avg_days'];
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    foreach ($values as $field => $_) {
-        $input = $_POST[$field] ?? '';
-        $values[$field] = is_string($input) ? trim($input) : '';
-    }
-
-    $token = $_POST['csrf_token'] ?? null;
-    if (!is_string($token) || !csrf_token_is_valid($token)) {
-        $errors['form'] = 'Your form session expired. Refresh the page and try again.';
-    }
-
-    $category = $categories[$values['category']] ?? null;
-    $garment = $values['garment_type'];
-    if ($category === null) {
-        $errors['category'] = 'Select a service category.';
-    } elseif (!in_array($garment, $category['garments'], true)) {
-        $errors['garment_type'] = 'Select a garment type for this category.';
-    } elseif ($garment === 'Other') {
-        $garment = $values['custom_garment'];
-        $length = mb_strlen($garment, 'UTF-8');
-        if ($length < 2 || $length > 52 || preg_match('/\p{L}/u', $garment) !== 1) {
-            $errors['custom_garment'] = 'Enter a garment name of 2 to 52 characters that includes a letter.';
-        }
-    }
-
-    $price = '0';
-    if ($values['pricing'] === 'starting') {
-        $price = $values['base_price'];
-        if (preg_match('/\A[0-9]{1,8}(?:\.[0-9]{1,2})?\z/', $price) !== 1 || (float) $price <= 0) {
-            $errors['base_price'] = 'Enter a starting price from PKR 0.01 to 99,999,999.99 with up to two decimal places.';
-        }
-    } elseif ($values['pricing'] !== 'quote') {
-        $errors['pricing'] = 'Choose a pricing option.';
-    }
-
-    $averageDays = filter_var($values['avg_days'], FILTER_VALIDATE_INT, [
-        'options' => ['min_range' => 1, 'max_range' => 90],
-    ]);
-    if ($averageDays === false) {
-        $errors['avg_days'] = 'Enter a whole number from 1 to 90 days.';
-    }
-
-    if ($errors === []) {
+$db = database();
+$profile = tailor_profile_for_user($db, (int)$user['user_id']);
+if ($profile === null) redirect_to('/tailor/profile.php');
+function esc_service(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+$categories = ['women' => 'Women\'s Tailoring', 'men' => 'Men\'s Tailoring'];
+$statement = $db->prepare("SELECT service_id, specialization, is_enabled FROM tailor_services WHERE tailor_id=? AND specialization IS NOT NULL");
+$statement->execute([(int)$profile['tailor_id']]);
+$existing = [];
+foreach ($statement->fetchAll() as $row) $existing[$row['specialization']] = $row;
+$selected = array_keys(array_filter($existing, static fn(array $s): bool => (int)$s['is_enabled']===1));
+$error = null;
+$saved = ($_GET['saved'] ?? '') === '1';
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $choices = $_POST['specializations'] ?? [];
+    if (!is_array($choices)) $choices = [];
+    $choices = array_values(array_unique(array_filter($choices, 'is_string')));
+    if (!csrf_token_is_valid(is_string($_POST['csrf_token'] ?? null)?$_POST['csrf_token']:null)) {
+        $error = 'Session expired. Refresh and try again.';
+    } elseif (array_diff($choices, array_keys($categories)) || count($choices) === 0) {
+        $error = 'Select men\'s tailoring, women\'s tailoring, or both.';
+    } else {
         try {
-            $parameters = [
-                'tailor_id' => $profile['tailor_id'],
-                'garment_type' => $category['label'] . ' ' . $garment,
-                'base_price' => $price,
-                'avg_days' => $averageDays,
-            ];
-            if ($editingId === null) {
-                $statement = $connection->prepare(
-                    'INSERT INTO tailor_services (tailor_id, garment_type, base_price, avg_days) '
-                    . 'VALUES (:tailor_id, :garment_type, :base_price, :avg_days)'
-                );
-                $message = 'Service added successfully.';
-            } else {
-                $statement = $connection->prepare(
-                    'UPDATE tailor_services '
-                    . 'SET garment_type = :garment_type, base_price = :base_price, avg_days = :avg_days '
-                    . 'WHERE service_id = :service_id AND tailor_id = :tailor_id'
-                );
-                $parameters['service_id'] = $editingId;
-                $message = 'Service updated successfully.';
+            $db->beginTransaction();
+            // Existing legacy services are retained for historical orders.
+            $off = $db->prepare('UPDATE tailor_services SET is_enabled=0 WHERE tailor_id=? AND specialization IS NOT NULL');
+            $off->execute([(int)$profile['tailor_id']]);
+            $upsert = $db->prepare(
+                'INSERT INTO tailor_services (tailor_id,garment_type,base_price,avg_days,specialization,is_enabled) '
+                . 'VALUES (:tailor_id,:label,0,1,:category,1) '
+                . 'ON DUPLICATE KEY UPDATE is_enabled=1,garment_type=VALUES(garment_type)'
+            );
+            foreach ($choices as $category) {
+                $upsert->execute([
+                    'tailor_id'=>(int)$profile['tailor_id'],
+                    'label'=>$categories[$category],
+                    'category'=>$category,
+                ]);
             }
-            $statement->execute($parameters);
-            $_SESSION['service_success'] = $message;
-            header('Location: /tailor/services.php', true, 303);
-            exit;
-        } catch (PDOException $exception) {
-            error_log($exception->getMessage());
-            $errors['form'] = 'The service could not be saved. Please try again.';
+            $db->commit();
+            redirect_to('/tailor/services.php?saved=1');
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            error_log($e->getMessage());
+            $error = 'Specializations could not be saved. Please try again.';
         }
     }
+    $selected=$choices;
 }
-
-$servicesStatement = $connection->prepare(
-    'SELECT service_id, garment_type, base_price, avg_days '
-    . 'FROM tailor_services WHERE tailor_id = :tailor_id ORDER BY service_id DESC'
-);
-$servicesStatement->execute(['tailor_id' => $profile['tailor_id']]);
-$services = $servicesStatement->fetchAll();
 ?>
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Services | NaapSetu</title>
-    <link rel="stylesheet" href="/assets/css/site.css">
-    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
-    <link rel="stylesheet" href="/assets/css/tailor-services.css">
-    <link rel="stylesheet" href="/assets/css/usability.css">
-</head>
-<body class="tailor-services-page">
-    <a class="skip-link" href="#main">Skip to services</a>
-    <div class="tailor-dashboard-shell">
-    <?php $tailorSection = 'services'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
-    <main id="main" class="tailor-services-main">
-        <h1>Tailor services</h1>
-        <p>Add the garment services customers can select.</p>
-
-        <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_service($successMessage) ?></p>
-        <?php endif; ?>
-
-        <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_service($errors['form']) ?></p>
-        <?php endif; ?>
-
-        <?php if ($editingId !== null && $values['category'] === ''): ?>
-            <p>Previously listed as <?= escape_service($savedGarment) ?>. Choose a category and garment type to update it.</p>
-        <?php endif; ?>
-        <h2><?= $editingId === null ? 'Add a service' : 'Edit service' ?></h2>
-        <form method="post" action="services.php<?= $editingId === null ? '' : '?edit=' . $editingId ?>" novalidate>
-            <input type="hidden" name="csrf_token" value="<?= escape_service(csrf_token()) ?>">
-
-            <div>
-                <label for="category">Service category</label>
-                <select id="category" name="category" required>
-                    <option value="">Choose a category</option>
-                    <?php foreach ($categories as $key => $category): ?>
-                        <option value="<?= escape_service($key) ?>"<?= $values['category'] === $key ? ' selected' : '' ?>>
-                            <?= escape_service($category['label']) ?> stitching
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <?php if (isset($errors['category'])): ?>
-                    <p role="alert"><?= escape_service($errors['category']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <div>
-                <label for="garment_type">Garment type</label>
-                <select id="garment_type" name="garment_type" required>
-                    <option value="">Choose a garment</option>
-                    <?php foreach ($categories as $key => $category): ?>
-                        <optgroup label="<?= escape_service($category['label']) ?> stitching" data-category="<?= escape_service($key) ?>">
-                            <?php foreach ($category['garments'] as $garment): ?>
-                                <option value="<?= escape_service($garment) ?>"<?= $values['category'] === $key && $values['garment_type'] === $garment ? ' selected' : '' ?>>
-                                    <?= escape_service($garment) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endforeach; ?>
-                </select>
-                <?php if (isset($errors['garment_type'])): ?>
-                    <p role="alert"><?= escape_service($errors['garment_type']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <div id="custom_garment_field">
-                <label for="custom_garment">Garment name (for Other)</label>
-                <input id="custom_garment" name="custom_garment" type="text" maxlength="52" value="<?= escape_service($values['custom_garment']) ?>">
-                <?php if (isset($errors['custom_garment'])): ?>
-                    <p role="alert"><?= escape_service($errors['custom_garment']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <div>
-                <label for="pricing">Pricing option</label>
-                <select id="pricing" name="pricing" required>
-                    <option value="starting"<?= $values['pricing'] === 'starting' ? ' selected' : '' ?>>Starting price</option>
-                    <option value="quote"<?= $values['pricing'] === 'quote' ? ' selected' : '' ?>>Quote required</option>
-                </select>
-                <?php if (isset($errors['pricing'])): ?>
-                    <p role="alert"><?= escape_service($errors['pricing']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <div id="base_price_field">
-                <label for="base_price">Starting price (PKR)</label>
-                <input id="base_price" name="base_price" type="number" min="0.01" max="99999999.99" step="0.01" value="<?= escape_service($values['base_price']) ?>">
-                <?php if (isset($errors['base_price'])): ?>
-                    <p role="alert"><?= escape_service($errors['base_price']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <div>
-                <label for="avg_days">Average completion days</label>
-                <input id="avg_days" name="avg_days" type="number" min="1" max="90" step="1" required value="<?= escape_service($values['avg_days']) ?>">
-                <small>Enter an estimate from 1 to 90 days.</small>
-                <?php if (isset($errors['avg_days'])): ?>
-                    <p role="alert"><?= escape_service($errors['avg_days']) ?></p>
-                <?php endif; ?>
-            </div>
-
-            <button type="submit"><?= $editingId === null ? 'Add service' : 'Save changes' ?></button>
-            <?php if ($editingId !== null): ?>
-                <a href="services.php">Cancel edit</a>
-            <?php endif; ?>
-        </form>
-
-        <h2>Published services</h2>
-        <?php if ($services === []): ?>
-            <p>No services have been added yet.</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col">Garment type</th>
-                        <th scope="col">Pricing</th>
-                        <th scope="col">Average days</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($services as $service): ?>
-                        <tr>
-                            <td><?= escape_service($service['garment_type']) ?></td>
-                            <td>
-                                <?php if ((float) $service['base_price'] === 0.0): ?>
-                                    Request a quote
-                                <?php else: ?>
-                                    From PKR <?= escape_service(number_format((float) $service['base_price'], 2)) ?>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= escape_service((string) $service['avg_days']) ?></td>
-                            <td><a href="services.php?edit=<?= (int) $service['service_id'] ?>">Edit</a></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </main>
-    </div>
-    <script src="/assets/js/service-garments.js" defer></script>
-<script src="/assets/js/usability.js" defer></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tailoring specializations | NaapSetu</title>
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/tailor-navigation.css">
+<link rel="stylesheet" href="/assets/css/usability.css">
+<link rel="stylesheet" href="/assets/css/tailor-services.css"></head>
+<body class="tailor-services-page"><a class="skip-link" href="#main">Skip to specializations</a>
+<div class="tailor-dashboard-shell">
+<?php $tailorSection='services';require dirname(__DIR__,2).'/includes/tailor-navigation.php'; ?>
+<main class="tailor-services-main" id="main">
+<p class="tailor-eyebrow">Your boutique</p><h1>Tailoring specializations</h1>
+<p>Choose which clothing categories you stitch. Customers can request a complete outfit, individual garments, or any combination within your specializations.</p>
+<?php if ($saved): ?><p role="status">Your tailoring specializations were saved.</p><?php endif; ?>
+<?php if ($error): ?><p role="alert"><?= esc_service($error) ?></p><?php endif; ?>
+<form method="post" action="/tailor/services.php" class="specialization-form">
+<input type="hidden" name="csrf_token" value="<?= esc_service(csrf_token()) ?>">
+<?php foreach ($categories as $key=>$label): ?>
+<label class="specialization-choice">
+<input type="checkbox" name="specializations[]" value="<?= esc_service($key) ?>"<?= in_array($key,$selected,true)?' checked':'' ?>>
+<span><strong><?= esc_service($label) ?></strong><small>Custom stitching, from a single garment to a complete outfit.</small></span>
+</label>
+<?php endforeach; ?>
+<p class="specialization-hint">Prices and completion dates are provided through individual quotations after you review each customer's design, measurements, and fabric preferences.</p>
+<button type="submit">Save specializations →</button>
+</form>
+<section class="specialization-history"><h2>Previous service records</h2>
+<p>Earlier garment-specific services are preserved in your existing requests and orders, but they are no longer offered for new stitching requests.</p></section>
+</main></div><script src="/assets/js/usability.js" defer></script></body></html>

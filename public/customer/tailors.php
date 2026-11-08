@@ -29,7 +29,7 @@ $statement = $connection->query(
     . 's.service_id, s.garment_type, s.base_price, s.avg_days '
     . 'FROM tailor_profiles AS p '
     . 'INNER JOIN users AS u ON u.user_id = p.user_id AND u.is_active = 1 '
-    . 'INNER JOIN tailor_services AS s ON s.tailor_id = p.tailor_id '
+    . 'INNER JOIN tailor_services AS s ON s.tailor_id = p.tailor_id AND s.is_enabled=1 AND s.specialization IS NOT NULL '
     . 'ORDER BY p.shop_name, s.garment_type, s.service_id'
 );
 
@@ -71,7 +71,7 @@ $selectedCity = is_string($_GET['city'] ?? null) && in_array($_GET['city'], $cit
 $selectedService = is_string($_GET['service'] ?? null) && in_array($_GET['service'], $serviceTypes, true)
     ? $_GET['service']
     : '';
-$sortOptions = ['relevance', 'name', 'price', 'speed'];
+$sortOptions = ['relevance', 'name'];
 $sort = is_string($_GET['sort'] ?? null) && in_array($_GET['sort'], $sortOptions, true)
     ? $_GET['sort']
     : 'relevance';
@@ -102,20 +102,6 @@ $filteredShops = array_filter($shops, static function (array $shop) use ($query,
 
 if ($sort === 'name') {
     uasort($filteredShops, static fn (array $a, array $b): int => strnatcasecmp($a['shop_name'], $b['shop_name']));
-} elseif ($sort === 'price') {
-    uasort($filteredShops, static function (array $a, array $b): int {
-        $pricesA = array_filter(array_column($a['services'], 'base_price'), static fn (float $price): bool => $price > 0);
-        $pricesB = array_filter(array_column($b['services'], 'base_price'), static fn (float $price): bool => $price > 0);
-        $minA = $pricesA === [] ? PHP_FLOAT_MAX : min($pricesA);
-        $minB = $pricesB === [] ? PHP_FLOAT_MAX : min($pricesB);
-        return ($minA <=> $minB) ?: strnatcasecmp($a['shop_name'], $b['shop_name']);
-    });
-} elseif ($sort === 'speed') {
-    uasort($filteredShops, static function (array $a, array $b): int {
-        $minA = min(array_column($a['services'], 'avg_days'));
-        $minB = min(array_column($b['services'], 'avg_days'));
-        return ($minA <=> $minB) ?: strnatcasecmp($a['shop_name'], $b['shop_name']);
-    });
 } elseif ($query !== '') {
     uasort($filteredShops, static function (array $a, array $b) use ($query): int {
         $score = static function (array $shop) use ($query): int {
@@ -154,7 +140,7 @@ $customerSection = 'tailors';
             <header class="tailors-heading">
                 <p class="eyebrow">Find your stitching partner</p>
                 <h1>Browse Tailors &amp; Services</h1>
-                <p>Find a trusted tailor, explore available services, and start a stitching request.</p>
+                <p>Find a tailor by men’s or women’s specialization and describe your custom stitching.</p>
             </header>
 
             <form class="tailor-search" method="get" action="/customer/tailors.php" role="search">
@@ -216,9 +202,6 @@ $customerSection = 'tailors';
                             static fn (array $service): bool => $selectedService === ''
                                 || mb_strtolower($service['garment_type'], 'UTF-8') === mb_strtolower($selectedService, 'UTF-8')
                         );
-                        $pricedServices = array_filter($matchingServices, static fn (array $service): bool => $service['base_price'] > 0);
-                        $startingPrice = $pricedServices === [] ? null : min(array_column($pricedServices, 'base_price'));
-                        $fastestDays = min(array_column($matchingServices, 'avg_days'));
                         $firstService = reset($matchingServices);
                         ?>
                         <article class="tailor-card">
@@ -235,8 +218,7 @@ $customerSection = 'tailors';
                                     <?php endforeach; ?>
                                 </ul>
                                 <div class="tailor-card-meta">
-                                    <span><?= $startingPrice === null ? 'Request a quote' : 'From PKR ' . escape_tailor_listing(number_format((float) $startingPrice, 0)) ?></span>
-                                    <span>From <?= (int) $fastestDays ?> <?= (int) $fastestDays === 1 ? 'day' : 'days' ?></span>
+                                    <span>Custom quotation after reviewing your requirements</span>
                                 </div>
                                 <a class="button tailor-card-action" href="/customer/request.php<?= $firstService !== false ? '?service_id=' . (int) $firstService['service_id'] : '' ?>">Start a request <span aria-hidden="true">→</span></a>
                             </div>
