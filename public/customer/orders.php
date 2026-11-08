@@ -37,7 +37,7 @@ $ordersStatement = $connection->prepare(
     . 'p.shop_name, s.garment_type, s.avg_days, '
     . 'r.customer_notes, r.request_id, r.stitching_details, r.fabric_type, r.fabric_color, r.fabric_preferences, r.reference_image_path, r.fabric_source AS requested_fabric_source, '
     . 'mp.profile_name, mv.version_no, '
-    . 'f.source AS fabric_record_source, f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
+    . 'f.source AS fabric_record_source, f.received_at AS fabric_received_at '
     . 'FROM orders AS o '
     . 'INNER JOIN quotations AS q ON q.quotation_id = o.quotation_id '
     . 'INNER JOIN order_requests AS r ON r.request_id = q.request_id '
@@ -225,7 +225,6 @@ $customerSection = 'orders';
                                 <?php $fabricSource = $selectedOrder['fabric_record_source'] ?? $selectedOrder['requested_fabric_source']; ?>
                                 <dl class="order-facts">
                                     <div><dt>Supplied by</dt><dd><?= escape_customer_order($fabricSource === 'customer' ? 'Customer' : 'Tailor') ?></dd></div>
-                                    <div><dt>Quantity</dt><dd><?= $selectedOrder['fabric_quantity'] === null ? 'Not recorded' : escape_customer_order(number_format((float) $selectedOrder['fabric_quantity'], 2) . ' m') ?></dd></div>
                                     <div><dt>Arranged on</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['fabric_received_at'], 'M j, Y · g:i a')) ?></dd></div>
                                 </dl>
                             </section>

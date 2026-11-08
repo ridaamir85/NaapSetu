@@ -431,7 +431,7 @@ $fabricFormSource = $selectedOrder === null
                                 <?php else: ?><p class="order-detail-hint">For new orders, fabric is supplied by the tailor.</p><?php endif; ?>
                                 <div class="order-form-field"><label for="quantity">Quantity (metres)</label><input id="quantity" name="quantity" type="number" min="0.01" max="999.99" step="0.01" required value="<?= escape_tailor_order($formValues['quantity']) ?>" placeholder="e.g. 2.5"><?php if (isset($errors['quantity'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['quantity']) ?></p><?php endif; ?></div>
                                 <div class="order-form-field"><label for="received_at">Fabric arranged on (optional; blank means now)</label><input id="received_at" name="received_at" type="datetime-local" value="<?= escape_tailor_order($formValues['received_at']) ?>"><?php if (isset($errors['received_at'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['received_at']) ?></p><?php endif; ?></div>
-                                <button class="button order-action-button" type="submit">Save fabric record</button>
+                                <button class="button order-action-button" type="submit">Confirm fabric arranged</button>
                             </form>
                         <?php endif; ?>
                     </section>
