@@ -127,3 +127,8 @@ button, .button { cursor: pointer; }
   html { scroll-behavior:auto; }
   .button,button[type="submit"] { transition:none; transform:none !important; }
 }
+/* Finalized Scissors Emblem — shared header/footer lockup. */
+.site-header .brand-lockup,.site-footer .brand-lockup { display:inline-flex; align-items:center; gap:.55rem; }
+.brand-lockup img { display:block; width:36px; height:36px; flex:0 0 auto; object-fit:contain; }
+.site-footer .brand-lockup img { width:30px; height:30px; }
+@media(max-width:480px) { .site-header .brand-lockup { font-size:1.65rem; } .site-header .brand-lockup img { width:30px; height:30px; } }

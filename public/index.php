@@ -10,6 +10,8 @@ declare(strict_types=1);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Find a tailor, keep your measurements, review quotations and follow your custom stitching journey with NaapSetu.">
     <title>NaapSetu — Custom stitching. Made simple.</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/home.css">
     <link rel="stylesheet" href="/assets/css/usability.css">
@@ -18,7 +20,7 @@ declare(strict_types=1);
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
         <nav class="container nav" aria-label="Main navigation">
-            <a class="wordmark" href="/" aria-label="NaapSetu home">NaapSetu</a>
+            <a class="wordmark brand-lockup" href="/" aria-label="NaapSetu home"><img src="/assets/images/naapsetu-emblem.svg" alt="" width="36" height="36">NaapSetu</a>
             <div class="nav-links">
                 <a href="/" aria-current="page">Home</a>
                 <a href="#services">Services</a>
@@ -62,7 +64,7 @@ declare(strict_types=1);
             </div>
         </section>
     </main>
-    <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">About</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
+    <footer class="site-footer"><div class="container footer-content"><a class="wordmark brand-lockup" href="/"><img src="/assets/images/naapsetu-emblem.svg" alt="" width="30" height="30">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">About</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
 <script src="/assets/js/usability.js" defer></script>
 </body>
 </html>
