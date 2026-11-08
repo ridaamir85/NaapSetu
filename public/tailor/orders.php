@@ -23,9 +23,10 @@ function escape_tailor_order(string $value): string
 function order_for_tailor(PDO $connection, int $orderId, int $tailorId): array|false
 {
     $statement = $connection->prepare(
-        'SELECT o.order_id, o.status, o.confirmed_at, u.name AS customer_name, '
+        'SELECT o.order_id, o.status, o.confirmed_at, r.request_id, u.name AS customer_name, '
         . 's.garment_type, mv.profile_id, q.amount AS quoted_amount, q.deadline AS deadline, '
-        . 'r.fabric_source AS requested_fabric_source, r.customer_notes, '
+        . 'r.fabric_source AS requested_fabric_source, r.customer_notes, r.stitching_details, '
+        . 'r.fabric_type, r.fabric_color, r.fabric_preferences, r.reference_image_path, '
         . 'EXISTS(SELECT 1 FROM measurement_permissions AS mp '
         . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
         . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
@@ -96,7 +97,7 @@ $successMessage = match ($_GET['saved'] ?? '') {
 
 if ($requestMethod === 'POST') {
     $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
-    $formValues['source'] = is_string($_POST['source'] ?? null) ? $_POST['source'] : '';
+    $formValues['source'] = 'tailor';
     $formValues['quantity'] = is_string($_POST['quantity'] ?? null) ? trim($_POST['quantity']) : '';
     $formValues['received_at'] = is_string($_POST['received_at'] ?? null) ? trim($_POST['received_at']) : '';
     $targetStatus = is_string($_POST['status'] ?? null) ? $_POST['status'] : '';
@@ -108,13 +109,14 @@ if ($requestMethod === 'POST') {
 
     $receivedAt = null;
     if ($action === 'save_fabric') {
-        if (!in_array($formValues['source'], ['customer', 'tailor'], true)) {
+        if ($formValues['source'] !== 'tailor') {
             $errors['source'] = 'Choose who supplied the fabric.';
         }
         if (preg_match('/\A[0-9]{1,3}(?:\.[0-9]{1,2})?\z/', $formValues['quantity']) !== 1
             || (float) $formValues['quantity'] <= 0) {
             $errors['quantity'] = 'Enter a quantity greater than 0 and no more than 999.99 metres.';
         }
+        if ($formValues['received_at'] === '') $receivedAt = date('Y-m-d H:i:s');
         if ($formValues['received_at'] !== '') {
             $receivedAtDate = DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', $formValues['received_at']);
             $dateErrors = DateTimeImmutable::getLastErrors();
@@ -189,7 +191,14 @@ if ($requestMethod === 'POST') {
                 }
                 if (($nextStatus[$lockedOrder['status']] ?? null) !== $targetStatus) {
                     $errors['form'] = 'Move the order forward by one step at a time.';
-                } else {
+                } elseif ($targetStatus === 'cutting') {
+                    $fabricCheck = $connection->prepare("SELECT fabric_id FROM fabric_records WHERE order_id = :id AND source='tailor' AND received_at IS NOT NULL");
+                    $fabricCheck->execute(['id' => $selectedOrderId]);
+                    if ($fabricCheck->fetchColumn() === false) {
+                        $errors['form'] = 'Arrange and record fabric before cutting.';
+                    }
+                }
+                if ($errors === []) {
                     $statusUpdate = $connection->prepare(
                         'UPDATE orders SET status = :new_status '
                         . 'WHERE order_id = :order_id AND status = :old_status'
@@ -237,9 +246,10 @@ if ($requestMethod === 'POST') {
 }
 
 $ordersStatement = $connection->prepare(
-    'SELECT o.order_id, o.status, o.confirmed_at, u.name AS customer_name, '
+    'SELECT o.order_id, o.status, o.confirmed_at, r.request_id, u.name AS customer_name, '
     . 's.garment_type, mv.profile_id, q.amount AS quoted_amount, q.deadline AS deadline, '
-    . 'r.fabric_source AS requested_fabric_source, r.customer_notes, '
+    . 'r.fabric_source AS requested_fabric_source, r.customer_notes, r.stitching_details, '
+        . 'r.fabric_type, r.fabric_color, r.fabric_preferences, r.reference_image_path, '
     . 'EXISTS(SELECT 1 FROM measurement_permissions AS mp '
     . 'WHERE mp.profile_id = mv.profile_id AND mp.tailor_id = r.tailor_id '
     . 'AND mp.revoked_at IS NULL) AS has_measurement_permission, '
@@ -300,7 +310,7 @@ if ($selectedOrder !== null) {
         $orderTimeline[] = ['status' => (string) $entry['status'], 'changed_at' => (string) $entry['changed_at']];
     }
     if ($selectedOrder['fabric_received_at'] !== null) {
-        $orderTimeline[] = ['status' => 'fabric_received', 'changed_at' => (string) $selectedOrder['fabric_received_at']];
+        $orderTimeline[] = ['status' => 'fabric_arranged', 'changed_at' => (string) $selectedOrder['fabric_received_at']];
     }
     usort($orderTimeline, static fn (array $a, array $b): int => strcmp($a['changed_at'], $b['changed_at']));
 }
@@ -408,16 +418,16 @@ $fabricFormSource = $selectedOrder === null
                     <section class="order-detail-card" aria-labelledby="fabric-details-title">
                         <h3 id="fabric-details-title">Fabric details</h3>
                         <?php if ($selectedOrder['fabric_id'] !== null): ?>
-                            <dl class="order-facts"><div><dt>Source</dt><dd><?= escape_tailor_order($selectedOrder['fabric_source'] === 'customer' ? 'Customer provided' : 'Tailor provided') ?></dd></div><div><dt>Quantity</dt><dd><?= escape_tailor_order(number_format((float) $selectedOrder['fabric_quantity'], 2)) ?> m</dd></div><div><dt>Receipt date</dt><dd><?= $selectedOrder['fabric_received_at'] === null ? 'Not recorded' : escape_tailor_order(date('M j, Y · g:i a', strtotime($selectedOrder['fabric_received_at']))) ?></dd></div></dl>
+                            <dl class="order-facts"><div><dt>Source</dt><dd><?= escape_tailor_order($selectedOrder['fabric_source'] === 'customer' ? 'Customer provided' : 'Tailor provided') ?></dd></div><div><dt>Quantity</dt><dd><?= escape_tailor_order(number_format((float) $selectedOrder['fabric_quantity'], 2)) ?> m</dd></div><div><dt>Arranged on</dt><dd><?= $selectedOrder['fabric_received_at'] === null ? 'Not recorded' : escape_tailor_order(date('M j, Y · g:i a', strtotime($selectedOrder['fabric_received_at']))) ?></dd></div></dl>
                         <?php else: ?>
-                            <p class="order-detail-hint">Record the fabric source, quantity, and receipt date for this order.</p>
+                            <p class="order-detail-hint">Record the fabric arranged by the tailor before cutting.</p>
                             <form class="fabric-form" method="post" action="/tailor/orders.php?order_id=<?= (int) $selectedOrder['order_id'] ?>&amp;view=<?= escape_tailor_order($view) ?>&amp;status=<?= escape_tailor_order($statusFilter) ?>" novalidate>
                                 <input type="hidden" name="csrf_token" value="<?= escape_tailor_order(csrf_token()) ?>">
                                 <input type="hidden" name="order_id" value="<?= (int) $selectedOrder['order_id'] ?>">
                                 <input type="hidden" name="action" value="save_fabric">
-                                <div class="order-form-field"><label for="source">Fabric supplied by</label><select id="source" name="source" required><option value="">Choose one</option><option value="customer"<?= $fabricFormSource === 'customer' ? ' selected' : '' ?>>Customer</option><option value="tailor"<?= $fabricFormSource === 'tailor' ? ' selected' : '' ?>>Tailor</option></select><?php if (isset($errors['source'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['source']) ?></p><?php endif; ?></div>
+                                <p class="order-detail-hint">For new orders, fabric is supplied by the tailor.</p>
                                 <div class="order-form-field"><label for="quantity">Quantity (metres)</label><input id="quantity" name="quantity" type="number" min="0.01" max="999.99" step="0.01" required value="<?= escape_tailor_order($formValues['quantity']) ?>" placeholder="e.g. 2.5"><?php if (isset($errors['quantity'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['quantity']) ?></p><?php endif; ?></div>
-                                <div class="order-form-field"><label for="received_at">Receipt date and time <span>(optional)</span></label><input id="received_at" name="received_at" type="datetime-local" value="<?= escape_tailor_order($formValues['received_at']) ?>"><?php if (isset($errors['received_at'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['received_at']) ?></p><?php endif; ?></div>
+                                <div class="order-form-field"><label for="received_at">Fabric arranged on (optional; blank means now)</label><input id="received_at" name="received_at" type="datetime-local" value="<?= escape_tailor_order($formValues['received_at']) ?>"><?php if (isset($errors['received_at'])): ?><p class="field-error" role="alert"><?= escape_tailor_order($errors['received_at']) ?></p><?php endif; ?></div>
                                 <button class="button order-action-button" type="submit">Save fabric record</button>
                             </form>
                         <?php endif; ?>
@@ -443,6 +453,9 @@ $fabricFormSource = $selectedOrder === null
                         <h3 id="order-summary-title">Order summary</h3>
                         <dl class="order-facts"><div><dt>Customer</dt><dd><?= escape_tailor_order($selectedOrder['customer_name']) ?></dd></div><div><dt>Service</dt><dd><?= escape_tailor_order($selectedOrder['garment_type']) ?></dd></div><div><dt>Quoted cost</dt><dd>PKR <?= escape_tailor_order(number_format((float) $selectedOrder['quoted_amount'], 2)) ?></dd></div><div><dt>Completion deadline</dt><dd><?= $selectedOrder['deadline'] === null ? 'Not set' : escape_tailor_order(date('M j, Y', strtotime($selectedOrder['deadline']))) ?></dd></div></dl>
                         <?php if ((int) $selectedOrder['has_measurement_permission'] === 1): ?><a class="order-detail-link" href="/tailor/measurements.php?order_id=<?= (int) $selectedOrder['order_id'] ?>">View order measurements <span aria-hidden="true">→</span></a><?php else: ?><p class="order-detail-hint">The customer has not shared this measurement profile with your shop.</p><?php endif; ?>
+                        <?php if ($selectedOrder['stitching_details']): ?><div class="order-customer-notes"><strong>Stitching requirements</strong><p><?= nl2br(escape_tailor_order($selectedOrder['stitching_details'])) ?></p></div><?php endif; ?>
+                        <?php if ($selectedOrder['fabric_type'] || $selectedOrder['fabric_color'] || $selectedOrder['fabric_preferences']): ?><div class="order-customer-notes"><strong>Fabric preferences</strong><p><?= escape_tailor_order($selectedOrder['fabric_type'] ?: 'Not specified') ?> · <?= escape_tailor_order($selectedOrder['fabric_color'] ?: 'Not specified') ?></p><p><?= nl2br(escape_tailor_order($selectedOrder['fabric_preferences'] ?: '')) ?></p></div><?php endif; ?>
+                        <?php if ($selectedOrder['reference_image_path']): ?><div class="order-customer-notes"><strong>Styling reference</strong><p><a href="/reference-image.php?request_id=<?= (int)$selectedOrder['request_id'] ?>" target="_blank" rel="noopener">View image</a></p></div><?php endif; ?>
                         <?php if (is_string($selectedOrder['customer_notes']) && trim($selectedOrder['customer_notes']) !== ''): ?><div class="order-customer-notes"><strong>Customer notes</strong><p><?= nl2br(escape_tailor_order($selectedOrder['customer_notes'])) ?></p></div><?php endif; ?>
                         <?php if ($selectedOrder['fit_rating'] !== null): ?><div class="order-customer-notes"><strong>Fit feedback · <?= (int) $selectedOrder['fit_rating'] ?>/5</strong><?php if (is_string($selectedOrder['fit_notes']) && trim($selectedOrder['fit_notes']) !== ''): ?><p><?= nl2br(escape_tailor_order($selectedOrder['fit_notes'])) ?></p><?php endif; ?></div><?php endif; ?>
                     </section>

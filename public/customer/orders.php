@@ -36,7 +36,7 @@ $ordersStatement = $connection->prepare(
     'SELECT o.order_id, o.status, o.confirmed_at, o.style_snapshot, '
     . 'q.amount AS quoted_amount, q.deadline AS quotation_deadline, '
     . 'p.shop_name, s.garment_type, s.avg_days, '
-    . 'r.customer_notes, r.fabric_source AS requested_fabric_source, '
+    . 'r.customer_notes, r.request_id, r.stitching_details, r.fabric_type, r.fabric_color, r.fabric_preferences, r.reference_image_path, r.fabric_source AS requested_fabric_source, '
     . 'mp.profile_name, mv.version_no, '
     . 'f.source AS fabric_record_source, f.quantity AS fabric_quantity, f.received_at AS fabric_received_at '
     . 'FROM orders AS o '
@@ -76,7 +76,7 @@ $historyByStatus = [];
 $currentStage = 0;
 $trackingStages = [
     'confirmed' => 'Confirmed',
-    'fabric' => 'Fabric received',
+    'fabric' => 'Fabric arranged',
     'cutting' => 'Cutting',
     'stitching' => 'Stitching',
     'ready' => 'Ready',
@@ -228,7 +228,7 @@ $customerSection = 'orders';
                                 <dl class="order-facts">
                                     <div><dt>Supplied by</dt><dd><?= escape_customer_order($fabricSource === 'customer' ? 'Customer' : 'Tailor') ?></dd></div>
                                     <div><dt>Quantity</dt><dd><?= $selectedOrder['fabric_quantity'] === null ? 'Not recorded' : escape_customer_order(number_format((float) $selectedOrder['fabric_quantity'], 2) . ' m') ?></dd></div>
-                                    <div><dt>Received</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['fabric_received_at'], 'M j, Y · g:i a')) ?></dd></div>
+                                    <div><dt>Arranged on</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['fabric_received_at'], 'M j, Y · g:i a')) ?></dd></div>
                                 </dl>
                             </section>
 
@@ -239,7 +239,7 @@ $customerSection = 'orders';
                                     <div><dt>Measurement</dt><dd><?= escape_customer_order($selectedOrder['profile_name']) ?> · v<?= (int) $selectedOrder['version_no'] ?></dd></div>
                                     <div><dt>Quoted price</dt><dd>PKR <?= escape_customer_order(number_format((float) $selectedOrder['quoted_amount'], 2)) ?></dd></div>
                                     <div><dt>Quotation deadline</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['quotation_deadline'])) ?></dd></div>
-                                    <div><dt>Estimated turnaround</dt><dd><?= (int) $selectedOrder['avg_days'] ?> <?= (int) $selectedOrder['avg_days'] === 1 ? 'day' : 'days' ?></dd></div>
+                                    <div><dt>Completion</dt><dd><?= escape_customer_order(customer_order_date($selectedOrder['quotation_deadline'])) ?></dd></div>
                                 </dl>
                             </section>
 
@@ -260,6 +260,9 @@ $customerSection = 'orders';
                             </section>
                         </div>
 
+                        <?php if ($selectedOrder['stitching_details']): ?><section class="order-information-card"><h3>Requested stitching</h3><p><?= nl2br(escape_customer_order($selectedOrder['stitching_details'])) ?></p></section><?php endif; ?>
+                        <?php if ($selectedOrder['fabric_type'] || $selectedOrder['fabric_color'] || $selectedOrder['fabric_preferences']): ?><section class="order-information-card"><h3>Fabric preferences</h3><p><?= escape_customer_order($selectedOrder['fabric_type'] ?: 'Not specified') ?> · <?= escape_customer_order($selectedOrder['fabric_color'] ?: 'Not specified') ?></p><p><?= nl2br(escape_customer_order($selectedOrder['fabric_preferences'] ?: '')) ?></p></section><?php endif; ?>
+                        <?php if ($selectedOrder['reference_image_path']): ?><section class="order-information-card"><h3>Styling reference</h3><a href="/reference-image.php?request_id=<?= (int)$selectedOrder['request_id'] ?>" target="_blank" rel="noopener">View uploaded image</a></section><?php endif; ?>
                         <?php if (is_string($selectedOrder['customer_notes']) && trim($selectedOrder['customer_notes']) !== ''): ?>
                             <section class="order-notes" aria-labelledby="order-notes-title">
                                 <h3 id="order-notes-title">Request notes</h3>

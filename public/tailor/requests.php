@@ -70,7 +70,8 @@ function owned_request(PDO $connection, int $requestId, int $tailorId): array|fa
 {
     $statement = $connection->prepare(
         'SELECT r.request_id, r.customer_id, r.profile_id, r.style_id, r.status, r.created_at, '
-        . 'r.fabric_source, r.customer_notes, '
+        . 'r.fabric_source, r.customer_notes, r.stitching_details, r.fabric_type, '
+        . 'r.fabric_color, r.fabric_preferences, r.reference_image_path, '
         . 'sp.name AS style_name, sp.preferences AS style_preferences, u.name AS customer_name, '
         . 's.garment_type, (SELECT mp.permission_id FROM measurement_permissions AS mp '
         . 'WHERE mp.profile_id = r.profile_id AND mp.tailor_id = r.tailor_id '
@@ -247,7 +248,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($selectedRequestId === null) {
     $statement = $connection->prepare(
         'SELECT r.request_id, r.profile_id, r.style_id, r.status, r.created_at, '
-        . 'r.fabric_source, r.customer_notes, '
+        . 'r.fabric_source, r.customer_notes, r.stitching_details, r.fabric_type, '
+        . 'r.fabric_color, r.fabric_preferences, r.reference_image_path, '
         . 'sp.name AS style_name, sp.preferences AS style_preferences, '
         . 'u.name AS customer_name, s.garment_type, '
         . '(SELECT mp.permission_id FROM measurement_permissions AS mp '
@@ -347,6 +349,15 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
                             <?php endif; ?>
                         <?php else: ?>
                             <p class="request-muted">The customer didn’t select a saved style profile.</p>
+                        <?php endif; ?>
+                        <?php if ($selectedRequest['stitching_details']): ?>
+                        <div class="request-fabric-note"><strong>Requested garments and styling</strong><p><?= nl2br(escape_request($selectedRequest['stitching_details'])) ?></p></div>
+                        <?php endif; ?>
+                        <div class="request-fabric-note"><strong>Preferred fabric</strong><p>Type: <?= escape_request($selectedRequest['fabric_type'] ?: 'Tailor to suggest') ?> · Colour: <?= escape_request($selectedRequest['fabric_color'] ?: 'Tailor to suggest') ?></p>
+                        <?php if ($selectedRequest['fabric_preferences']): ?><p><?= nl2br(escape_request($selectedRequest['fabric_preferences'])) ?></p><?php endif; ?></div>
+                        <?php if ($selectedRequest['reference_image_path']): ?>
+                        <div class="request-fabric-note"><strong>Styling reference</strong><p><a href="/reference-image.php?request_id=<?= (int)$selectedRequest['request_id'] ?>" target="_blank" rel="noopener">Open reference image</a></p>
+                        <img src="/reference-image.php?request_id=<?= (int)$selectedRequest['request_id'] ?>" alt="Customer's reference design" style="max-width:100%;max-height:360px;object-fit:contain;" loading="lazy"></div>
                         <?php endif; ?>
                         <div class="request-fabric-note"><strong>Fabric supply</strong><p><?= $selectedRequest['fabric_source'] === 'tailor' ? 'The tailor is asked to arrange fabric.' : 'The customer plans to provide fabric.' ?></p></div>
                         <?php if (is_string($selectedRequest['customer_notes']) && trim($selectedRequest['customer_notes']) !== ''): ?>

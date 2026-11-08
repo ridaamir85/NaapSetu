@@ -138,3 +138,13 @@ For local HTTP development, treat temporary passwords as test secrets only. Befo
 
 ## Per-item unread markers in work pages
 Each relevant customer, tailor, or admin work page displays **Unread updates** above its cards. Every item has its own View update action, using a CSRF-checked POST and a per-user row in notification_reads. The sidebar count drops one at a time; opening a page by itself does not clear notifications. Quotation and alteration cards also show individual New markers and Mark as read buttons. No additional migration is needed beyond 005. Updates appear on page reload (not via web push).
+
+## Tailoring specializations and reference images (migration 006)
+Existing Ubuntu installations: apply once after migration 005.
+
+```bash
+sudo mysql naapsetu < database/migrations/006_tailoring_specializations_and_request_details.sql
+sudo install -d -o www-data -g www-data -m 0750 /var/www/naapsetu/storage/request-images
+```
+
+Private styling photos are stored in `storage/request-images/` **outside** the Apache `public/` document root and accessed through an ownership-checked PHP image endpoint. Do not expose the storage directory using an Apache alias. Ensure PHP's upload limits allow 5 MB files. New customers specify men/women specialization, freely describe garments, choose preferred fabric type/colour/notes and optionally upload JPG/PNG/WebP reference photos. Tailor supplies fabric by default and records fabric quantity/date before moving a new confirmed order to cutting. Existing services/orders are retained. Tailors must save their specializations before appearing in new searches.
