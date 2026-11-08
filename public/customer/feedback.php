@@ -217,90 +217,94 @@ if ($orders !== []) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My feedback and alterations | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/customer.css">
+    <link rel="stylesheet" href="/assets/css/feedback.css">
 </head>
-<body>
-    <main>
-        <a href="/customer/dashboard.php">Back to dashboard</a>
-        <h1>My feedback and alterations</h1>
+<body class="customer-page feedback-page">
+    <a class="skip-link" href="#main">Skip to feedback and alterations</a>
+    <div class="customer-shell">
+        <?php $customerSection = 'feedback'; require dirname(__DIR__, 2) . '/includes/customer-navigation.php'; ?>
+        <main id="main" class="customer-main feedback-main">
+            <header class="feedback-heading">
+                <div><p class="eyebrow">After your fitting</p><h1>Feedback &amp; Alterations</h1><p>Tell your tailor how the fit feels or request a change to a delivered order.</p></div>
+            </header>
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_customer_feedback($successMessage) ?></p>
+            <p class="feedback-alert feedback-success" role="status"><?= escape_customer_feedback($successMessage) ?></p>
         <?php endif; ?>
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_customer_feedback($errors['form']) ?></p>
+            <p class="feedback-alert feedback-error" role="alert"><?= escape_customer_feedback($errors['form']) ?></p>
         <?php endif; ?>
 
         <?php if ($orders === []): ?>
-            <p>Delivered orders will appear here so you can share fit feedback or request an alteration.</p>
+            <section class="feedback-empty" aria-labelledby="feedback-empty-title">
+                <span class="feedback-empty-icon" aria-hidden="true">✦</span>
+                <h2 id="feedback-empty-title">Your delivered orders will appear here</h2>
+                <p>Once an order is marked delivered, you can rate the fit and request an alteration if something needs adjusting.</p>
+                <a class="outline-button" href="/customer/orders.php">View my orders <span aria-hidden="true">→</span></a>
+            </section>
         <?php else: ?>
+            <section class="feedback-order-list" aria-label="Delivered orders">
             <?php foreach ($orders as $order): ?>
-                <section>
-                    <h2>Order #<?= (int) $order['order_id'] ?> — <?= escape_customer_feedback($order['garment_type']) ?></h2>
-                    <p>Tailor: <?= escape_customer_feedback($order['shop_name']) ?></p>
-                    <p>Status: <?= escape_customer_feedback($order['status']) ?></p>
+                <article class="feedback-order-card">
+                    <header class="feedback-order-heading">
+                        <div class="feedback-order-icon" aria-hidden="true">□</div>
+                        <div><p class="feedback-eyebrow">Delivered order</p><h2>ORD-<?= str_pad((string) $order['order_id'], 4, '0', STR_PAD_LEFT) ?></h2><p><?= escape_customer_feedback($order['garment_type']) ?> <span aria-hidden="true">·</span> <?= escape_customer_feedback($order['shop_name']) ?></p></div>
+                        <span class="feedback-status">Delivered</span>
+                    </header>
 
-                    <h3>Fit feedback</h3>
-                    <?php if ($order['feedback_id'] !== null): ?>
-                        <p>Rating: <?= (int) $order['rating'] ?> out of 5</p>
-                        <?php if ($order['notes'] !== null && $order['notes'] !== ''): ?>
-                            <p><?= nl2br(escape_customer_feedback($order['notes']), false) ?></p>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <form method="post" action="/customer/feedback.php">
+                    <div class="feedback-order-panels">
+                        <section class="feedback-panel" aria-labelledby="fit-feedback-title-<?= (int) $order['order_id'] ?>">
+                            <div class="feedback-panel-heading"><span class="feedback-panel-icon" aria-hidden="true">★</span><div><p class="feedback-eyebrow">Your experience</p><h3 id="fit-feedback-title-<?= (int) $order['order_id'] ?>">Fit feedback</h3></div></div>
+                            <?php if ($order['feedback_id'] !== null): ?>
+                                <div class="saved-feedback-rating" role="img" aria-label="<?= (int) $order['rating'] ?> out of 5 stars"><span aria-hidden="true"><?php for ($star = 1; $star <= 5; $star++): ?><?= $star <= (int) $order['rating'] ? '★' : '☆' ?><?php endfor; ?></span><strong><?= (int) $order['rating'] ?>/5</strong></div>
+                                <?php if ($order['notes'] !== null && $order['notes'] !== ''): ?><p class="saved-feedback-notes"><?= nl2br(escape_customer_feedback($order['notes']), false) ?></p><?php else: ?><p class="feedback-muted">No written feedback was added.</p><?php endif; ?>
+                                <p class="feedback-complete-note"><span aria-hidden="true">✓</span> Feedback submitted</p>
+                            <?php else: ?>
+                                <form class="customer-feedback-form" method="post" action="/customer/feedback.php" novalidate>
                             <input type="hidden" name="csrf_token" value="<?= escape_customer_feedback(csrf_token()) ?>">
                             <input type="hidden" name="order_id" value="<?= (int) $order['order_id'] ?>">
                             <input type="hidden" name="action" value="save_feedback">
-                            <div>
-                                <label for="rating-<?= (int) $order['order_id'] ?>">Fit rating</label>
-                                <select id="rating-<?= (int) $order['order_id'] ?>" name="rating" required>
-                                    <option value="">Choose 1 to 5</option>
-                                    <?php for ($ratingOption = 1; $ratingOption <= 5; $ratingOption++): ?>
-                                        <option value="<?= $ratingOption ?>"<?= $formValues['rating'] === (string) $ratingOption ? ' selected' : '' ?>><?= $ratingOption ?></option>
-                                    <?php endfor; ?>
-                                </select>
-                                <?php if (isset($errors['rating'])): ?>
-                                    <p role="alert"><?= escape_customer_feedback($errors['rating']) ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <div>
-                                <label for="notes-<?= (int) $order['order_id'] ?>">Notes (optional)</label>
-                                <textarea id="notes-<?= (int) $order['order_id'] ?>" name="notes" maxlength="5000" rows="4"><?= escape_customer_feedback($formValues['notes']) ?></textarea>
-                                <?php if (isset($errors['notes'])): ?>
-                                    <p role="alert"><?= escape_customer_feedback($errors['notes']) ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <button type="submit">Submit fit feedback</button>
-                        </form>
-                    <?php endif; ?>
+                                    <fieldset class="fit-rating-fieldset">
+                                        <legend>How does the fit feel?</legend>
+                                        <div class="fit-rating-options">
+                                            <?php for ($ratingOption = 1; $ratingOption <= 5; $ratingOption++): ?>
+                                                <label class="fit-rating-option"><input type="radio" name="rating" value="<?= $ratingOption ?>"<?= $formValues['rating'] === (string) $ratingOption ? ' checked' : '' ?> required><span aria-hidden="true"><?php for ($star = 1; $star <= 5; $star++): ?><?= $star <= $ratingOption ? '★' : '☆' ?><?php endfor; ?></span><small><?= $ratingOption ?></small><span class="visually-hidden"><?= $ratingOption ?> out of 5 stars</span></label>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <?php if (isset($errors['rating'])): ?><p class="feedback-field-error" role="alert"><?= escape_customer_feedback($errors['rating']) ?></p><?php endif; ?>
+                                    </fieldset>
+                                    <div class="feedback-field"><label for="notes-<?= (int) $order['order_id'] ?>">Feedback notes <span>(optional)</span></label><textarea id="notes-<?= (int) $order['order_id'] ?>" name="notes" maxlength="5000" rows="3" placeholder="Share what fits well or what could be improved"><?= escape_customer_feedback($formValues['notes']) ?></textarea><?php if (isset($errors['notes'])): ?><p class="feedback-field-error" role="alert"><?= escape_customer_feedback($errors['notes']) ?></p><?php endif; ?></div>
+                                    <button class="button feedback-submit" type="submit">Submit fit feedback <span aria-hidden="true">→</span></button>
+                                </form>
+                            <?php endif; ?>
+                        </section>
 
-                    <h3>Alteration requests</h3>
-                    <?php if (($alterationsByOrder[$order['order_id']] ?? []) === []): ?>
-                        <p>No alteration requests yet.</p>
-                    <?php else: ?>
-                        <ul>
-                            <?php foreach ($alterationsByOrder[$order['order_id']] as $alteration): ?>
-                                <li>
-                                    <strong>Status: <?= escape_customer_feedback($alteration['status']) ?></strong>
-                                    — <?= nl2br(escape_customer_feedback($alteration['issue']), false) ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                    <form method="post" action="/customer/feedback.php">
+                        <section class="feedback-panel alteration-panel" aria-labelledby="alteration-title-<?= (int) $order['order_id'] ?>">
+                            <div class="feedback-panel-heading"><span class="feedback-panel-icon alteration-icon" aria-hidden="true">✂</span><div><p class="feedback-eyebrow">Need an adjustment?</p><h3 id="alteration-title-<?= (int) $order['order_id'] ?>">Alteration requests</h3></div></div>
+                            <?php if (($alterationsByOrder[$order['order_id']] ?? []) === []): ?>
+                                <p class="feedback-muted">No alterations have been requested for this order.</p>
+                            <?php else: ?>
+                                <div class="alteration-list">
+                                    <?php foreach ($alterationsByOrder[$order['order_id']] as $alteration): ?>
+                                        <article class="alteration-item"><span class="alteration-status status-<?= escape_customer_feedback($alteration['status']) ?>"><?= escape_customer_feedback(ucwords(str_replace('_', ' ', $alteration['status']))) ?></span><p><?= nl2br(escape_customer_feedback($alteration['issue']), false) ?></p></article>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <form class="customer-feedback-form alteration-form" method="post" action="/customer/feedback.php" novalidate>
                         <input type="hidden" name="csrf_token" value="<?= escape_customer_feedback(csrf_token()) ?>">
                         <input type="hidden" name="order_id" value="<?= (int) $order['order_id'] ?>">
                         <input type="hidden" name="action" value="create_alteration">
-                        <div>
-                            <label for="issue-<?= (int) $order['order_id'] ?>">Describe the alteration</label>
-                            <textarea id="issue-<?= (int) $order['order_id'] ?>" name="issue" maxlength="2000" rows="4" required><?= escape_customer_feedback($formValues['issue']) ?></textarea>
-                            <?php if (isset($errors['issue'])): ?>
-                                <p role="alert"><?= escape_customer_feedback($errors['issue']) ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <button type="submit">Request alteration</button>
-                    </form>
-                </section>
+                                <div class="feedback-field"><label for="issue-<?= (int) $order['order_id'] ?>">Describe the adjustment</label><textarea id="issue-<?= (int) $order['order_id'] ?>" name="issue" maxlength="2000" rows="3" required placeholder="Describe what you’d like the tailor to adjust"><?= escape_customer_feedback($formValues['issue']) ?></textarea><?php if (isset($errors['issue'])): ?><p class="feedback-field-error" role="alert"><?= escape_customer_feedback($errors['issue']) ?></p><?php endif; ?></div>
+                                <button class="button feedback-submit" type="submit">Request alteration <span aria-hidden="true">→</span></button>
+                            </form>
+                        </section>
+                    </div>
+                </article>
             <?php endforeach; ?>
+            </section>
         <?php endif; ?>
-    </main>
+        </main>
+    </div>
 </body>
 </html>
