@@ -116,73 +116,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Shop profile | NaapSetu</title>
+    <title><?= $profile === null ? 'Create shop profile' : 'Edit shop profile' ?> | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-profile.css">
 </head>
-<body>
-    <main>
-        <a href="dashboard.php">Back to dashboard</a>
-        <h1><?= $profile === null ? 'Create shop profile' : 'Edit shop profile' ?></h1>
-        <p>Your shop profile controls the details customers see and your active-order capacity.</p>
+<body class="tailor-profile-page">
+    <a class="skip-link" href="#main">Skip to shop profile</a>
+    <header class="profile-topbar">
+        <a class="profile-wordmark" href="/tailor/dashboard.php">NaapSetu</a>
+        <nav aria-label="Tailor navigation">
+            <a href="/tailor/dashboard.php">Dashboard</a>
+            <a href="/tailor/requests.php">Requests</a>
+            <a href="/tailor/orders.php">Orders</a>
+            <a href="/tailor/services.php">Services</a>
+            <a href="/tailor/profile.php" aria-current="page">Profile</a>
+        </nav>
+    </header>
+    <main id="main" class="profile-main">
+        <a class="profile-back" href="/tailor/dashboard.php"><span aria-hidden="true">←</span> Back to dashboard</a>
+        <header class="profile-heading">
+            <p class="profile-eyebrow">Your shop on NaapSetu</p>
+            <h1><?= $profile === null ? 'Create your shop profile' : 'Shop profile' ?></h1>
+            <p>Set the details customers see and the number of active orders your shop can handle.</p>
+        </header>
 
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_profile($successMessage) ?></p>
+            <p class="profile-message profile-success" role="status"><?= escape_profile($successMessage) ?></p>
         <?php endif; ?>
 
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_profile($errors['form']) ?></p>
+            <p class="profile-message profile-error" role="alert"><?= escape_profile($errors['form']) ?></p>
         <?php endif; ?>
 
-        <form method="post" action="profile.php" novalidate>
-            <input type="hidden" name="csrf_token" value="<?= escape_profile(csrf_token()) ?>">
+        <div class="profile-layout">
+            <section class="profile-form-card" aria-labelledby="profile-form-title">
+                <div class="profile-card-heading">
+                    <span class="profile-heading-icon" aria-hidden="true">✂</span>
+                    <div><h2 id="profile-form-title">Shop details</h2><p>Keep your public shop information up to date.</p></div>
+                </div>
+                <form method="post" action="/tailor/profile.php" class="shop-profile-form" novalidate>
+                    <input type="hidden" name="csrf_token" value="<?= escape_profile(csrf_token()) ?>">
 
-            <div>
-                <label for="shop_name">Shop name</label>
-                <input id="shop_name" name="shop_name" type="text" maxlength="120" required value="<?= escape_profile($values['shop_name']) ?>">
-                <?php if (isset($errors['shop_name'])): ?>
-                    <p role="alert"><?= escape_profile($errors['shop_name']) ?></p>
-                <?php endif; ?>
-            </div>
+                    <div class="profile-field profile-field-wide">
+                        <label for="shop_name">Shop name</label>
+                        <input id="shop_name" name="shop_name" type="text" maxlength="120" required value="<?= escape_profile($values['shop_name']) ?>" placeholder="e.g. Thread &amp; Needle Studio" autocomplete="organization">
+                        <?php if (isset($errors['shop_name'])): ?><p class="profile-field-error" role="alert"><?= escape_profile($errors['shop_name']) ?></p><?php endif; ?>
+                    </div>
 
-            <div>
-                <label for="city">City</label>
-                <select id="city" name="city" required>
-                    <option value="">Select a city</option>
-                    <?php foreach ($cities as $city): ?>
-                        <option value="<?= escape_profile($city) ?>"<?= $values['city'] === $city ? ' selected' : '' ?>>
-                            <?= escape_profile($city) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <?php if ($savedCity !== '' && $selectedCity === ''): ?>
-                    <p>Previously saved city: <?= escape_profile($savedCity) ?>. Select a supported city to save changes.</p>
-                <?php endif; ?>
-                <?php if (isset($errors['city'])): ?>
-                    <p role="alert"><?= escape_profile($errors['city']) ?></p>
-                <?php endif; ?>
-            </div>
+                    <div class="profile-field">
+                        <label for="city">City</label>
+                        <select id="city" name="city" required>
+                            <option value="">Select a city</option>
+                            <?php foreach ($cities as $city): ?>
+                                <option value="<?= escape_profile($city) ?>"<?= $values['city'] === $city ? ' selected' : '' ?>><?= escape_profile($city) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($savedCity !== '' && $selectedCity === ''): ?><p class="profile-field-hint">Previously saved city: <?= escape_profile($savedCity) ?>. Select a supported city to save changes.</p><?php endif; ?>
+                        <?php if (isset($errors['city'])): ?><p class="profile-field-error" role="alert"><?= escape_profile($errors['city']) ?></p><?php endif; ?>
+                    </div>
 
-            <div>
-                <label for="address">Shop address</label>
-                <textarea id="address" name="address" maxlength="255" required><?= escape_profile($values['address']) ?></textarea>
-                <?php if (isset($errors['address'])): ?>
-                    <p role="alert"><?= escape_profile($errors['address']) ?></p>
-                <?php endif; ?>
-            </div>
+                    <div class="profile-field profile-field-wide">
+                        <label for="address">Shop address</label>
+                        <textarea id="address" name="address" maxlength="255" rows="3" required placeholder="Street, area, and a nearby landmark"><?= escape_profile($values['address']) ?></textarea>
+                        <?php if (isset($errors['address'])): ?><p class="profile-field-error" role="alert"><?= escape_profile($errors['address']) ?></p><?php endif; ?>
+                    </div>
 
-            <div>
-                <label for="max_active_orders">Maximum active orders</label>
-                <input id="max_active_orders" name="max_active_orders" type="number" min="1" max="10" step="1" required value="<?= escape_profile($values['max_active_orders']) ?>">
-                <p>Choose how many confirmed, unfinished orders you can handle at once, from 1 to 10.</p>
-                <?php if ((int) ($profile['max_active_orders'] ?? 10) > 10): ?>
-                    <p>Your previous limit was <?= (int) $profile['max_active_orders'] ?>. Choose 10 or less to save changes.</p>
-                <?php endif; ?>
-                <?php if (isset($errors['max_active_orders'])): ?>
-                    <p role="alert"><?= escape_profile($errors['max_active_orders']) ?></p>
-                <?php endif; ?>
-            </div>
+                    <div class="profile-field profile-capacity-field">
+                        <label for="max_active_orders">Maximum active orders</label>
+                        <input id="max_active_orders" name="max_active_orders" type="number" min="1" max="10" step="1" required value="<?= escape_profile($values['max_active_orders']) ?>">
+                        <p class="profile-field-hint">Set how many confirmed, unfinished orders your shop can handle at once (1–10).</p>
+                        <?php if ((int) ($profile['max_active_orders'] ?? 10) > 10): ?><p class="profile-field-hint">Your previous limit was <?= (int) $profile['max_active_orders'] ?>. Choose 10 or less to save changes.</p><?php endif; ?>
+                        <?php if (isset($errors['max_active_orders'])): ?><p class="profile-field-error" role="alert"><?= escape_profile($errors['max_active_orders']) ?></p><?php endif; ?>
+                    </div>
 
-            <button type="submit"><?= $profile === null ? 'Create profile' : 'Save changes' ?></button>
-        </form>
+                    <div class="profile-form-actions"><button class="button" type="submit"><?= $profile === null ? 'Create shop profile' : 'Save profile changes' ?><span aria-hidden="true">→</span></button></div>
+                </form>
+            </section>
+
+            <aside class="profile-preview-card" aria-labelledby="profile-preview-title">
+                <p class="profile-eyebrow">Customer view</p>
+                <h2 id="profile-preview-title">Your shop at a glance</h2>
+                <div class="profile-preview-mark" aria-hidden="true">✂</div>
+                <p class="profile-preview-name"><?= $values['shop_name'] !== '' ? escape_profile($values['shop_name']) : 'Your shop name' ?></p>
+                <p class="profile-preview-city"><?= $values['city'] !== '' ? escape_profile($values['city']) : 'Choose your city' ?></p>
+                <p class="profile-preview-address"><?= $values['address'] !== '' ? escape_profile($values['address']) : 'Your shop address will appear here.' ?></p>
+                <div class="profile-capacity-note"><strong><?= escape_profile($values['max_active_orders']) ?></strong><span>active orders at a time</span></div>
+                <p class="profile-preview-hint">Your shop appears to customers when it has at least one service available.</p>
+            </aside>
+        </div>
     </main>
 </body>
 </html>
