@@ -141,9 +141,26 @@ The customer, tailor, and administrator interfaces share a consistent **Midnight
 
 ## Scope and future enhancements
 
-The current application covers the core academic project workflow: authentication, measurement management, tailor discovery, stitching requests, quotations, orders, fabric records, fit feedback, and alterations.
+The current application covers the semester MVP: authentication, measurement management, tailor discovery, stitching requests, quotations, order tracking, fabric records, fit feedback, and alterations. Payments are currently handled offline.
 
-Possible future enhancements include verified email-based account recovery and delivery/logistics integrations. These are **not presented as implemented features**.
+The following enhancements are planned for future versions, as outlined in the project PRD:
+
+- **Online and wallet payments** — support digital payments after quotation acceptance.
+- **Urdu and localization** — make the platform accessible in more languages.
+- **Notifications** — introduce email, SMS, and in-app updates.
+- **Verified tailor reviews** — add public ratings and verified customer reviews.
+- **More photo attachments** — extend the existing styling-reference upload to fabric handover and alteration documentation.
+- **Appointments and delivery services** — support fitting appointments and pickup or delivery coordination.
+- **Advanced scheduling** — introduce capacity calendars and demand forecasting.
+
+These are proposed enhancements, **not features claimed as implemented in the current MVP**.
+
+## Project team
+
+Developed as part of the **Web Technologies** course.
+
+- [Rida Amir](https://github.com/ridaamir85)
+- [Sana Saqib](https://github.com/sana-saqib)
 
 ---
 
