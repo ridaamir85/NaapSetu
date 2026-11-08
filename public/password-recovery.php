@@ -25,7 +25,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $connection = database();
             $statement = $connection->prepare(
                 'INSERT IGNORE INTO password_recovery_requests (user_id) '
-                . 'SELECT user_id FROM users WHERE email = :email AND is_active = 1 AND role IN ('customer','tailor')'
+                . "SELECT user_id FROM users WHERE email = :email AND is_active = 1 AND role IN (\'customer\',\'tailor\')"
             );
             $statement->execute(['email' => $email]);
             unset($_SESSION['csrf_token']);
