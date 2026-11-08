@@ -188,10 +188,12 @@ if ($selectedAlterationId === null) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Manage alterations | NaapSetu</title>
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
 </head>
 <body>
     <main>
-        <a href="/tailor/dashboard.php">Back to dashboard</a>
+        <a class="tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
         <h1>Manage alterations</h1>
         <?php if ($successMessage !== null): ?>
             <p role="status"><?= escape_tailor_alteration($successMessage) ?></p>

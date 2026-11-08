@@ -302,7 +302,7 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
     <?php $tailorSection = 'requests'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
     <main id="main" class="tailor-requests-main">
         <?php if ($selectedRequest !== null && $selectedRequest !== false): ?>
-            <a class="request-back-link" href="/tailor/requests.php"><span aria-hidden="true">←</span> All incoming requests</a>
+            <a class="request-back-link tailor-back-link" href="/tailor/requests.php">All incoming requests</a>
             <header class="request-page-heading">
                 <div><p class="requests-eyebrow">Review and respond</p><h1>Request detail &amp; quotation</h1><p>Check the customer’s requirements before preparing a price and completion date.</p></div>
                 <span class="request-state status-<?= escape_request((string) $selectedRequest['status']) ?>"><?= escape_request(ucwords(str_replace('_', ' ', (string) $selectedRequest['status']))) ?></span>
@@ -402,7 +402,7 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
                 </aside>
             </div>
         <?php else: ?>
-            <a class="request-back-link" href="/tailor/dashboard.php"><span aria-hidden="true">←</span> Back to dashboard</a>
+            <a class="request-back-link tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
             <header class="request-page-heading">
                 <div><p class="requests-eyebrow">Tailor workspace</p><h1>Incoming requests</h1><p>Review customer requirements and prepare your quotations.</p></div>
                 <span class="incoming-count"><?= count($requests) ?> awaiting response</span>
@@ -410,7 +410,7 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
             <?php if ($successMessage !== null): ?><p class="request-alert request-success" role="status"><?= escape_request($successMessage) ?></p><?php endif; ?>
             <?php if (isset($errors['form'])): ?><p class="request-alert request-error" role="alert"><?= escape_request($errors['form']) ?></p><?php endif; ?>
             <?php if ($requests === []): ?>
-                <section class="requests-empty" aria-labelledby="requests-empty-title"><span class="requests-empty-mark" aria-hidden="true">✓</span><h2 id="requests-empty-title">You’re all caught up</h2><p>No requests are currently awaiting a quotation or revision.</p><a class="button" href="/tailor/dashboard.php">Return to dashboard</a></section>
+                <section class="requests-empty" aria-labelledby="requests-empty-title"><span class="requests-empty-mark" aria-hidden="true">✓</span><h2 id="requests-empty-title">You’re all caught up</h2><p>No requests are currently awaiting a quotation or revision.</p><a class="tailor-return-link" href="/tailor/dashboard.php">Return to dashboard</a></section>
             <?php else: ?>
                 <section class="incoming-request-list" aria-label="Incoming requests">
                     <?php foreach ($requests as $request): ?>
