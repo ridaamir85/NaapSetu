@@ -191,31 +191,37 @@ if ($selectedAlterationId === null) {
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/usability.css">
+    <link rel="stylesheet" href="/assets/css/tailor-alterations.css">
 </head>
-<body>
-    <main>
-        <a class="tailor-back-link" href="/tailor/dashboard.php">Back to dashboard</a>
-        <h1>Manage alterations</h1>
+<body class="tailor-alterations-page">
+    <a class="skip-link" href="#main">Skip to alteration requests</a>
+    <div class="tailor-dashboard-shell">
+        <?php $tailorSection = 'alterations'; require dirname(__DIR__, 2) . '/includes/tailor-navigation.php'; ?>
+        <main id="main" class="tailor-alterations-main">
+            <?php if ($selectedAlterationId !== null): ?><a class="tailor-back-link" href="/tailor/alterations.php">All alteration requests</a><?php endif; ?>
+            <header class="alterations-heading"><div><p class="alterations-eyebrow">Customer care</p><h1>Manage alterations</h1><p>Review fit requests and keep customers updated as adjustments are completed.</p></div><span class="alteration-count"><?= count($alterations) ?> <?= count($alterations) === 1 ? 'request' : 'requests' ?></span></header>
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape_tailor_alteration($successMessage) ?></p>
+            <p class="alterations-alert alterations-success" role="status"><?= escape_tailor_alteration($successMessage) ?></p>
         <?php endif; ?>
         <?php if (isset($errors['form'])): ?>
-            <p role="alert"><?= escape_tailor_alteration($errors['form']) ?></p>
+            <p class="alterations-alert alterations-error" role="alert"><?= escape_tailor_alteration($errors['form']) ?></p>
         <?php endif; ?>
 
         <?php if ($alterations === []): ?>
-            <p>Your shop has no alteration requests yet. Customers can request adjustments after delivery.</p><a class="ui-secondary-action" href="/tailor/orders.php">View orders</a>
+            <section class="alterations-empty"><span aria-hidden="true">✓</span><h2>No alteration requests yet</h2><p>When a customer requests an adjustment for a delivered order, it will appear here.</p><a class="alterations-secondary-link" href="/tailor/orders.php">View orders <span aria-hidden="true">→</span></a></section>
         <?php else: ?>
+            <section class="alteration-list" aria-label="Customer alteration requests">
             <?php foreach ($alterations as $alteration): ?>
-                <section>
-                    <h2>Alteration #<?= (int) $alteration['alteration_id'] ?> — Order #<?= (int) $alteration['order_id'] ?></h2>
-                    <p>Customer: <?= escape_tailor_alteration($alteration['customer_name']) ?></p>
-                    <p>Garment: <?= escape_tailor_alteration($alteration['garment_type']) ?></p>
-                    <p>Issue: <?= nl2br(escape_tailor_alteration($alteration['issue']), false) ?></p>
-                    <p>Status: <?= escape_tailor_alteration($alteration['status']) ?></p>
+                <article class="alteration-card">
+                    <header class="alteration-card-heading">
+                        <div class="alteration-card-icon" aria-hidden="true">✂</div>
+                        <div><p class="alterations-eyebrow">Alteration #<?= (int) $alteration['alteration_id'] ?></p><h2><?= escape_tailor_alteration($alteration['customer_name']) ?></h2><p><?= escape_tailor_alteration($alteration['garment_type']) ?> <span aria-hidden="true">·</span> <a href="/tailor/orders.php?order_id=<?= (int) $alteration['order_id'] ?>">Order ORD-<?= str_pad((string) $alteration['order_id'], 4, '0', STR_PAD_LEFT) ?></a></p></div>
+                        <span class="alteration-status status-<?= escape_tailor_alteration($alteration['status']) ?>"><?= escape_tailor_alteration(ucwords(str_replace('_', ' ', $alteration['status']))) ?></span>
+                    </header>
+                    <div class="alteration-card-body"><h3>Requested adjustment</h3><p><?= nl2br(escape_tailor_alteration($alteration['issue']), false) ?></p></div>
 
                     <?php if ($alteration['status'] !== 'done'): ?>
-                        <form method="post" action="/tailor/alterations.php">
+                        <form class="alteration-update-form" method="post" action="/tailor/alterations.php">
                             <input type="hidden" name="csrf_token" value="<?= escape_tailor_alteration(csrf_token()) ?>">
                             <input type="hidden" name="alteration_id" value="<?= (int) $alteration['alteration_id'] ?>">
                             <label for="status-<?= (int) $alteration['alteration_id'] ?>">Update status</label>
@@ -230,13 +236,18 @@ if ($selectedAlterationId === null) {
                             <?php if (isset($errors['status'])): ?>
                                 <p role="alert"><?= escape_tailor_alteration($errors['status']) ?></p>
                             <?php endif; ?>
-                            <button type="submit">Save status</button>
+                            <p class="alteration-status-hint"><?php if ($alteration['status'] === 'open'): ?>Move to in progress when work begins.<?php else: ?>Mark done when the alteration is complete.<?php endif; ?></p>
+                            <button class="alteration-save-button" type="submit">Save status <span aria-hidden="true">→</span></button>
                         </form>
+                    <?php else: ?>
+                        <p class="alteration-complete-note"><span aria-hidden="true">✓</span> This alteration is complete.</p>
                     <?php endif; ?>
-                </section>
+                </article>
             <?php endforeach; ?>
+            </section>
         <?php endif; ?>
-    </main>
+        </main>
+    </div>
 <script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

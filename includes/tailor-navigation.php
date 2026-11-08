@@ -4,6 +4,7 @@ $tailorNavigation = [
     'dashboard' => ['Dashboard', '/tailor/dashboard.php', '⌂'],
     'requests' => ['Requests', '/tailor/requests.php', '▤'],
     'orders' => ['Orders', '/tailor/orders.php', '□'],
+    'alterations' => ['Alterations', '/tailor/alterations.php', '↻'],
     'services' => ['Services', '/tailor/services.php', '✂'],
     'profile' => ['Profile & services', '/tailor/profile.php', '◉'],
 ];

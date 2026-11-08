@@ -1,0 +1,30 @@
+.tailor-measurements-page { min-height:100vh; background:#f6f2e9; color:#1b2e3c; }
+.tailor-measurements-main { width:min(1080px,100%); min-width:0; margin-inline:auto; padding:1.35rem clamp(1rem,2.5vw,2.2rem) 2rem; }
+.measurements-page-heading { margin-bottom:1rem; }
+.measurements-page-heading h1 { margin:0 0 .4rem; color:#172f40; font:600 clamp(1.7rem,2.5vw,2.15rem)/1.2 Georgia,serif; }
+.measurements-page-heading > p:last-child { margin:0; color:#626d70; font-size:.84rem; }
+.measurements-eyebrow { margin:0 0 .25rem; color:#9a7131; font-size:.65rem; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
+.measurements-profile-card,.measurements-values-card { margin-bottom:.85rem; border:1px solid #e0dbd1; border-radius:12px; background:#fffdfa; box-shadow:0 3px 10px #182c4209; }
+.measurements-profile-card { padding:1rem; }
+.measurements-profile-heading { display:flex; align-items:center; gap:.7rem; padding-bottom:.8rem; border-bottom:1px solid #ebe6dd; }
+.measurements-profile-icon { display:grid; place-items:center; width:38px; height:38px; flex:0 0 38px; border-radius:10px; background:#f3ead7; color:#936c2c; font-size:1.2rem; }
+.measurements-profile-heading h2 { margin:0; color:#183344; font:600 1.15rem/1.25 Georgia,serif; }
+.measurement-version-badge { margin-left:auto; padding:.32rem .6rem; border-radius:99px; background:#f3ead7; color:#765a2d; font-size:.68rem; font-weight:700; white-space:nowrap; }
+.measurements-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.7rem; margin:0; padding-top:.8rem; }
+.measurements-summary > div { min-width:0; padding:.6rem .65rem; border-radius:7px; background:#f8f6f1; }
+.measurements-summary dt { margin-bottom:.2rem; color:#737a7b; font-size:.65rem; }
+.measurements-summary dd { margin:0; color:#293f4a; font-size:.76rem; font-weight:650; overflow-wrap:anywhere; }
+.measurements-values-card { overflow:hidden; }
+.measurements-values-card > header { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.9rem 1rem; border-bottom:1px solid #ebe6dd; }
+.measurements-values-card > header h2 { margin:0; color:#183344; font:600 1.1rem/1.2 Georgia,serif; }
+.measurements-unit { color:#767e7e; font-size:.68rem; }
+.measurements-value-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; padding:1rem; margin:0; }
+.measurements-value-grid > div { display:flex; align-items:center; justify-content:space-between; gap:.6rem; min-width:0; padding:.75rem; border:1px solid #ebe6dd; border-radius:8px; background:#fff; }
+.measurements-value-grid dt { color:#59666a; font-size:.77rem; font-weight:650; }
+.measurements-value-grid dd { margin:0; color:#183344; font:600 1rem Georgia,serif; white-space:nowrap; }
+.measurements-value-grid dd span { margin-left:.22rem; color:#818786; font:500 .65rem system-ui,sans-serif; }
+.measurements-empty { margin:1rem; padding:.9rem; border:1px dashed #d7cfbf; border-radius:8px; background:#fcfaf6; color:#6d7677; font-size:.8rem; }
+.measurements-permission-note { display:flex; align-items:center; gap:.5rem; margin:0; color:#58705e; font-size:.72rem; }
+.measurements-permission-note span { display:grid; place-items:center; width:22px; height:22px; flex:0 0 22px; border-radius:50%; background:#e8f1e8; color:#356246; font-weight:800; }
+@media(max-width:760px) { .measurements-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } .measurements-value-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:450px) { .tailor-measurements-main { padding-inline:.8rem; } .measurements-profile-heading { flex-wrap:wrap; } .measurement-version-badge { margin-left:0; } .measurements-value-grid { grid-template-columns:1fr; padding:.7rem; } .measurements-values-card > header { padding:.75rem; } }
