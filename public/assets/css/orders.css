@@ -74,7 +74,7 @@
 .order-progress li.is-done::before { background:#b18a4a; }
 .order-progress .progress-marker { width:30px; height:30px; border-width:2px; font-size:.8rem; }
 .order-progress .is-done .progress-marker { border-color:#967035; background:#b18a4a; }
-.order-progress .is-current .progress-marker { border-color:#b18a4a; background:#182c42; box-shadow:inset 0 0 0 7px #182c42,0 0 0 4px #e5cb94; }
+.order-progress .is-current .progress-marker { border-color:#a87b31; background:#fffdfa; box-shadow:inset 0 0 0 7px #b18a4a,0 0 0 4px #ead5a7; }
 .order-progress .progress-label { font-size:.75rem; color:#566471; }
 .order-progress .is-current .progress-label { color:#142536; font-weight:750; }
 .order-progress .progress-date { font-size:.7rem; color:#58636a; }

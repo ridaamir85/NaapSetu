@@ -47,7 +47,7 @@
 .order-tracker li.is-current::before { background:#b18a4a; }
 .order-tracker .tracker-dot { width:30px; height:30px; border-width:2px; font-size:.88rem; box-shadow:0 0 0 3px #f6ecda; }
 .order-tracker li.is-done .tracker-dot { background:#b18a4a; color:#fff; border-color:#9b7334; }
-.order-tracker li.is-current .tracker-dot { background:#182c42; border-color:#b18a4a; box-shadow:inset 0 0 0 6px #182c42,0 0 0 4px #dbc08c; }
+.order-tracker li.is-current .tracker-dot { background:#fffdfa; border-color:#a87b31; box-shadow:inset 0 0 0 7px #b18a4a,0 0 0 4px #ead5a7; }
 .order-tracker li.is-current { color:#142536; font-weight:750; }
 .customer-page .button { color:#142536; }
 @media (prefers-reduced-motion:no-preference) {
