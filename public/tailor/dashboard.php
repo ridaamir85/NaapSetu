@@ -90,6 +90,7 @@ $customerSection = 'home';
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="tailor-dashboard-page">
     <a class="skip-link" href="#main">Skip to dashboard</a>
@@ -163,5 +164,6 @@ $customerSection = 'home';
             </section>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

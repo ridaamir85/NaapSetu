@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Sign in | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/account.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="auth-page">
     <a class="skip-link" href="#main">Skip to form</a>
@@ -112,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
+            <p class="auth-help"><a href="/password-recovery.php">Forgot password?</a></p>
             <button type="submit">Log in</button>
         </form>
 
@@ -119,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
     </div>
     <script src="/assets/js/account.js" defer></script>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>
 

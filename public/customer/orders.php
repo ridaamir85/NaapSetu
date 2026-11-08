@@ -128,6 +128,7 @@ $customerSection = 'orders';
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/orders.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page orders-page">
     <a class="skip-link" href="#main">Skip to orders</a>
@@ -268,5 +269,6 @@ $customerSection = 'orders';
             <?php endif; ?>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

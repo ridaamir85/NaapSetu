@@ -20,7 +20,8 @@ $values = [
     'role' => ($_GET['role'] ?? '') === 'tailor' ? 'tailor' : 'customer',
 ];
 $errors = [];
-$successMessage = null;
+$successMessage = $_SESSION['registration_success'] ?? null;
+unset($_SESSION['registration_success']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = validate_registration($_POST);
@@ -63,6 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $successMessage = 'Registration successful. You can now sign in.';
                 $values = ['name' => '', 'email' => '', 'phone' => '', 'role' => 'customer'];
                 unset($_SESSION['csrf_token']);
+                $_SESSION['registration_success'] = $successMessage;
+                header('Location: /register.php?created=1', true, 303);
+                exit;
             }
         } catch (PDOException $exception) {
             error_log($exception->getMessage());
@@ -84,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Register | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/account.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="auth-page register-page">
     <a class="skip-link" href="#main">Skip to form</a>
@@ -91,15 +96,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php require dirname(__DIR__) . '/includes/account-aside.php'; ?>
     <main id="main" class="auth-main">
         <header>
-            <h1>Create your NaapSetu account</h1>
-            <p>Join as a customer to get custom stitching, or as a tailor<br>to receive stitching requests.</p>
+            <h1><?= $successMessage !== null ? 'Account created' : 'Create your NaapSetu account' ?></h1>
+            <p><?= $successMessage !== null ? 'You’re ready to log in and start using NaapSetu.' : 'Join as a customer to get custom stitching, or as a tailor to receive stitching requests.' ?></p>
         </header>
 
         <?php if ($successMessage !== null): ?>
-            <p role="status"><?= escape($successMessage) ?></p>
-            <p><a href="login.php">Go to sign in</a></p>
+            <section class="auth-success" aria-label="Account created"><p role="status"><?= escape($successMessage) ?></p><a class="ui-primary-action" href="/login.php">Log in to your account →</a><a href="/">Back to homepage</a></section>
         <?php endif; ?>
 
+        <?php if ($successMessage === null): ?>
         <?php if (isset($errors['form'])): ?>
             <p role="alert"><?= escape($errors['form']) ?></p>
         <?php endif; ?>
@@ -213,9 +218,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit">Create account</button>
         </form>
         <p class="account-switch">Already have an account? <a href="/login.php">Log in</a></p>
+        <?php endif; ?>
     </main>
     </div>
     <script src="/assets/js/account.js" defer></script>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>
 

@@ -270,6 +270,7 @@ unset($request);
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/requests.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page requests-page">
     <a class="skip-link" href="#main">Skip to requests</a>
@@ -345,5 +346,6 @@ unset($request);
         <?php endif; ?>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

@@ -190,6 +190,7 @@ if ($selectedAlterationId === null) {
     <title>Manage alterations | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body>
     <main>
@@ -203,7 +204,7 @@ if ($selectedAlterationId === null) {
         <?php endif; ?>
 
         <?php if ($alterations === []): ?>
-            <p>Your shop has no alteration requests yet.</p>
+            <p>Your shop has no alteration requests yet. Customers can request adjustments after delivery.</p><a class="ui-secondary-action" href="/tailor/orders.php">View orders</a>
         <?php else: ?>
             <?php foreach ($alterations as $alteration): ?>
                 <section>
@@ -236,5 +237,6 @@ if ($selectedAlterationId === null) {
             <?php endforeach; ?>
         <?php endif; ?>
     </main>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

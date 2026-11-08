@@ -70,3 +70,16 @@ The current schema has no separate service publication flag. Services in `tailor
 5. Sign in as the demo customer and confirm the order status history is visible in **My orders**.
 
 The seed script never marks the demo quotation as accepted or creates an order. After the customer accepts the quote, later runs preserve the resulting order and workflow status.
+
+## Password recovery in the local project
+
+The login page links to administrator-assisted recovery guidance. Email reset links are not implemented in this version. The project owner must verify the requester before resetting an account.
+
+In the Ubuntu project terminal, run:
+
+```bash
+cd /var/www/naapsetu
+php database/reset_password.php
+```
+
+Enter the registered email, then enter and confirm a new password. Password input is hidden. The command updates only that account's password hash; it preserves the role, activation status, profiles and orders. It does not create accounts, send email or terminate existing sessions. The tool requires an interactive Linux terminal and the local database configuration. Never place credentials or reset passwords in Git commits.

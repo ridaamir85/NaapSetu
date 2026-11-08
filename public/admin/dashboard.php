@@ -119,6 +119,7 @@ $title = $titles[$view];
     <title><?= escape_admin_dashboard($title) ?> | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="admin-page">
     <a class="skip-link" href="#main">Skip to admin content</a>
@@ -170,5 +171,6 @@ $title = $titles[$view];
             <p class="admin-access-note">Account activation and deactivation controls are available in <a href="/admin/users.php">Manage account access</a>.</p>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

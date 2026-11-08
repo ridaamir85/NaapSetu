@@ -269,6 +269,7 @@ $pageTitle = 'New stitching request';
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/request.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page request-page">
     <div class="customer-shell">
@@ -451,5 +452,6 @@ $pageTitle = 'New stitching request';
         </main>
     </div>
     <script src="/assets/js/request.js" defer></script>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

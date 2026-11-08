@@ -108,6 +108,7 @@ $accounts = $statement->fetchAll();
     <title>Manage accounts | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="admin-page">
     <a class="skip-link" href="#main">Skip to account list</a>
@@ -157,5 +158,6 @@ $accounts = $statement->fetchAll();
             </section>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

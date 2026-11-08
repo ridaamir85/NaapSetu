@@ -69,6 +69,7 @@ $versionDate = $rows[0]['created_at'] === null ? null : (string) $rows[0]['creat
     <title>Shared measurements | NaapSetu</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body>
     <main>
@@ -95,5 +96,6 @@ $versionDate = $rows[0]['created_at'] === null ? null : (string) $rows[0]['creat
             <?php endif; ?>
         <?php endif; ?>
     </main>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

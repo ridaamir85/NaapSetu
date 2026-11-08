@@ -106,6 +106,7 @@ $showStyleForm = $errors !== [] || isset($_GET['new']);
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page styles-page">
     <a class="skip-link" href="#main">Skip to style profiles</a>
@@ -207,5 +208,6 @@ $showStyleForm = $errors !== [] || isset($_GET['new']);
             </section>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

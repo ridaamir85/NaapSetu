@@ -3,7 +3,8 @@ function dashboard_escape(string $text): string { return htmlspecialchars($text,
 $customerSection = 'home';
 ?>
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Customer dashboard | NaapSetu</title><link rel="stylesheet" href="/assets/css/site.css"><link rel="stylesheet" href="/assets/css/customer.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Customer dashboard | NaapSetu</title><link rel="stylesheet" href="/assets/css/site.css"><link rel="stylesheet" href="/assets/css/customer.css">    <link rel="stylesheet" href="/assets/css/usability.css">
+</head>
 <body class="customer-page"><a class="skip-link" href="#main">Skip to dashboard</a><div class="customer-shell">
 <?php require __DIR__ . '/customer-navigation.php'; ?>
 <main id="main" class="customer-main">
@@ -30,4 +31,5 @@ $current = $stage !== 'fabric' && $i === $currentPosition;
 <?php $i++; endforeach; ?>
 </ol><a class="outline-button" href="/customer/orders.php">View orders</a></article>
 <?php endforeach; endif; ?>
-</section></main></div></body></html>
+</section></main></div><script src="/assets/js/usability.js" defer></script>
+</body></html>

@@ -336,6 +336,7 @@ $fabricFormSource = $selectedOrder === null
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-orders.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="tailor-orders-page">
     <a class="skip-link" href="#main">Skip to orders</a>
@@ -372,7 +373,7 @@ $fabricFormSource = $selectedOrder === null
             </form>
 
             <?php if ($orders === []): ?>
-                <div class="orders-empty"><span aria-hidden="true">□</span><h2>No orders in this view</h2><p>Accepted customer quotations will appear here, with fabric tracking and progress controls.</p></div>
+                <div class="orders-empty"><span aria-hidden="true">□</span><h2>No orders in this view</h2><p>Accepted customer quotations will appear here, with fabric tracking and progress controls.</p><a class="ui-secondary-action" href="/tailor/requests.php">View incoming requests</a></div>
             <?php else: ?>
                 <div class="orders-table-wrap">
                     <table class="tailor-orders-table">
@@ -462,5 +463,6 @@ $fabricFormSource = $selectedOrder === null
         <?php endif; ?>
     </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

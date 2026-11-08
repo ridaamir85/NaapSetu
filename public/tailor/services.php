@@ -165,6 +165,7 @@ $services = $servicesStatement->fetchAll();
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-services.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="tailor-services-page">
     <a class="skip-link" href="#main">Skip to services</a>
@@ -299,5 +300,6 @@ $services = $servicesStatement->fetchAll();
     </main>
     </div>
     <script src="/assets/js/service-garments.js" defer></script>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

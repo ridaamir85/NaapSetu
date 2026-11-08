@@ -120,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-profile.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="tailor-profile-page">
     <a class="skip-link" href="#main">Skip to shop profile</a>
@@ -198,5 +199,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ declare(strict_types=1);
     <title>NaapSetu — Custom stitching. Made simple.</title>
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/home.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="home-page">
     <a class="skip-link" href="#main">Skip to content</a>
@@ -62,5 +63,6 @@ declare(strict_types=1);
         </section>
     </main>
     <footer class="site-footer"><div class="container footer-content"><a class="wordmark" href="/">NaapSetu</a><nav aria-label="Footer"><a href="#how-it-works">About</a><a href="/register.php">For customers</a><a href="/register.php?role=tailor">For tailors</a></nav><p>Custom stitching, made simple.</p></div></footer>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

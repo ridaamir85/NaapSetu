@@ -1,5 +1,6 @@
 <?php $customerSection = 'measurements'; ?>
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Measurement Passport | NaapSetu</title><link rel="stylesheet" href="/assets/css/site.css"><link rel="stylesheet" href="/assets/css/customer.css"><link rel="stylesheet" href="/assets/css/measurements.css"></head>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Measurement Passport | NaapSetu</title><link rel="stylesheet" href="/assets/css/site.css"><link rel="stylesheet" href="/assets/css/customer.css"><link rel="stylesheet" href="/assets/css/measurements.css">    <link rel="stylesheet" href="/assets/css/usability.css">
+</head>
 <body class="customer-page"><a class="skip-link" href="#main">Skip to measurements</a><div class="customer-shell">
 <?php require __DIR__.'/customer-navigation.php'; ?>
 <main id="main" class="customer-main passport-main">
@@ -38,4 +39,5 @@
 <aside class="passport-panel sharing-panel"><h2><?= customer_icon('permissions') ?>Sharing permissions</h2><p>Control which tailors can view this profile.</p>
 <?php if($isCreating): ?><p class="panel-note">Save the profile first to manage sharing.</p><?php elseif($permissions === []): ?><p class="panel-note">Not shared with any tailor.</p><?php else: ?><ul><?php foreach($permissions as $permission): ?><li><span class="shared-check" aria-hidden="true">✓</span><?= escape_measurement($permission['shop_name']) ?></li><?php endforeach; ?></ul><?php endif; ?>
 <a class="outline-button" href="/customer/permissions.php">Manage sharing</a><p class="panel-note">Access stays active while an order using this profile is unfinished.</p></aside>
-</div></main></div><script src="/assets/js/measurements.js" defer></script></body></html>
+</div></main></div><script src="/assets/js/measurements.js" defer></script><script src="/assets/js/usability.js" defer></script>
+</body></html>

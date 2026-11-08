@@ -220,6 +220,7 @@ if ($orders !== []) {
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/feedback.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page feedback-page">
     <a class="skip-link" href="#main">Skip to feedback and alterations</a>
@@ -306,5 +307,6 @@ if ($orders !== []) {
         <?php endif; ?>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

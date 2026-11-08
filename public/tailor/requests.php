@@ -295,6 +295,7 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/tailor-navigation.css">
     <link rel="stylesheet" href="/assets/css/tailor-requests.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="tailor-requests-page">
     <a class="skip-link" href="#main">Skip to requests</a>
@@ -409,7 +410,7 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
             <?php if ($successMessage !== null): ?><p class="request-alert request-success" role="status"><?= escape_request($successMessage) ?></p><?php endif; ?>
             <?php if (isset($errors['form'])): ?><p class="request-alert request-error" role="alert"><?= escape_request($errors['form']) ?></p><?php endif; ?>
             <?php if ($requests === []): ?>
-                <section class="requests-empty" aria-labelledby="requests-empty-title"><span class="requests-empty-mark" aria-hidden="true">✓</span><h2 id="requests-empty-title">You’re all caught up</h2><p>No requests are currently awaiting a quotation or revision.</p><a class="tailor-return-link" href="/tailor/dashboard.php">Return to dashboard</a></section>
+                <section class="requests-empty" aria-labelledby="requests-empty-title"><span class="requests-empty-mark" aria-hidden="true">✓</span><h2 id="requests-empty-title">You’re all caught up</h2><p>No requests are currently awaiting a quotation or revision.</p><a class="tailor-return-link ui-secondary-action" href="/tailor/dashboard.php">Return to dashboard</a></section>
             <?php else: ?>
                 <section class="incoming-request-list" aria-label="Incoming requests">
                     <?php foreach ($requests as $request): ?>
@@ -428,5 +429,6 @@ if ($selectedRequest !== null && $selectedRequest !== false && $selectedRequest[
         <?php endif; ?>
     </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>

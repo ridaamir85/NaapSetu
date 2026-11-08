@@ -229,6 +229,7 @@ $activePermissions = $activeStatement->fetchAll();
     <link rel="stylesheet" href="/assets/css/site.css">
     <link rel="stylesheet" href="/assets/css/customer.css">
     <link rel="stylesheet" href="/assets/css/permissions.css">
+    <link rel="stylesheet" href="/assets/css/usability.css">
 </head>
 <body class="customer-page permissions-page">
     <a class="skip-link" href="#main">Skip to sharing permissions</a>
@@ -315,5 +316,6 @@ $activePermissions = $activeStatement->fetchAll();
             </div>
         </main>
     </div>
+<script src="/assets/js/usability.js" defer></script>
 </body>
 </html>
